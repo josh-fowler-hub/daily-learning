@@ -1,0 +1,23 @@
+project:
+  type: website
+  output-dir: docs
+
+website:
+  title: "Daily Learning"
+  site-url: https://josh-fowler-hub.github.io/daily-learning/
+  navbar:
+    left:
+      - href: index.qmd
+        text: Practice Home
+      - href: https://josh-fowler-hub.github.io/
+        text: Portfolio
+  search: true
+
+format:
+  html:
+    theme: cosmo
+    toc: true
+    code-fold: true
+
+execute:
+  enabled: false

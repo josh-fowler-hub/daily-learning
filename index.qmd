@@ -1,0 +1,38 @@
+---
+title: "Daily Learning & Refreshers"
+listing:
+  contents: "*.ipynb"
+  type: table
+  fields: [title, date, categories]
+  sort: "date desc"
+  categories: true
+  filter-ui: true
+---
+
+A collection of focused technical notebooks that revisit advanced concepts, connect theory with implementation, and provide worked examples for others to follow.
+This project is a way to keep my knowledge sharp, explore questions in greater depth, and share the reasoning behind the results. The notebooks emphasize computational fluid dynamics, numerical methods, and scientific computing.
+
+## What you'll find
+
+Each entry explores a specific question or method through a combination of mathematical development, Python implementation, and interpretation. Depending on the topic, that may include:
+
+- Derivations of governing equations and numerical schemes.
+- Experiments with accuracy, stability, and convergence.
+- Comparisons with analytical solutions or established benchmarks.
+- Discussion of assumptions, limitations, and common pitfalls.
+
+The goal is to make the reasoning clear enough that you can follow it, reproduce the results, and extend the example yourself.
+
+## Who these notebooks are for
+
+These are refreshers and deeper explorations rather than introductory lessons. They generally assume familiarity with calculus, differential equations, basic numerical methods, and Python. Each notebook identifies any additional prerequisites.
+You can browse by topic or follow the entries chronologically. Most are intended to stand on their own; related entries link to one another when additional context helps.
+
+## Explore the collection
+
+[Browse the notebooks](#practice-index) · [Visit my portfolio](https://josh-fowler-hub.github.io/) · [View the source on GitHub](https://github.com/josh-fowler-hub/daily-learning)
+
+## Practice Index
+
+::: {#listing}
+:::
