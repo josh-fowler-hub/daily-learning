@@ -1,12 +1,15 @@
 ---
 title: "Daily Learning & Refreshers"
 listing:
+  id: practice-index
   contents: "*.ipynb"
   type: table
   fields: [title, date, categories]
   sort: "date desc"
   categories: true
   filter-ui: true
+  exclude:
+    filename: "problem-template.ipynb"
 ---
 
 A collection of focused technical notebooks that revisit advanced concepts, connect theory with implementation, and provide worked examples for others to follow.
@@ -34,5 +37,5 @@ You can browse by topic or follow the entries chronologically. Most are intended
 
 ## Practice Index
 
-::: {#listing}
+::: {#practice-index}
 :::

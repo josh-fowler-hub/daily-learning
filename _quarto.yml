@@ -3,7 +3,7 @@ project:
   output-dir: docs
 
 website:
-  title: "Daily Learning"
+  title: "Daily Learning & Refreshers"
   site-url: https://josh-fowler-hub.github.io/daily-learning/
   navbar:
     left:
@@ -11,13 +11,27 @@ website:
         text: Practice Home
       - href: https://josh-fowler-hub.github.io/
         text: Portfolio
+    right:
+      - icon: github
+        href: https://github.com/josh-fowler-hub/daily-learning
+        aria-label: GitHub repository
   search: true
+  page-footer:
+    left: "Josh Fowler · Computational Engineering"
+    right:
+      - text: Portfolio
+        href: https://josh-fowler-hub.github.io/
 
 format:
   html:
-    theme: cosmo
+    theme:
+      - darkly
+      - titan.scss
     toc: true
     code-fold: true
+    code-tools: true
+    highlight-style: github-dark
+    title-block-banner: true
 
 execute:
   enabled: false

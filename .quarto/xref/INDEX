@@ -1,0 +1,17 @@
+{
+  "index.qmd": {
+    "index.html": "92800a55"
+  },
+  "20260929-verify-heat-conduction.ipynb": {
+    "20260929-verify-heat-conduction.html": "f465d81c"
+  },
+  "20260930-solver-error.ipynb": {
+    "20260930-solver-error.html": "94cda989"
+  },
+  "20261001-estimate-mesh-error.ipynb": {
+    "20261001-estimate-mesh-error.html": "7f573d3c"
+  },
+  "problem-template.ipynb": {
+    "problem-template.html": "b1ce458e"
+  }
+}
