@@ -225,7 +225,7 @@ window.Quarto = {
   <li><a href="#estimate-mesh-error-before-using-a-result" id="toc-estimate-mesh-error-before-using-a-result" class="nav-link active" data-scroll-target="#estimate-mesh-error-before-using-a-result">Estimate mesh error before using a result</a>
   <ul class="collapse">
   <li><a href="#richardson-extrapolation-and-the-grid-convergence-index" id="toc-richardson-extrapolation-and-the-grid-convergence-index" class="nav-link" data-scroll-target="#richardson-extrapolation-and-the-grid-convergence-index">Richardson extrapolation and the grid convergence index</a></li>
-  <li><a href="#governing-model-and-reference-solution" id="toc-governing-model-and-reference-solution" class="nav-link" data-scroll-target="#governing-model-and-reference-solution">1. Governing model and reference solution</a>
+  <li><a href="#governing-equation-and-reference-solution" id="toc-governing-equation-and-reference-solution" class="nav-link" data-scroll-target="#governing-equation-and-reference-solution">1. Governing equation and reference solution</a>
   <ul class="collapse">
   <li><a href="#worked-source-and-flux-balance" id="toc-worked-source-and-flux-balance" class="nav-link" data-scroll-target="#worked-source-and-flux-balance">Worked source and flux balance</a></li>
   </ul></li>
@@ -266,8 +266,8 @@ window.Quarto = {
 <p><strong>Time:</strong> 40 minutes of practice and 25 minutes of reading. Run cells from top to bottom with NumPy, Matplotlib, and IPython.</p>
 <p><strong>Notation:</strong> <span class="math inline">\(T_N\)</span> is the numerical temperature field on an <span class="math inline">\(N\)</span>-interval mesh. <span class="math inline">\(f_N=T_N(L/2)-300\,\mathrm{K}\)</span> is the computed centerline temperature rise; the exact rise is 10 K. Keep signed mesh differences for extrapolation and use absolute values for error magnitudes.</p>
 </section>
-<section id="governing-model-and-reference-solution" class="level2">
-<h2 class="anchored" data-anchor-id="governing-model-and-reference-solution">1. Governing model and reference solution</h2>
+<section id="governing-equation-and-reference-solution" class="level2">
+<h2 class="anchored" data-anchor-id="governing-equation-and-reference-solution">1. Governing equation and reference solution</h2>
 <p><strong>Educational steady slab:</strong></p>
 <p><span class="math display">\[L=0.10\,\mathrm{m},\qquad k=10\,\mathrm{W\,m^{-1}\,K^{-1}},\qquad T(0)=T(L)=300\,\mathrm{K}.\]</span></p>
 <p>There is no advection or radiation. Solve</p>

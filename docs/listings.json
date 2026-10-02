@@ -2,6 +2,7 @@
   {
     "listing": "/index.html",
     "items": [
+      "/20261002-heat-balance-uncertainty.html",
       "/20261001-estimate-mesh-error.html",
       "/20260930-solver-error.html",
       "/20260929-verify-heat-conduction.html"
