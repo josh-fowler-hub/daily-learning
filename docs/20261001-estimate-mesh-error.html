@@ -225,16 +225,24 @@ window.Quarto = {
   <li><a href="#estimate-mesh-error-before-using-a-result" id="toc-estimate-mesh-error-before-using-a-result" class="nav-link active" data-scroll-target="#estimate-mesh-error-before-using-a-result">Estimate mesh error before using a result</a>
   <ul class="collapse">
   <li><a href="#richardson-extrapolation-and-the-grid-convergence-index" id="toc-richardson-extrapolation-and-the-grid-convergence-index" class="nav-link" data-scroll-target="#richardson-extrapolation-and-the-grid-convergence-index">Richardson extrapolation and the grid convergence index</a></li>
-  <li><a href="#governing-model-and-reference-solution" id="toc-governing-model-and-reference-solution" class="nav-link" data-scroll-target="#governing-model-and-reference-solution">1. Governing model and reference solution</a></li>
-  <li><a href="#discretization-and-conditions" id="toc-discretization-and-conditions" class="nav-link" data-scroll-target="#discretization-and-conditions">2. Discretization and conditions</a></li>
+  <li><a href="#governing-model-and-reference-solution" id="toc-governing-model-and-reference-solution" class="nav-link" data-scroll-target="#governing-model-and-reference-solution">1. Governing model and reference solution</a>
+  <ul class="collapse">
+  <li><a href="#worked-source-and-flux-balance" id="toc-worked-source-and-flux-balance" class="nav-link" data-scroll-target="#worked-source-and-flux-balance">Worked source and flux balance</a></li>
+  </ul></li>
+  <li><a href="#discretization-and-conditions" id="toc-discretization-and-conditions" class="nav-link" data-scroll-target="#discretization-and-conditions">2. Discretization and conditions</a>
+  <ul class="collapse">
+  <li><a href="#assembled-system" id="toc-assembled-system" class="nav-link" data-scroll-target="#assembled-system">Assembled system</a></li>
+  </ul></li>
   <li><a href="#richardson-extrapolation-and-error-estimate" id="toc-richardson-extrapolation-and-error-estimate" class="nav-link" data-scroll-target="#richardson-extrapolation-and-error-estimate">3. Richardson extrapolation and error estimate</a></li>
   <li><a href="#results-and-convergence" id="toc-results-and-convergence" class="nav-link" data-scroll-target="#results-and-convergence">4. Results and convergence</a></li>
   <li><a href="#solution-and-diagnostic-plots" id="toc-solution-and-diagnostic-plots" class="nav-link" data-scroll-target="#solution-and-diagnostic-plots">5. Solution and diagnostic plots</a></li>
   <li><a href="#automatic-checks" id="toc-automatic-checks" class="nav-link" data-scroll-target="#automatic-checks">6. Automatic checks</a></li>
   <li><a href="#discussion-and-next-steps" id="toc-discussion-and-next-steps" class="nav-link" data-scroll-target="#discussion-and-next-steps">7. Discussion and next steps</a>
   <ul class="collapse">
-  <li><a href="#submit-your-findings" id="toc-submit-your-findings" class="nav-link" data-scroll-target="#submit-your-findings">Submit your findings</a></li>
-  <li><a href="#scope" id="toc-scope" class="nav-link" data-scroll-target="#scope">Scope</a></li>
+  <li><a href="#interpreting-the-results" id="toc-interpreting-the-results" class="nav-link" data-scroll-target="#interpreting-the-results">Interpreting the results</a></li>
+  <li><a href="#why-the-order-is-close-to-two" id="toc-why-the-order-is-close-to-two" class="nav-link" data-scroll-target="#why-the-order-is-close-to-two">Why the order is close to two</a></li>
+  <li><a href="#limitations" id="toc-limitations" class="nav-link" data-scroll-target="#limitations">Limitations</a></li>
+  <li><a href="#scope-and-extension" id="toc-scope-and-extension" class="nav-link" data-scroll-target="#scope-and-extension">Scope and extension</a></li>
   <li><a href="#reading" id="toc-reading" class="nav-link" data-scroll-target="#reading">Reading</a></li>
   </ul></li>
   </ul></li>
@@ -268,8 +276,16 @@ window.Quarto = {
 <p><span class="math display">\[T^*(x)=300\,\mathrm{K}+(10\,\mathrm{K})\sin\left(\frac{\pi x}{L}\right).\]</span></p>
 <p>Use centered differences with <span class="math inline">\(N=10,20,40\)</span> equal intervals and NumPy’s direct linear solve. Track the centerline temperature rise</p>
 <p><span class="math display">\[f_N=T_N(L/2)-300\,\mathrm{K}.\]</span></p>
-<p><strong>Modeling task:</strong> sketch the equation and derive the dimensional source units and exact outward-flux balance. Explain why each even-interval mesh samples the same center location <span class="math inline">\(x=L/2\)</span>.</p>
-<div id="322816cd" class="cell" data-execution_count="1">
+<p><strong>Modeling check:</strong> sketch the equation and derive the dimensional source units and exact outward-flux balance. Explain why each even-interval mesh samples the same center location <span class="math inline">\(x=L/2\)</span>.</p>
+<section id="worked-source-and-flux-balance" class="level3">
+<h3 class="anchored" data-anchor-id="worked-source-and-flux-balance">Worked source and flux balance</h3>
+<p>The source units are <span class="math inline">\((\mathrm{W\,m^{-1}\,K^{-1}})(\mathrm{K})(\mathrm{m^{-2}})=\mathrm{W\,m^{-3}}\)</span>. Fourier’s law gives the axial flux <span class="math inline">\(q_x''=-kT'\)</span>. At the left face the outward normal is <span class="math inline">\(-1\)</span>, so the outward flux is <span class="math inline">\(kT'(0)=k(10\,\mathrm{K})\pi/L\)</span>; at the right face it is <span class="math inline">\(-kT'(L)\)</span> with the same value. Therefore,</p>
+<p><span class="math display">\[q_{\mathrm{out,left}}''+q_{\mathrm{out,right}}''
+=\frac{2k(10\,\mathrm{K})\pi}{L}
+=\int_0^L q'''(x)\,dx
+=2000\pi\,\mathrm{W\,m^{-2}}.\]</span></p>
+<p>Each even <span class="math inline">\(N\)</span> has an integer node index <span class="math inline">\(i=N/2\)</span>, and <span class="math inline">\(x_i=ih=(N/2)(L/N)=L/2\)</span>. No interpolation is needed to compare the same centerline quantity across meshes.</p>
+<div id="322816cd" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-02T02:11:46.926384Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-02T02:11:46.926243Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-02T02:11:47.132160Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-02T02:11:47.131529Z&quot;}}" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
@@ -297,33 +313,40 @@ window.Quarto = {
 </details>
 </div>
 </section>
+</section>
 <section id="discretization-and-conditions" class="level2">
 <h2 class="anchored" data-anchor-id="discretization-and-conditions">2. Discretization and conditions</h2>
 <p>Use <span class="math inline">\(N\)</span> equal intervals, <span class="math inline">\(N+1\)</span> nodes, and <span class="math inline">\(h=L/N\)</span>. At interior node <span class="math inline">\(i\)</span>, centered differences give</p>
 <p><span class="math display">\[-k\frac{T_{i-1}-2T_i+T_{i+1}}{h^2}=q'''(x_i).\]</span></p>
 <p>Only the <span class="math inline">\(N-1\)</span> interior temperatures are unknown. The two endpoint temperatures are prescribed, so their stencil contributions move to the right-hand side of the interior system.</p>
-<p><strong>Derive in your equation sketch:</strong> the diagonal and adjacent entries of <span class="math inline">\(A\)</span>, the source entries in <span class="math inline">\(b\)</span>, and the first/last right-hand-side contributions from <span class="math inline">\(T(0)\)</span> and <span class="math inline">\(T(L)\)</span>. Keep the <span class="math inline">\(h^{-2}\)</span> factor in the matrix consistent with the source scaling.</p>
+<p><strong>Stencil ingredients:</strong> the diagonal and adjacent entries of <span class="math inline">\(A\)</span>, the source entries in <span class="math inline">\(b\)</span>, and the first/last right-hand-side contributions from <span class="math inline">\(T(0)\)</span> and <span class="math inline">\(T(L)\)</span>. Keep the <span class="math inline">\(h^{-2}\)</span> factor in the matrix consistent with the source scaling.</p>
 <p><strong>Check:</strong> verify the source units are <span class="math inline">\(\mathrm{W\,m^{-3}}\)</span> and show that the exact total outward heat flux equals <span class="math inline">\(\int_0^Lq'''(x)\,dx\)</span> per unit area.</p>
-<div id="60c8b216" class="cell" data-execution_count="2">
+<section id="assembled-system" class="level3">
+<h3 class="anchored" data-anchor-id="assembled-system">Assembled system</h3>
+<p>With conductivity retained in the matrix, <span class="math inline">\(A_{ii}=2k/h^2\)</span> and <span class="math inline">\(A_{i,i\pm1}=-k/h^2\)</span>. The right-hand side begins with <span class="math inline">\(b_i=q'''(x_i)\)</span>, then receives <span class="math inline">\(kT(0)/h^2\)</span> in its first entry and <span class="math inline">\(kT(L)/h^2\)</span> in its last entry. Consequently, both <span class="math inline">\(AT\)</span> and <span class="math inline">\(b\)</span> have units of <span class="math inline">\(\mathrm{W\,m^{-3}}\)</span>. Omitting <span class="math inline">\(k\)</span> from the matrix while retaining it in the source would solve a differently scaled problem.</p>
+<div id="60c8b216" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-02T02:11:47.133401Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-02T02:11:47.133227Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-02T02:11:47.137018Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-02T02:11:47.136562Z&quot;}}" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> solve(N):</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Return nodal coordinates x and temperature T for N equal intervals."""</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    h <span class="op">=</span> L <span class="op">/</span> N</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> np.linspace(<span class="fl">0.0</span>, L, N <span class="op">+</span> <span class="dv">1</span>)</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    interior_count <span class="op">=</span> N <span class="op">-</span> <span class="dv">1</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    A <span class="op">=</span> np.zeros((interior_count, interior_count))</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    b <span class="op">=</span> source_term(x[<span class="dv">1</span>:<span class="op">-</span><span class="dv">1</span>]).copy()</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    A <span class="op">=</span> (<span class="fl">2.0</span> <span class="op">*</span> np.eye(interior_count)</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>         <span class="op">-</span> np.eye(interior_count, k<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>         <span class="op">-</span> np.eye(interior_count, k<span class="op">=-</span><span class="dv">1</span>)) <span class="op">/</span> h<span class="op">**</span><span class="dv">2</span></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># </span><span class="al">TODO</span><span class="co">: Add the known left/right endpoint contributions to b.</span></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    T <span class="op">=</span> np.full(N <span class="op">+</span> <span class="dv">1</span>, np.nan)</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    T[<span class="dv">0</span>], T[<span class="op">-</span><span class="dv">1</span>] <span class="op">=</span> T_LEFT, T_RIGHT</span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="co"># </span><span class="al">TODO</span><span class="co">: Solve A @ T[1:-1] = b with np.linalg.solve.</span></span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">raise</span> <span class="pp">NotImplementedError</span>(<span class="st">"Complete the stencil, boundary contributions, and solve."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="kw">not</span> <span class="bu">isinstance</span>(N, (<span class="bu">int</span>, np.integer)) <span class="kw">or</span> N <span class="op">&lt;</span> <span class="dv">2</span>:</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">"N must be an integer with at least two intervals."</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    h <span class="op">=</span> L <span class="op">/</span> N</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> np.linspace(<span class="fl">0.0</span>, L, N <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    interior_count <span class="op">=</span> N <span class="op">-</span> <span class="dv">1</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    A <span class="op">=</span> k <span class="op">*</span> (<span class="fl">2.0</span> <span class="op">*</span> np.eye(interior_count)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>             <span class="op">-</span> np.eye(interior_count, k<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>             <span class="op">-</span> np.eye(interior_count, k<span class="op">=-</span><span class="dv">1</span>)) <span class="op">/</span> h<span class="op">**</span><span class="dv">2</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    b <span class="op">=</span> source_term(x[<span class="dv">1</span>:<span class="op">-</span><span class="dv">1</span>]).copy()</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    b[<span class="dv">0</span>] <span class="op">+=</span> k <span class="op">*</span> T_LEFT <span class="op">/</span> h<span class="op">**</span><span class="dv">2</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    b[<span class="op">-</span><span class="dv">1</span>] <span class="op">+=</span> k <span class="op">*</span> T_RIGHT <span class="op">/</span> h<span class="op">**</span><span class="dv">2</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    T <span class="op">=</span> np.empty(N <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    T[<span class="dv">0</span>], T[<span class="op">-</span><span class="dv">1</span>] <span class="op">=</span> T_LEFT, T_RIGHT</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    T[<span class="dv">1</span>:<span class="op">-</span><span class="dv">1</span>] <span class="op">=</span> np.linalg.solve(A, b)</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> x, T</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
+</section>
 </section>
 <section id="richardson-extrapolation-and-error-estimate" class="level2">
 <h2 class="anchored" data-anchor-id="richardson-extrapolation-and-error-estimate">3. Richardson extrapolation and error estimate</h2>
@@ -334,8 +357,8 @@ window.Quarto = {
 <p>The requested fine-grid GCI estimate is</p>
 <p><span class="math display">\[G=\frac{1.25|f_{40}-f_{20}|}{2^p-1},\qquad \frac{G}{|f_{40}|}\text{ is a fraction.}\]</span></p>
 <p>Report <span class="math inline">\(f_{\mathrm{ext}}\)</span> and <span class="math inline">\(G\)</span> in kelvin, label <span class="math inline">\(G\)</span> as an estimated fine-grid error, and compare it with the exact fine-grid error <span class="math inline">\(|f_{40}-10\,\mathrm{K}|\)</span>. Treat <span class="math inline">\(G\)</span> as a numerical estimate, not a guaranteed confidence interval.</p>
-<p><strong>Your task:</strong> calculate the three quantities from the results below. Keep signed differences for <span class="math inline">\(f_{\mathrm{ext}}\)</span>; use absolute values only where shown.</p>
-<div id="e93e2c60" class="cell" data-execution_count="3">
+<p><strong>Calculation:</strong> obtain the three quantities from the results below. Keep signed differences for <span class="math inline">\(f_{\mathrm{ext}}\)</span>; use absolute values only where shown.</p>
+<div id="e93e2c60" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-02T02:11:47.137987Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-02T02:11:47.137850Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-02T02:11:47.141650Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-02T02:11:47.141167Z&quot;}}" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>mesh_results <span class="op">=</span> {}</span>
@@ -348,40 +371,28 @@ window.Quarto = {
 <span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>f10, f20, f40 <span class="op">=</span> (mesh_results[N][<span class="st">"f"</span>] <span class="cf">for</span> N <span class="kw">in</span> MESHES)</span>
 <span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: Estimate p from the three centerline rises.</span></span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: Compute f_ext using the signed difference (f40 - f20).</span></span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: Compute G and G / abs(f40), then compare G with abs(f40 - AMPLITUDE).</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> <span class="fl">2.0</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>coarse_difference <span class="op">=</span> f10 <span class="op">-</span> f20</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>fine_difference <span class="op">=</span> f20 <span class="op">-</span> f40</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> coarse_difference <span class="op">*</span> fine_difference <span class="op">&lt;=</span> <span class="dv">0</span>:</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">"This estimate requires nonzero, monotonic mesh differences."</span>)</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>p <span class="op">=</span> np.log(<span class="bu">abs</span>(coarse_difference <span class="op">/</span> fine_difference)) <span class="op">/</span> np.log(r)</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="kw">not</span> np.isfinite(p) <span class="kw">or</span> p <span class="op">&lt;=</span> <span class="dv">0</span>:</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">"A positive, finite observed order is required."</span>)</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>f_ext <span class="op">=</span> f40 <span class="op">+</span> (f40 <span class="op">-</span> f20) <span class="op">/</span> (r<span class="op">**</span>p <span class="op">-</span> <span class="fl">1.0</span>)</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>G <span class="op">=</span> <span class="fl">1.25</span> <span class="op">*</span> <span class="bu">abs</span>(f40 <span class="op">-</span> f20) <span class="op">/</span> (r<span class="op">**</span>p <span class="op">-</span> <span class="fl">1.0</span>)</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>G_fraction <span class="op">=</span> G <span class="op">/</span> <span class="bu">abs</span>(f40)</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>fine_exact_error <span class="op">=</span> <span class="bu">abs</span>(f40 <span class="op">-</span> AMPLITUDE)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-error">
-<div class="ansi-escaped-output">
-<pre><span class="ansi-red-fg">---------------------------------------------------------------------------</span>
-<span class="ansi-red-fg">NotImplementedError</span>                       Traceback (most recent call last)
-<span class="ansi-cyan-fg">Cell</span><span class="ansi-cyan-fg"> </span><span class="ansi-green-fg">In[3]</span><span class="ansi-green-fg">, line 3</span>
-<span class="ansi-green-fg">      1</span> mesh_results = {}
-<span class="ansi-green-fg">      2</span> <span style="font-weight:bold;color:rgb(0,135,0)">for</span> N <span style="font-weight:bold;color:rgb(0,135,0)">in</span> MESHES:
-<span class="ansi-green-fg">----&gt; </span><span class="ansi-green-fg">3</span>     x, T = solve(N)
-<span class="ansi-green-fg">      4</span>     center_index = N // <span class="ansi-green-fg">2</span>
-<span class="ansi-green-fg">      5</span>     <span style="font-weight:bold;color:rgb(0,135,0)">assert</span> np.isclose(x[center_index], L / <span class="ansi-green-fg">2</span>), <span class="ansi-yellow-fg">"Mesh must include the slab center."</span>
-<span class="ansi-green-fg">      6</span>     f = T[center_index] - T_LEFT
-
-<span class="ansi-cyan-fg">Cell</span><span class="ansi-cyan-fg"> </span><span class="ansi-green-fg">In[2]</span><span class="ansi-green-fg">, line 15</span>, in <span class="ansi-cyan-fg">solve</span><span class="ansi-blue-fg">(N)</span>
-<span class="ansi-green-fg">     11</span>     <span style="font-style:italic;color:rgb(95,135,135)"># TODO: Add the known left/right endpoint contributions to b.</span>
-<span class="ansi-green-fg">     12</span>     T = np.full(N + <span class="ansi-green-fg">1</span>, np.nan)
-<span class="ansi-green-fg">     13</span>     T[<span class="ansi-green-fg">0</span>], T[-<span class="ansi-green-fg">1</span>] = T_LEFT, T_RIGHT
-<span class="ansi-green-fg">     14</span>     <span style="font-style:italic;color:rgb(95,135,135)"># TODO: Solve A @ T[1:-1] = b with np.linalg.solve.</span>
-<span class="ansi-green-fg">---&gt; </span><span class="ansi-green-fg">15</span>     <span style="font-weight:bold;color:rgb(0,135,0)">raise</span> NotImplementedError(<span class="ansi-yellow-fg">"Complete the stencil, boundary contributions, and solve."</span>)
-
-<span class="ansi-red-fg">NotImplementedError</span>: Complete the stencil, boundary contributions, and solve.</pre>
-</div>
-</div>
 </div>
 </section>
 <section id="results-and-convergence" class="level2">
 <h2 class="anchored" data-anchor-id="results-and-convergence">4. Results and convergence</h2>
 <p>Compare the centerline rise on all three meshes. Keep the mesh-spacing and temperature units visible, and distinguish the observed order, extrapolated rise, and GCI estimate in your report.</p>
-<p><strong>Deliverables:</strong> a reproducible three-mesh table; <span class="math inline">\(p\)</span>, <span class="math inline">\(f_{\mathrm{ext}}\)</span>, <span class="math inline">\(G\)</span> in kelvin, and <span class="math inline">\(G/|f_{40}|\)</span> as a fraction; plus two sentences describing limitations of the GCI estimate.</p>
+<p><strong>Report:</strong> a reproducible three-mesh table; <span class="math inline">\(p\)</span>, <span class="math inline">\(f_{\mathrm{ext}}\)</span>, <span class="math inline">\(G\)</span> in kelvin, and <span class="math inline">\(G/|f_{40}|\)</span> as a fraction; plus two sentences describing limitations of the GCI estimate.</p>
 <p><strong>Check:</strong> observed order in <span class="math inline">\([1.9,2.1]\)</span>, extrapolated rise within 0.001 K of 10 K, and compare the estimated <span class="math inline">\(G\)</span> with the exact fine-grid error.</p>
-<div id="a5671bf4" class="cell">
+<div id="a5671bf4" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-02T02:11:47.142679Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-02T02:11:47.142529Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-02T02:11:47.147709Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-02T02:11:47.147375Z&quot;}}" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>table <span class="op">=</span> [</span>
@@ -396,15 +407,71 @@ window.Quarto = {
 <span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    )</span>
 <span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>display(Markdown(<span class="st">"</span><span class="ch">\n</span><span class="st">"</span>.join(table)))</span>
 <span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: Add a clearly labeled summary of p, f_ext (K), G (K), G / abs(f40),</span></span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="co"># and the exact fine-grid error abs(f40 - AMPLITUDE).</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>display(Markdown(</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f"**Observed order:** </span><span class="sc">{</span>p<span class="sc">:.6f}</span><span class="ss">  </span><span class="ch">\n</span><span class="ss">"</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f"**Extrapolated centerline rise:** </span><span class="sc">{</span>f_ext<span class="sc">:.8f}</span><span class="ss"> K  </span><span class="ch">\n</span><span class="ss">"</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f"**Estimated fine-grid error (GCI with safety factor 1.25):** </span><span class="sc">{</span>G<span class="sc">:.8f}</span><span class="ss"> K  </span><span class="ch">\n</span><span class="ss">"</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f"**Relative GCI, normalized by temperature rise:** </span><span class="sc">{</span>G_fraction<span class="sc">:.8f}</span><span class="ss"> "</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f"(fraction), or </span><span class="sc">{</span><span class="dv">100</span> <span class="op">*</span> G_fraction<span class="sc">:.4f}</span><span class="ss">%  </span><span class="ch">\n</span><span class="ss">"</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f"**Exact fine-grid error:** </span><span class="sc">{</span>fine_exact_error<span class="sc">:.8f}</span><span class="ss"> K  </span><span class="ch">\n</span><span class="ss">"</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f"**Estimate / exact error:** </span><span class="sc">{</span>G <span class="op">/</span> fine_exact_error<span class="sc">:.4f}</span><span class="ss">  </span><span class="ch">\n</span><span class="ss">"</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f"**Extrapolation error:** </span><span class="sc">{</span><span class="bu">abs</span>(f_ext <span class="op">-</span> AMPLITUDE)<span class="sc">:.3e}</span><span class="ss"> K"</span></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
+<div class="cell-output cell-output-display cell-output-markdown">
+<table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: right;">Intervals N</th>
+<th style="text-align: right;">Spacing h (m)</th>
+<th style="text-align: right;">Centerline rise f_N (K)</th>
+<th style="text-align: right;">Exact error (K)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0.01000</td>
+<td style="text-align: right;">10.08265417</td>
+<td style="text-align: right;">8.265e-02</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">0.00500</td>
+<td style="text-align: right;">10.02058707</td>
+<td style="text-align: right;">2.059e-02</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">40</td>
+<td style="text-align: right;">0.00250</td>
+<td style="text-align: right;">10.00514200</td>
+<td style="text-align: right;">5.142e-03</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="cell-output cell-output-display cell-output-markdown">
+<p><strong>Observed order:</strong> 2.006683<br>
+<strong>Extrapolated centerline rise:</strong> 10.00002533 K<br>
+<strong>Estimated fine-grid error (GCI with safety factor 1.25):</strong> 0.00639585 K<br>
+<strong>Relative GCI, normalized by temperature rise:</strong> 0.00063926 (fraction), or 0.0639%<br>
+<strong>Exact fine-grid error:</strong> 0.00514200 K<br>
+<strong>Estimate / exact error:</strong> 1.2438<br>
+<strong>Extrapolation error:</strong> 2.533e-05 K</p>
+</div>
 </div>
 </section>
 <section id="solution-and-diagnostic-plots" class="level2">
 <h2 class="anchored" data-anchor-id="solution-and-diagnostic-plots">5. Solution and diagnostic plots</h2>
 <p>Plot the three numerical temperature fields together with the analytic solution. Add a second panel for the pointwise error <span class="math inline">\(T_N-T^*\)</span> so mesh differences remain visible even when the temperature curves nearly overlap.</p>
-<div id="8c059e24" class="cell">
+<div id="8c059e24" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-02T02:11:47.148721Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-02T02:11:47.148586Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-02T02:11:47.285225Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-02T02:11:47.284542Z&quot;}}" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>x_exact <span class="op">=</span> np.linspace(<span class="fl">0.0</span>, L, <span class="dv">401</span>)</span>
@@ -425,12 +492,19 @@ window.Quarto = {
 <span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>    ax.legend()</span>
 <span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="20261001-estimate-mesh-error_files/figure-html/cell-6-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
 </div>
 </section>
 <section id="automatic-checks" class="level2">
 <h2 class="anchored" data-anchor-id="automatic-checks">6. Automatic checks</h2>
-<p>Check that each mesh includes the shared center node, boundary values stay fixed, the fields are symmetric, and the centerline rise converges monotonically. After completing the Richardson/GCI calculations, enforce the stated accuracy targets.</p>
-<div id="0e581695" class="cell">
+<p>Check that each mesh includes the shared center node, boundary values stay fixed, the fields are symmetric, and the centerline rise converges monotonically. The Richardson/GCI calculations enforce the stated accuracy targets.</p>
+<div id="0e581695" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-02T02:11:47.286765Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-02T02:11:47.286626Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-02T02:11:47.294279Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-02T02:11:47.293485Z&quot;}}" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> N <span class="kw">in</span> MESHES:</span>
@@ -444,31 +518,55 @@ window.Quarto = {
 <span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> np.<span class="bu">all</span>(np.diff(f_values) <span class="op">&lt;</span> <span class="dv">0</span>), <span class="st">"Expected centerline rise to converge monotonically."</span></span>
 <span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> np.<span class="bu">all</span>(np.diff(center_errors) <span class="op">&lt;</span> <span class="dv">0</span>), <span class="st">"Centerline error should decrease with refinement."</span></span>
 <span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: After calculating p and f_ext, assert 1.9 &lt;= p &lt;= 2.1 and</span></span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="co"># abs(f_ext - AMPLITUDE) &lt; 0.001. Report G and compare it with abs(f40 - AMPLITUDE).</span></span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"PASS: center-node alignment, fixed boundaries, symmetry, and monotonic centerline convergence."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="fl">1.9</span> <span class="op">&lt;=</span> p <span class="op">&lt;=</span> <span class="fl">2.1</span>, <span class="st">"Observed order should be approximately two."</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="bu">abs</span>(f_ext <span class="op">-</span> AMPLITUDE) <span class="op">&lt;</span> <span class="fl">0.001</span>, <span class="st">"Extrapolation missed the accuracy target."</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> np.isfinite(G) <span class="kw">and</span> G <span class="op">&gt;</span> <span class="dv">0</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="co"># A sine is an eigenvector of this discrete operator: an independent reference.</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> N <span class="kw">in</span> MESHES:</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>    eigenvalue_ratio <span class="op">=</span> ((np.pi <span class="op">/</span> N) <span class="op">/</span> (<span class="dv">2</span> <span class="op">*</span> np.sin(np.pi <span class="op">/</span> (<span class="dv">2</span> <span class="op">*</span> N))))<span class="op">**</span><span class="dv">2</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>    discrete_reference <span class="op">=</span> T_LEFT <span class="op">+</span> AMPLITUDE <span class="op">*</span> eigenvalue_ratio <span class="op">*</span> np.sin(</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>        np.pi <span class="op">*</span> mesh_results[N][<span class="st">"x"</span>] <span class="op">/</span> L</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>    np.testing.assert_allclose(mesh_results[N][<span class="st">"T"</span>], discrete_reference,</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>                               rtol<span class="op">=</span><span class="dv">0</span>, atol<span class="op">=</span><span class="fl">1e-10</span>)</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> G <span class="op">&gt;=</span> fine_exact_error, <span class="st">"The estimate covers the exact error in this example."</span></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"PASS: mesh alignment, boundaries, symmetry, monotonic convergence, "</span></span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>      <span class="st">"discrete sine reference, observed order, and extrapolation accuracy."</span>)</span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Estimated fine-grid error </span><span class="sc">{</span>G<span class="sc">:.8f}</span><span class="ss"> K; exact error </span><span class="sc">{</span>fine_exact_error<span class="sc">:.8f}</span><span class="ss"> K."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
+<div class="cell-output cell-output-stdout">
+<pre><code>PASS: mesh alignment, boundaries, symmetry, monotonic convergence, discrete sine reference, observed order, and extrapolation accuracy.
+Estimated fine-grid error 0.00639585 K; exact error 0.00514200 K.</code></pre>
+</div>
 </div>
 </section>
 <section id="discussion-and-next-steps" class="level2">
 <h2 class="anchored" data-anchor-id="discussion-and-next-steps">7. Discussion and next steps</h2>
-<section id="submit-your-findings" class="level3">
-<h3 class="anchored" data-anchor-id="submit-your-findings">Submit your findings</h3>
-<ul>
-<li>Equation sketch: interior stencil, endpoint contributions, source units, and exact outward-flux/generation balance.</li>
-<li>Mesh sampling: explain why <span class="math inline">\(N=10,20,40\)</span> all include the same center location.</li>
-<li>Results: report <span class="math inline">\(f_{10},f_{20},f_{40}\)</span>, observed <span class="math inline">\(p\)</span>, extrapolated rise <span class="math inline">\(f_{\mathrm{ext}}\)</span>, and the fine-grid estimate <span class="math inline">\(G\)</span> in kelvin and as <span class="math inline">\(G/|f_{40}|\)</span>.</li>
-<li>Comparison: compare <span class="math inline">\(G\)</span> with the exact error <span class="math inline">\(|f_{40}-10\,\mathrm{K}|\)</span>.</li>
-<li>Limitations: write two sentences about assumptions or uncertainties not represented by this numerical estimate. State why GCI is not a guaranteed confidence interval.</li>
-</ul>
+<section id="interpreting-the-results" class="level3">
+<h3 class="anchored" data-anchor-id="interpreting-the-results">Interpreting the results</h3>
+<p>The centerline rises decrease toward 10 K as the spacing halves, with errors decreasing by approximately a factor of four. The observed order is approximately 2.0067, consistent with the centered second-order stencil; extrapolation removes most of the leading error and gives approximately 10.000025 K.</p>
+<p>On the finest mesh, the exact centerline error is approximately 0.005142 K and the estimated fine-grid error is approximately 0.006396 K. Thus, the estimate is about 1.244 times the exact error in this example. The relative GCI is approximately 0.0006393 (0.06393%), normalized by the <strong>temperature rise</strong>, not by the absolute temperature of approximately 310 K. Changing the normalization changes the percentage, while the dimensional estimate in kelvin stays the same.</p>
 </section>
-<section id="scope" class="level3">
-<h3 class="anchored" data-anchor-id="scope">Scope</h3>
-<p>This smooth manufactured example lets you compare a mesh-error estimate with a known exact answer. A successful check here does not establish that a physical model, its inputs, or every future mesh is accurate.</p>
+<section id="why-the-order-is-close-to-two" class="level3">
+<h3 class="anchored" data-anchor-id="why-the-order-is-close-to-two">Why the order is close to two</h3>
+<p>The sampled sine is an eigenvector of the discrete second derivative. With these fixed boundaries, its numerical amplitude is</p>
+<p><span class="math display">\[f_N=10\,\mathrm{K}\left[\frac{\pi/N}{2\sin(\pi/(2N))}\right]^2
+=10\,\mathrm{K}\left[1+\frac{\pi^2}{12N^2}+O(N^{-4})\right].\]</span></p>
+<p>The leading positive error is proportional to <span class="math inline">\(h^2\)</span>, explaining both the slight overprediction and the monotonic decrease. Higher-order terms explain why the three-mesh observed order is slightly above two. This independent discrete solution is also checked against the assembled linear solve.</p>
+</section>
+<section id="limitations" class="level3">
+<h3 class="anchored" data-anchor-id="limitations">Limitations</h3>
+<p>Richardson extrapolation and this GCI estimate assume systematic refinement and a dominant power-law error; coarse meshes, oscillatory convergence, or mesh differences near roundoff can undermine that assumption. The safety factor does not assign a statistical coverage probability or include physical-model, input, or unfinished-solver errors, so GCI is not a guaranteed confidence interval.</p>
+<p>Three results alone do not prove that the asymptotic regime has been reached. In particular, a ratio constructed from these same differences and this fitted <span class="math inline">\(p\)</span> is not an independent validation; the exact solution and the discrete sine reference provide stronger evidence here.</p>
+</section>
+<section id="scope-and-extension" class="level3">
+<h3 class="anchored" data-anchor-id="scope-and-extension">Scope and extension</h3>
+<p>This is a smooth, one-dimensional, constant-conductivity manufactured problem on uniform meshes. Add <span class="math inline">\(N=80\)</span> as an independent refinement, recompute the estimate with <span class="math inline">\((20,40,80)\)</span>, and compare the observed order and extrapolation error. For a physical problem without an exact solution, also verify that solver errors are small compared with mesh differences and keep modeling and input uncertainties separate.</p>
 </section>
 <section id="reading" class="level3">
 <h3 class="anchored" data-anchor-id="reading">Reading</h3>
-<p>Study the NASA sections on Richardson extrapolation and the grid convergence index, plus Section 4.1 of the assigned NIST reference. Practice time: 40 minutes; reading: 25 minutes.</p>
+<p>The <a href="https://www.grc.nasa.gov/www/wind/valid/tutorial/spatconv.html">NASA grid-convergence tutorial</a> describes Richardson extrapolation, the asymptotic range, and GCI, including the recommended safety factor of 1.25 for studies with at least three grids. For background on separating numerical error from physical-model error, revisit the <a href="./20260930-solver-error.html">previous notebook</a>.</p>
 
 
 </section>
