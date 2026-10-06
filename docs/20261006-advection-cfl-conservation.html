@@ -66,7 +66,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </style>
 
 
-<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
 <script src="site_libs/quarto-nav/headroom.min.js"></script>
 <script src="site_libs/clipboard/clipboard.min.js"></script>
 <script src="site_libs/quarto-search/autocomplete.umd.js"></script>
@@ -110,10 +110,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-label": "Search"
   }
 }</script>
-<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
-
-<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
-<script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@*/dist/embed-amd.js" crossorigin="anonymous"></script>
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
@@ -235,6 +231,7 @@ window.Quarto = {
   <li><a href="#error-measures-and-expected-behavior" id="toc-error-measures-and-expected-behavior" class="nav-link" data-scroll-target="#error-measures-and-expected-behavior">3. Error measures and expected behavior</a></li>
   <li><a href="#results-and-diagnostics" id="toc-results-and-diagnostics" class="nav-link" data-scroll-target="#results-and-diagnostics">4. Results and diagnostics</a></li>
   <li><a href="#solution-and-diagnostic-plots" id="toc-solution-and-diagnostic-plots" class="nav-link" data-scroll-target="#solution-and-diagnostic-plots">5. Solution and diagnostic plots</a></li>
+  <li><a href="#interactive-plotly-explorer" id="toc-interactive-plotly-explorer" class="nav-link" data-scroll-target="#interactive-plotly-explorer">Interactive Plotly explorer</a></li>
   <li><a href="#automatic-checks" id="toc-automatic-checks" class="nav-link" data-scroll-target="#automatic-checks">6. Automatic checks</a></li>
   <li><a href="#discussion-and-next-steps" id="toc-discussion-and-next-steps" class="nav-link" data-scroll-target="#discussion-and-next-steps">7. Discussion and next steps</a>
   <ul class="collapse">
@@ -268,44 +265,48 @@ window.Quarto = {
 <p>Store true cell averages. For the sine signal, derive the cell integral analytically (the sine amplitude is multiplied by sinc(dx), with NumPy’s normalized sinc convention). The top-hat edges align with this mesh, so its initial cell averages are exactly zero or one.</p>
 <p>Run to T = 1, one complete transit around the ring. The exact final cell-average vector equals the initial vector. If an unstable run terminates early, do not compare its vector with the T = 1 reference. Record the actual stop time and reason.</p>
 <p>Before implementation, predict which method will be bounded, diffusive, oscillatory, or unstable for C in {0.5, 1.0, 1.25}.</p>
-<div id="af03a541" class="cell" data-execution_count="9">
+<div id="af03a541" class="cell" data-execution_count="34">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> IPython.display <span class="im">import</span> Markdown, display</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>N <span class="op">=</span> <span class="dv">200</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>DX <span class="op">=</span> <span class="fl">1.0</span> <span class="op">/</span> N</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>A <span class="op">=</span> <span class="fl">1.0</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>T_FINAL <span class="op">=</span> <span class="fl">1.0</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>CFL_VALUES <span class="op">=</span> (<span class="fl">0.5</span>, <span class="fl">1.0</span>, <span class="fl">1.25</span>)</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>PROFILE_VALUES <span class="op">=</span> (<span class="st">"smooth"</span>, <span class="st">"top-hat"</span>)</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>BLOWUP_LIMIT <span class="op">=</span> <span class="fl">1e6</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>CELL_EDGES <span class="op">=</span> np.linspace(<span class="fl">0.0</span>, <span class="fl">1.0</span>, N <span class="op">+</span> <span class="dv">1</span>)</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>CELL_CENTERS <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> (CELL_EDGES[:<span class="op">-</span><span class="dv">1</span>] <span class="op">+</span> CELL_EDGES[<span class="dv">1</span>:])</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>cell_averages <span class="op">=</span> <span class="fl">1.0</span> <span class="op">+</span> <span class="fl">0.2</span> <span class="op">*</span> np.sinc(DX) <span class="op">*</span> np.sin(<span class="fl">2.0</span> <span class="op">*</span> np.pi <span class="op">*</span> CELL_CENTERS)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pathlib <span class="im">import</span> Path</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> plotly.graph_objects <span class="im">as</span> go</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> plotly.subplots <span class="im">import</span> make_subplots</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> IPython.display <span class="im">import</span> Markdown, display</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>N <span class="op">=</span> <span class="dv">200</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>DX <span class="op">=</span> <span class="fl">1.0</span> <span class="op">/</span> N</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>A <span class="op">=</span> <span class="fl">1.0</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>T_FINAL <span class="op">=</span> <span class="fl">1.0</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>CFL_VALUES <span class="op">=</span> (<span class="fl">0.5</span>, <span class="fl">1.0</span>, <span class="fl">1.25</span>)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>PROFILE_VALUES <span class="op">=</span> (<span class="st">"smooth"</span>, <span class="st">"top-hat"</span>)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>BLOWUP_LIMIT <span class="op">=</span> <span class="fl">1e6</span></span>
 <span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>PREDICTIONS <span class="op">=</span> {</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="fl">0.5</span>: (<span class="st">"Both methods should be stable; upwind is more diffusive."</span>, <span class="st">"Stable"</span>),</span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    <span class="fl">1.0</span>: (<span class="st">"Both methods should be stable and shift by one cell per step."</span>, <span class="st">"Stable"</span>),</span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    <span class="fl">1.25</span>: (<span class="st">"Both methods are outside their linear stability range."</span>, <span class="st">"Unstable"</span>),</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>parameters <span class="op">=</span> {</span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    <span class="st">"N"</span>: N,</span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    <span class="st">"DX"</span>: DX,</span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    <span class="st">"A"</span>: A,</span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    <span class="st">"T_FINAL"</span>: T_FINAL,</span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    <span class="st">"CFL_VALUES"</span>: CFL_VALUES,</span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    <span class="st">"PROFILE_VALUES"</span>: PROFILE_VALUES,</span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    <span class="st">"BLOWUP_LIMIT"</span>: BLOWUP_LIMIT,</span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>    <span class="st">"CELL_EDGES"</span>: CELL_EDGES,</span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>    <span class="st">"CELL_CENTERS"</span>: CELL_CENTERS,</span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>    <span class="st">"cell_averages"</span>: cell_averages,</span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>    <span class="st">"PREDICTIONS"</span>: PREDICTIONS,</span>
-<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>CELL_EDGES <span class="op">=</span> np.linspace(<span class="fl">0.0</span>, <span class="fl">1.0</span>, N <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>CELL_CENTERS <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> (CELL_EDGES[:<span class="op">-</span><span class="dv">1</span>] <span class="op">+</span> CELL_EDGES[<span class="dv">1</span>:])</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>cell_averages <span class="op">=</span> <span class="fl">1.0</span> <span class="op">+</span> <span class="fl">0.2</span> <span class="op">*</span> np.sinc(DX) <span class="op">*</span> np.sin(<span class="fl">2.0</span> <span class="op">*</span> np.pi <span class="op">*</span> CELL_CENTERS)</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>PREDICTIONS <span class="op">=</span> {</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    <span class="fl">0.5</span>: (<span class="st">"Both methods should be stable; upwind is more diffusive."</span>, <span class="st">"Stable"</span>),</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    <span class="fl">1.0</span>: (<span class="st">"Both methods should be stable and shift by one cell per step."</span>, <span class="st">"Stable"</span>),</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    <span class="fl">1.25</span>: (<span class="st">"Both methods are outside their linear stability range."</span>, <span class="st">"Unstable"</span>),</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>parameters <span class="op">=</span> {</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    <span class="st">"N"</span>: N,</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    <span class="st">"DX"</span>: DX,</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    <span class="st">"A"</span>: A,</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>    <span class="st">"T_FINAL"</span>: T_FINAL,</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>    <span class="st">"CFL_VALUES"</span>: CFL_VALUES,</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>    <span class="st">"PROFILE_VALUES"</span>: PROFILE_VALUES,</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>    <span class="st">"BLOWUP_LIMIT"</span>: BLOWUP_LIMIT,</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>    <span class="st">"CELL_EDGES"</span>: CELL_EDGES,</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>    <span class="st">"CELL_CENTERS"</span>: CELL_CENTERS,</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>    <span class="st">"cell_averages"</span>: cell_averages,</span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>    <span class="st">"PREDICTIONS"</span>: PREDICTIONS,</span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 </section>
@@ -315,7 +316,7 @@ window.Quarto = {
 <p><strong>Tasks:</strong> Implement separate flux and stepping functions. Use old-state arrays when calculating the full flux vector; avoid updating cells in place. Show on paper why the flux differences telescope in the global sum. Derive the update weights and explain the upwind convex-combination condition.</p>
 <p>Use dt = C dx/a, with a shortened final step only if necessary to hit T exactly. Log the actual CFL and use the actual dt in the Lax-Wendroff flux. The specified cases divide T into an integer number of nominal steps, apart from floating-point roundoff.</p>
 <p>For runs exceeding max(abs(q)) = 1e6, or producing nonfinite values, stop deliberately and record the failure. Retain the finite history up to that point. This guard protects the experiment; it is not a limiter or a stability fix.</p>
-<div id="5091accd" class="cell" data-execution_count="10">
+<div id="5091accd" class="cell" data-execution_count="35">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> set_up_initial_conditions(cell_edges, profile):</span>
@@ -418,7 +419,7 @@ A_{\rm range}=\max_iq_i-\min_iq_i.\]</span> Include the last-to-first periodic j
 <p>For the top hat, record undershoot max(0,-min(q)) and overshoot max(0,max(q)-1). A conservative method need not preserve bounds, and boundedness is not the same as nondiffusive transport.</p>
 <p><strong>Predict and check:</strong> Upwind at C = 0.5 smears a discontinuity. Lax-Wendroff can maintain smooth signal amplitude better but ring near discontinuities. At C = 1 both schemes shift exactly one cell per step. C = 1.25 lies outside their linear stability ranges for this equation. The top hat excites short-wave content needed to expose instability; a smooth low-frequency signal may hide it over a short run.</p>
 <p>Optional final-return discrepancy may be reported, but it is not the learning objective. Do not compute Richardson extrapolation, GCI, or mesh-convergence orders.</p>
-<div id="d80e0bd2" class="cell" data-execution_count="11">
+<div id="d80e0bd2" class="cell" data-execution_count="36">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>METHOD_VALUES <span class="op">=</span> (<span class="st">"upwind"</span>, <span class="st">"lax-wendroff"</span>)</span>
@@ -455,7 +456,7 @@ Completed top-hat profile runs.</code></pre>
 <h2 class="anchored" data-anchor-id="results-and-diagnostics">4. Results and diagnostics</h2>
 <p>Display one table with profile, method, requested CFL, expected stability behavior, actual terminal time, stop reason, maximum mass drift, initial/final TV, min/max values, and smooth-signal amplitude ratio when applicable.</p>
 <p>Explain which stable case is most diffusive and which creates new extrema. Record whether the unstable top-hat runs trigger the guard or finish with substantial amplification. Do not interpret tiny relative mass drift after catastrophic growth as useful accuracy.</p>
-<div id="7b30674c" class="cell" data-execution_count="12">
+<div id="7b30674c" class="cell" data-execution_count="37">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> first_mode_amplitude(q, cell_centers):</span>
@@ -674,7 +675,7 @@ Completed top-hat profile runs.</code></pre>
 <h2 class="anchored" data-anchor-id="solution-and-diagnostic-plots">5. Solution and diagnostic plots</h2>
 <p>Create three static figures: 1. Smooth final profiles for both methods at C = 0.5 and 1.0, over the exact final cell averages. 2. Top-hat final profiles for both methods at C = 0.5 and 1.0; zoom near an edge to distinguish diffusion from ringing. 3. Time histories of mass drift, total variation, and max(abs(q)) for top-hat cases including C = 1.25. Use a logarithmic vertical scale for amplification where appropriate.</p>
 <p>The interactive explorer below lets you select the profile, method, and CFL to inspect the final solution and its diagnostic histories. Unstable histories stop at their actual recorded times. The static figures remain available for side-by-side comparison.</p>
-<div id="a8a36fd0" class="cell" data-execution_count="13">
+<div id="a8a36fd0" class="cell" data-execution_count="38">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>smooth_initial <span class="op">=</span> set_up_initial_conditions(CELL_EDGES, <span class="st">"smooth"</span>)</span>
@@ -742,92 +743,204 @@ Completed top-hat profile runs.</code></pre>
 </div>
 </div>
 </div>
-<div id="81d68ac7" class="cell" data-execution_count="14">
+</section>
+<section id="interactive-plotly-explorer" class="level2">
+<h2 class="anchored" data-anchor-id="interactive-plotly-explorer">Interactive Plotly explorer</h2>
+<p>Select a profile, method, and CFL from the Plotly dropdown. Unstable cases show their actual stopping time; their solution profile uses a signed logarithmic scale so both signs of the growth remain visible.</p>
+<iframe src="20261006-advection-interactive.html" title="Interactive advection solution and diagnostics" width="100%" height="820" style="border: 0;" loading="lazy">
+</iframe>
+<div id="81d68ac7" class="cell" data-execution_count="39">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> ipywidgets <span class="im">as</span> widgets</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_interactive_case(profile, method, cfl):</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    run <span class="op">=</span> results[profile][method][cfl]</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    times <span class="op">=</span> run[<span class="st">"times"</span>]</span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    mass_drift <span class="op">=</span> np.<span class="bu">abs</span>(run[<span class="st">"mass"</span>] <span class="op">-</span> run[<span class="st">"mass"</span>][<span class="dv">0</span>])</span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    max_amplitude <span class="op">=</span> np.asarray(</span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>        [np.<span class="bu">max</span>(np.<span class="bu">abs</span>(state)) <span class="cf">for</span> state <span class="kw">in</span> run[<span class="st">"states"</span>]]</span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    method_label <span class="op">=</span> <span class="st">"Upwind"</span> <span class="cf">if</span> method <span class="op">==</span> <span class="st">"upwind"</span> <span class="cf">else</span> <span class="st">"Lax-Wendroff"</span></span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    completion <span class="op">=</span> <span class="st">"final time"</span> <span class="cf">if</span> run[<span class="st">"completed"</span>] <span class="cf">else</span> <span class="ss">f"stopped at t=</span><span class="sc">{</span>times[<span class="op">-</span><span class="dv">1</span>]<span class="sc">:.5g}</span><span class="ss">"</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>fig <span class="op">=</span> make_subplots(</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    rows<span class="op">=</span><span class="dv">2</span>,</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    cols<span class="op">=</span><span class="dv">2</span>,</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    subplot_titles<span class="op">=</span>(</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Solution profile"</span>,</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Absolute mass drift"</span>,</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Periodic total variation"</span>,</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Maximum amplitude"</span>,</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    horizontal_spacing<span class="op">=</span><span class="fl">0.12</span>,</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    vertical_spacing<span class="op">=</span><span class="fl">0.18</span>,</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>    fig, axes <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">7</span>))</span>
-<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>    profile_ax, mass_ax, tv_ax, amplitude_ax <span class="op">=</span> axes.flat</span>
-<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>    profile_ax.plot(</span>
-<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>        CELL_CENTERS, run[<span class="st">"q_initial"</span>], <span class="st">"k--"</span>, label<span class="op">=</span><span class="st">"Initial / exact final"</span></span>
-<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>    profile_ax.plot(CELL_CENTERS, run[<span class="st">"q_final"</span>], label<span class="op">=</span><span class="st">"Computed"</span>)</span>
-<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="kw">not</span> run[<span class="st">"completed"</span>]:</span>
-<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>        profile_ax.set_yscale(<span class="st">"symlog"</span>, linthresh<span class="op">=</span><span class="fl">1.0</span>)</span>
-<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>    profile_ax.<span class="bu">set</span>(</span>
-<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>        title<span class="op">=</span><span class="ss">f"</span><span class="sc">{</span>profile<span class="sc">}</span><span class="ss">: </span><span class="sc">{</span>method_label<span class="sc">}</span><span class="ss">, CFL=</span><span class="sc">{</span>cfl<span class="sc">:g}</span><span class="ss"> (</span><span class="sc">{</span>completion<span class="sc">}</span><span class="ss">)"</span>,</span>
-<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>        xlabel<span class="op">=</span><span class="st">"x"</span>,</span>
-<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>        ylabel<span class="op">=</span><span class="st">"q"</span>,</span>
-<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>    profile_ax.legend()</span>
-<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>    mass_ax.semilogy(times, np.maximum(mass_drift, <span class="fl">1e-16</span>))</span>
-<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>    mass_ax.<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Absolute mass drift"</span>, xlabel<span class="op">=</span><span class="st">"t"</span>, ylabel<span class="op">=</span><span class="st">"|M(t) - M(0)|"</span>)</span>
-<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>    tv_ax.plot(times, run[<span class="st">"tv"</span>])</span>
-<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>    tv_ax.<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Periodic total variation"</span>, xlabel<span class="op">=</span><span class="st">"t"</span>, ylabel<span class="op">=</span><span class="st">"TV"</span>)</span>
-<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>    amplitude_ax.semilogy(times, max_amplitude)</span>
-<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>    amplitude_ax.<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Maximum amplitude"</span>, xlabel<span class="op">=</span><span class="st">"t"</span>, ylabel<span class="op">=</span><span class="st">"max |q|"</span>)</span>
-<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> ax <span class="kw">in</span> axes.flat:</span>
-<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a>        ax.grid(<span class="va">True</span>, which<span class="op">=</span><span class="st">"both"</span>)</span>
-<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a>    fig.tight_layout()</span>
-<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a>    display(fig)</span>
-<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a>    plt.close(fig)</span>
-<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a>profile_control <span class="op">=</span> widgets.Dropdown(</span>
-<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a>    options<span class="op">=</span>((<span class="st">"Smooth sine"</span>, <span class="st">"smooth"</span>), (<span class="st">"Top hat"</span>, <span class="st">"top-hat"</span>)),</span>
-<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a>    value<span class="op">=</span><span class="st">"smooth"</span>,</span>
-<span id="cb7-46"><a href="#cb7-46" aria-hidden="true" tabindex="-1"></a>    description<span class="op">=</span><span class="st">"Profile"</span>,</span>
-<span id="cb7-47"><a href="#cb7-47" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb7-48"><a href="#cb7-48" aria-hidden="true" tabindex="-1"></a>method_control <span class="op">=</span> widgets.ToggleButtons(</span>
-<span id="cb7-49"><a href="#cb7-49" aria-hidden="true" tabindex="-1"></a>    options<span class="op">=</span>((<span class="st">"Upwind"</span>, <span class="st">"upwind"</span>), (<span class="st">"Lax-Wendroff"</span>, <span class="st">"lax-wendroff"</span>)),</span>
-<span id="cb7-50"><a href="#cb7-50" aria-hidden="true" tabindex="-1"></a>    value<span class="op">=</span><span class="st">"upwind"</span>,</span>
-<span id="cb7-51"><a href="#cb7-51" aria-hidden="true" tabindex="-1"></a>    description<span class="op">=</span><span class="st">"Method"</span>,</span>
-<span id="cb7-52"><a href="#cb7-52" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb7-53"><a href="#cb7-53" aria-hidden="true" tabindex="-1"></a>cfl_control <span class="op">=</span> widgets.SelectionSlider(</span>
-<span id="cb7-54"><a href="#cb7-54" aria-hidden="true" tabindex="-1"></a>    options<span class="op">=</span>CFL_VALUES,</span>
-<span id="cb7-55"><a href="#cb7-55" aria-hidden="true" tabindex="-1"></a>    value<span class="op">=</span><span class="fl">0.5</span>,</span>
-<span id="cb7-56"><a href="#cb7-56" aria-hidden="true" tabindex="-1"></a>    description<span class="op">=</span><span class="st">"CFL"</span>,</span>
-<span id="cb7-57"><a href="#cb7-57" aria-hidden="true" tabindex="-1"></a>    continuous_update<span class="op">=</span><span class="va">False</span>,</span>
-<span id="cb7-58"><a href="#cb7-58" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb7-59"><a href="#cb7-59" aria-hidden="true" tabindex="-1"></a>interactive_plot <span class="op">=</span> widgets.interactive_output(</span>
-<span id="cb7-60"><a href="#cb7-60" aria-hidden="true" tabindex="-1"></a>    plot_interactive_case,</span>
-<span id="cb7-61"><a href="#cb7-61" aria-hidden="true" tabindex="-1"></a>    {<span class="st">"profile"</span>: profile_control, <span class="st">"method"</span>: method_control, <span class="st">"cfl"</span>: cfl_control},</span>
-<span id="cb7-62"><a href="#cb7-62" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb7-63"><a href="#cb7-63" aria-hidden="true" tabindex="-1"></a>display(</span>
-<span id="cb7-64"><a href="#cb7-64" aria-hidden="true" tabindex="-1"></a>    widgets.VBox(</span>
-<span id="cb7-65"><a href="#cb7-65" aria-hidden="true" tabindex="-1"></a>        [</span>
-<span id="cb7-66"><a href="#cb7-66" aria-hidden="true" tabindex="-1"></a>            widgets.HBox([profile_control, method_control, cfl_control]),</span>
-<span id="cb7-67"><a href="#cb7-67" aria-hidden="true" tabindex="-1"></a>            interactive_plot,</span>
-<span id="cb7-68"><a href="#cb7-68" aria-hidden="true" tabindex="-1"></a>        ]</span>
-<span id="cb7-69"><a href="#cb7-69" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb7-70"><a href="#cb7-70" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>case_specs <span class="op">=</span> {}</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>case_number <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> profile <span class="kw">in</span> PROFILE_VALUES:</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> method <span class="kw">in</span> METHOD_VALUES:</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> cfl <span class="kw">in</span> CFL_VALUES:</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>            run <span class="op">=</span> results[profile][method][cfl]</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>            times <span class="op">=</span> run[<span class="st">"times"</span>]</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>            mass_drift <span class="op">=</span> np.<span class="bu">abs</span>(run[<span class="st">"mass"</span>] <span class="op">-</span> run[<span class="st">"mass"</span>][<span class="dv">0</span>])</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>            max_amplitude <span class="op">=</span> np.asarray(</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>                [np.<span class="bu">max</span>(np.<span class="bu">abs</span>(state)) <span class="cf">for</span> state <span class="kw">in</span> run[<span class="st">"states"</span>]]</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>            )</span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>            completion <span class="op">=</span> (</span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>                <span class="st">"reached final time"</span></span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> run[<span class="st">"completed"</span>]</span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>                <span class="cf">else</span> <span class="ss">f"stopped at t=</span><span class="sc">{</span>times[<span class="op">-</span><span class="dv">1</span>]<span class="sc">:.5g}</span><span class="ss">"</span></span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>            )</span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>            method_label <span class="op">=</span> <span class="st">"Upwind"</span> <span class="cf">if</span> method <span class="op">==</span> <span class="st">"upwind"</span> <span class="cf">else</span> <span class="st">"Lax-Wendroff"</span></span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>            selected <span class="op">=</span> case_number <span class="op">==</span> <span class="dv">0</span></span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>            trace_indices <span class="op">=</span> []</span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>            profile_values <span class="op">=</span> run[<span class="st">"q_final"</span>]</span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a>            initial_values <span class="op">=</span> run[<span class="st">"q_initial"</span>]</span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a>            profile_axis_title <span class="op">=</span> <span class="st">"q"</span></span>
+<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="kw">not</span> run[<span class="st">"completed"</span>]:</span>
+<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a>                profile_values <span class="op">=</span> np.sign(profile_values) <span class="op">*</span> np.log10(</span>
+<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a>                    <span class="fl">1.0</span> <span class="op">+</span> np.<span class="bu">abs</span>(profile_values)</span>
+<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a>                )</span>
+<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a>                initial_values <span class="op">=</span> np.sign(initial_values) <span class="op">*</span> np.log10(</span>
+<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a>                    <span class="fl">1.0</span> <span class="op">+</span> np.<span class="bu">abs</span>(initial_values)</span>
+<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a>                )</span>
+<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a>                profile_axis_title <span class="op">=</span> <span class="st">"signed log10(1 + |q|)"</span></span>
+<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-46"><a href="#cb7-46" aria-hidden="true" tabindex="-1"></a>            trace_indices.append(<span class="bu">len</span>(fig.data))</span>
+<span id="cb7-47"><a href="#cb7-47" aria-hidden="true" tabindex="-1"></a>            fig.add_trace(</span>
+<span id="cb7-48"><a href="#cb7-48" aria-hidden="true" tabindex="-1"></a>                go.Scatter(</span>
+<span id="cb7-49"><a href="#cb7-49" aria-hidden="true" tabindex="-1"></a>                    x<span class="op">=</span>CELL_CENTERS,</span>
+<span id="cb7-50"><a href="#cb7-50" aria-hidden="true" tabindex="-1"></a>                    y<span class="op">=</span>initial_values,</span>
+<span id="cb7-51"><a href="#cb7-51" aria-hidden="true" tabindex="-1"></a>                    mode<span class="op">=</span><span class="st">"lines"</span>,</span>
+<span id="cb7-52"><a href="#cb7-52" aria-hidden="true" tabindex="-1"></a>                    name<span class="op">=</span><span class="st">"Initial / exact final"</span>,</span>
+<span id="cb7-53"><a href="#cb7-53" aria-hidden="true" tabindex="-1"></a>                    line<span class="op">=</span>{<span class="st">"color"</span>: <span class="st">"#65717c"</span>, <span class="st">"dash"</span>: <span class="st">"dash"</span>},</span>
+<span id="cb7-54"><a href="#cb7-54" aria-hidden="true" tabindex="-1"></a>                    visible<span class="op">=</span>selected,</span>
+<span id="cb7-55"><a href="#cb7-55" aria-hidden="true" tabindex="-1"></a>                ),</span>
+<span id="cb7-56"><a href="#cb7-56" aria-hidden="true" tabindex="-1"></a>                row<span class="op">=</span><span class="dv">1</span>,</span>
+<span id="cb7-57"><a href="#cb7-57" aria-hidden="true" tabindex="-1"></a>                col<span class="op">=</span><span class="dv">1</span>,</span>
+<span id="cb7-58"><a href="#cb7-58" aria-hidden="true" tabindex="-1"></a>            )</span>
+<span id="cb7-59"><a href="#cb7-59" aria-hidden="true" tabindex="-1"></a>            trace_indices.append(<span class="bu">len</span>(fig.data))</span>
+<span id="cb7-60"><a href="#cb7-60" aria-hidden="true" tabindex="-1"></a>            fig.add_trace(</span>
+<span id="cb7-61"><a href="#cb7-61" aria-hidden="true" tabindex="-1"></a>                go.Scatter(</span>
+<span id="cb7-62"><a href="#cb7-62" aria-hidden="true" tabindex="-1"></a>                    x<span class="op">=</span>CELL_CENTERS,</span>
+<span id="cb7-63"><a href="#cb7-63" aria-hidden="true" tabindex="-1"></a>                    y<span class="op">=</span>profile_values,</span>
+<span id="cb7-64"><a href="#cb7-64" aria-hidden="true" tabindex="-1"></a>                    mode<span class="op">=</span><span class="st">"lines"</span>,</span>
+<span id="cb7-65"><a href="#cb7-65" aria-hidden="true" tabindex="-1"></a>                    name<span class="op">=</span><span class="st">"Computed solution"</span>,</span>
+<span id="cb7-66"><a href="#cb7-66" aria-hidden="true" tabindex="-1"></a>                    line<span class="op">=</span>{<span class="st">"color"</span>: <span class="st">"#e05d44"</span>},</span>
+<span id="cb7-67"><a href="#cb7-67" aria-hidden="true" tabindex="-1"></a>                    visible<span class="op">=</span>selected,</span>
+<span id="cb7-68"><a href="#cb7-68" aria-hidden="true" tabindex="-1"></a>                ),</span>
+<span id="cb7-69"><a href="#cb7-69" aria-hidden="true" tabindex="-1"></a>                row<span class="op">=</span><span class="dv">1</span>,</span>
+<span id="cb7-70"><a href="#cb7-70" aria-hidden="true" tabindex="-1"></a>                col<span class="op">=</span><span class="dv">1</span>,</span>
+<span id="cb7-71"><a href="#cb7-71" aria-hidden="true" tabindex="-1"></a>            )</span>
+<span id="cb7-72"><a href="#cb7-72" aria-hidden="true" tabindex="-1"></a>            trace_indices.append(<span class="bu">len</span>(fig.data))</span>
+<span id="cb7-73"><a href="#cb7-73" aria-hidden="true" tabindex="-1"></a>            fig.add_trace(</span>
+<span id="cb7-74"><a href="#cb7-74" aria-hidden="true" tabindex="-1"></a>                go.Scatter(</span>
+<span id="cb7-75"><a href="#cb7-75" aria-hidden="true" tabindex="-1"></a>                    x<span class="op">=</span>times,</span>
+<span id="cb7-76"><a href="#cb7-76" aria-hidden="true" tabindex="-1"></a>                    y<span class="op">=</span>np.maximum(mass_drift, <span class="fl">1e-16</span>),</span>
+<span id="cb7-77"><a href="#cb7-77" aria-hidden="true" tabindex="-1"></a>                    mode<span class="op">=</span><span class="st">"lines"</span>,</span>
+<span id="cb7-78"><a href="#cb7-78" aria-hidden="true" tabindex="-1"></a>                    name<span class="op">=</span><span class="st">"Mass drift"</span>,</span>
+<span id="cb7-79"><a href="#cb7-79" aria-hidden="true" tabindex="-1"></a>                    line<span class="op">=</span>{<span class="st">"color"</span>: <span class="st">"#3d7ea6"</span>},</span>
+<span id="cb7-80"><a href="#cb7-80" aria-hidden="true" tabindex="-1"></a>                    visible<span class="op">=</span>selected,</span>
+<span id="cb7-81"><a href="#cb7-81" aria-hidden="true" tabindex="-1"></a>                    showlegend<span class="op">=</span><span class="va">False</span>,</span>
+<span id="cb7-82"><a href="#cb7-82" aria-hidden="true" tabindex="-1"></a>                ),</span>
+<span id="cb7-83"><a href="#cb7-83" aria-hidden="true" tabindex="-1"></a>                row<span class="op">=</span><span class="dv">1</span>,</span>
+<span id="cb7-84"><a href="#cb7-84" aria-hidden="true" tabindex="-1"></a>                col<span class="op">=</span><span class="dv">2</span>,</span>
+<span id="cb7-85"><a href="#cb7-85" aria-hidden="true" tabindex="-1"></a>            )</span>
+<span id="cb7-86"><a href="#cb7-86" aria-hidden="true" tabindex="-1"></a>            trace_indices.append(<span class="bu">len</span>(fig.data))</span>
+<span id="cb7-87"><a href="#cb7-87" aria-hidden="true" tabindex="-1"></a>            fig.add_trace(</span>
+<span id="cb7-88"><a href="#cb7-88" aria-hidden="true" tabindex="-1"></a>                go.Scatter(</span>
+<span id="cb7-89"><a href="#cb7-89" aria-hidden="true" tabindex="-1"></a>                    x<span class="op">=</span>times,</span>
+<span id="cb7-90"><a href="#cb7-90" aria-hidden="true" tabindex="-1"></a>                    y<span class="op">=</span>run[<span class="st">"tv"</span>],</span>
+<span id="cb7-91"><a href="#cb7-91" aria-hidden="true" tabindex="-1"></a>                    mode<span class="op">=</span><span class="st">"lines"</span>,</span>
+<span id="cb7-92"><a href="#cb7-92" aria-hidden="true" tabindex="-1"></a>                    name<span class="op">=</span><span class="st">"Total variation"</span>,</span>
+<span id="cb7-93"><a href="#cb7-93" aria-hidden="true" tabindex="-1"></a>                    line<span class="op">=</span>{<span class="st">"color"</span>: <span class="st">"#4b8b62"</span>},</span>
+<span id="cb7-94"><a href="#cb7-94" aria-hidden="true" tabindex="-1"></a>                    visible<span class="op">=</span>selected,</span>
+<span id="cb7-95"><a href="#cb7-95" aria-hidden="true" tabindex="-1"></a>                    showlegend<span class="op">=</span><span class="va">False</span>,</span>
+<span id="cb7-96"><a href="#cb7-96" aria-hidden="true" tabindex="-1"></a>                ),</span>
+<span id="cb7-97"><a href="#cb7-97" aria-hidden="true" tabindex="-1"></a>                row<span class="op">=</span><span class="dv">2</span>,</span>
+<span id="cb7-98"><a href="#cb7-98" aria-hidden="true" tabindex="-1"></a>                col<span class="op">=</span><span class="dv">1</span>,</span>
+<span id="cb7-99"><a href="#cb7-99" aria-hidden="true" tabindex="-1"></a>            )</span>
+<span id="cb7-100"><a href="#cb7-100" aria-hidden="true" tabindex="-1"></a>            trace_indices.append(<span class="bu">len</span>(fig.data))</span>
+<span id="cb7-101"><a href="#cb7-101" aria-hidden="true" tabindex="-1"></a>            fig.add_trace(</span>
+<span id="cb7-102"><a href="#cb7-102" aria-hidden="true" tabindex="-1"></a>                go.Scatter(</span>
+<span id="cb7-103"><a href="#cb7-103" aria-hidden="true" tabindex="-1"></a>                    x<span class="op">=</span>times,</span>
+<span id="cb7-104"><a href="#cb7-104" aria-hidden="true" tabindex="-1"></a>                    y<span class="op">=</span>max_amplitude,</span>
+<span id="cb7-105"><a href="#cb7-105" aria-hidden="true" tabindex="-1"></a>                    mode<span class="op">=</span><span class="st">"lines"</span>,</span>
+<span id="cb7-106"><a href="#cb7-106" aria-hidden="true" tabindex="-1"></a>                    name<span class="op">=</span><span class="st">"Maximum amplitude"</span>,</span>
+<span id="cb7-107"><a href="#cb7-107" aria-hidden="true" tabindex="-1"></a>                    line<span class="op">=</span>{<span class="st">"color"</span>: <span class="st">"#9a6cb4"</span>},</span>
+<span id="cb7-108"><a href="#cb7-108" aria-hidden="true" tabindex="-1"></a>                    visible<span class="op">=</span>selected,</span>
+<span id="cb7-109"><a href="#cb7-109" aria-hidden="true" tabindex="-1"></a>                    showlegend<span class="op">=</span><span class="va">False</span>,</span>
+<span id="cb7-110"><a href="#cb7-110" aria-hidden="true" tabindex="-1"></a>                ),</span>
+<span id="cb7-111"><a href="#cb7-111" aria-hidden="true" tabindex="-1"></a>                row<span class="op">=</span><span class="dv">2</span>,</span>
+<span id="cb7-112"><a href="#cb7-112" aria-hidden="true" tabindex="-1"></a>                col<span class="op">=</span><span class="dv">2</span>,</span>
+<span id="cb7-113"><a href="#cb7-113" aria-hidden="true" tabindex="-1"></a>            )</span>
+<span id="cb7-114"><a href="#cb7-114" aria-hidden="true" tabindex="-1"></a>            case_specs[(profile, method, cfl)] <span class="op">=</span> {</span>
+<span id="cb7-115"><a href="#cb7-115" aria-hidden="true" tabindex="-1"></a>                <span class="st">"indices"</span>: trace_indices,</span>
+<span id="cb7-116"><a href="#cb7-116" aria-hidden="true" tabindex="-1"></a>                <span class="st">"title"</span>: (</span>
+<span id="cb7-117"><a href="#cb7-117" aria-hidden="true" tabindex="-1"></a>                    <span class="ss">f"</span><span class="sc">{</span>profile<span class="sc">.</span>title()<span class="sc">}</span><span class="ss"> profile | </span><span class="sc">{</span>method_label<span class="sc">}</span><span class="ss"> | "</span></span>
+<span id="cb7-118"><a href="#cb7-118" aria-hidden="true" tabindex="-1"></a>                    <span class="ss">f"CFL </span><span class="sc">{</span>cfl<span class="sc">:g}</span><span class="ss"> | </span><span class="sc">{</span>completion<span class="sc">}</span><span class="ss">"</span></span>
+<span id="cb7-119"><a href="#cb7-119" aria-hidden="true" tabindex="-1"></a>                ),</span>
+<span id="cb7-120"><a href="#cb7-120" aria-hidden="true" tabindex="-1"></a>                <span class="st">"profile_axis_title"</span>: profile_axis_title,</span>
+<span id="cb7-121"><a href="#cb7-121" aria-hidden="true" tabindex="-1"></a>            }</span>
+<span id="cb7-122"><a href="#cb7-122" aria-hidden="true" tabindex="-1"></a>            case_number <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb7-123"><a href="#cb7-123" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-124"><a href="#cb7-124" aria-hidden="true" tabindex="-1"></a>case_buttons <span class="op">=</span> []</span>
+<span id="cb7-125"><a href="#cb7-125" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (profile, method, cfl), spec <span class="kw">in</span> case_specs.items():</span>
+<span id="cb7-126"><a href="#cb7-126" aria-hidden="true" tabindex="-1"></a>    visible <span class="op">=</span> [index <span class="kw">in</span> spec[<span class="st">"indices"</span>] <span class="cf">for</span> index <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(fig.data))]</span>
+<span id="cb7-127"><a href="#cb7-127" aria-hidden="true" tabindex="-1"></a>    method_label <span class="op">=</span> <span class="st">"Upwind"</span> <span class="cf">if</span> method <span class="op">==</span> <span class="st">"upwind"</span> <span class="cf">else</span> <span class="st">"Lax-Wendroff"</span></span>
+<span id="cb7-128"><a href="#cb7-128" aria-hidden="true" tabindex="-1"></a>    case_buttons.append(</span>
+<span id="cb7-129"><a href="#cb7-129" aria-hidden="true" tabindex="-1"></a>        {</span>
+<span id="cb7-130"><a href="#cb7-130" aria-hidden="true" tabindex="-1"></a>            <span class="st">"label"</span>: <span class="ss">f"</span><span class="sc">{</span>profile<span class="sc">}</span><span class="ss"> | </span><span class="sc">{</span>method_label<span class="sc">}</span><span class="ss"> | CFL </span><span class="sc">{</span>cfl<span class="sc">:g}</span><span class="ss">"</span>,</span>
+<span id="cb7-131"><a href="#cb7-131" aria-hidden="true" tabindex="-1"></a>            <span class="st">"method"</span>: <span class="st">"update"</span>,</span>
+<span id="cb7-132"><a href="#cb7-132" aria-hidden="true" tabindex="-1"></a>            <span class="st">"args"</span>: [</span>
+<span id="cb7-133"><a href="#cb7-133" aria-hidden="true" tabindex="-1"></a>                {<span class="st">"visible"</span>: visible},</span>
+<span id="cb7-134"><a href="#cb7-134" aria-hidden="true" tabindex="-1"></a>                {</span>
+<span id="cb7-135"><a href="#cb7-135" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"title.text"</span>: spec[<span class="st">"title"</span>],</span>
+<span id="cb7-136"><a href="#cb7-136" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"yaxis.title.text"</span>: spec[<span class="st">"profile_axis_title"</span>],</span>
+<span id="cb7-137"><a href="#cb7-137" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"yaxis.autorange"</span>: <span class="va">True</span>,</span>
+<span id="cb7-138"><a href="#cb7-138" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"yaxis2.autorange"</span>: <span class="va">True</span>,</span>
+<span id="cb7-139"><a href="#cb7-139" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"yaxis3.autorange"</span>: <span class="va">True</span>,</span>
+<span id="cb7-140"><a href="#cb7-140" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"yaxis4.autorange"</span>: <span class="va">True</span>,</span>
+<span id="cb7-141"><a href="#cb7-141" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"xaxis.autorange"</span>: <span class="va">True</span>,</span>
+<span id="cb7-142"><a href="#cb7-142" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"xaxis2.autorange"</span>: <span class="va">True</span>,</span>
+<span id="cb7-143"><a href="#cb7-143" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"xaxis3.autorange"</span>: <span class="va">True</span>,</span>
+<span id="cb7-144"><a href="#cb7-144" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"xaxis4.autorange"</span>: <span class="va">True</span>,</span>
+<span id="cb7-145"><a href="#cb7-145" aria-hidden="true" tabindex="-1"></a>                },</span>
+<span id="cb7-146"><a href="#cb7-146" aria-hidden="true" tabindex="-1"></a>            ],</span>
+<span id="cb7-147"><a href="#cb7-147" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb7-148"><a href="#cb7-148" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb7-149"><a href="#cb7-149" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-150"><a href="#cb7-150" aria-hidden="true" tabindex="-1"></a>fig.update_yaxes(<span class="bu">type</span><span class="op">=</span><span class="st">"log"</span>, title_text<span class="op">=</span><span class="st">"|M(t) - M(0)|"</span>, row<span class="op">=</span><span class="dv">1</span>, col<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb7-151"><a href="#cb7-151" aria-hidden="true" tabindex="-1"></a>fig.update_yaxes(title_text<span class="op">=</span><span class="st">"TV"</span>, row<span class="op">=</span><span class="dv">2</span>, col<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb7-152"><a href="#cb7-152" aria-hidden="true" tabindex="-1"></a>fig.update_yaxes(<span class="bu">type</span><span class="op">=</span><span class="st">"log"</span>, title_text<span class="op">=</span><span class="st">"max |q|"</span>, row<span class="op">=</span><span class="dv">2</span>, col<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb7-153"><a href="#cb7-153" aria-hidden="true" tabindex="-1"></a>fig.update_xaxes(title_text<span class="op">=</span><span class="st">"x"</span>, row<span class="op">=</span><span class="dv">1</span>, col<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb7-154"><a href="#cb7-154" aria-hidden="true" tabindex="-1"></a>fig.update_xaxes(title_text<span class="op">=</span><span class="st">"t"</span>, row<span class="op">=</span><span class="dv">1</span>, col<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb7-155"><a href="#cb7-155" aria-hidden="true" tabindex="-1"></a>fig.update_xaxes(title_text<span class="op">=</span><span class="st">"t"</span>, row<span class="op">=</span><span class="dv">2</span>, col<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb7-156"><a href="#cb7-156" aria-hidden="true" tabindex="-1"></a>fig.update_xaxes(title_text<span class="op">=</span><span class="st">"t"</span>, row<span class="op">=</span><span class="dv">2</span>, col<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb7-157"><a href="#cb7-157" aria-hidden="true" tabindex="-1"></a>fig.update_layout(</span>
+<span id="cb7-158"><a href="#cb7-158" aria-hidden="true" tabindex="-1"></a>    title<span class="op">=</span>case_specs[(<span class="st">"smooth"</span>, <span class="st">"upwind"</span>, <span class="fl">0.5</span>)][<span class="st">"title"</span>],</span>
+<span id="cb7-159"><a href="#cb7-159" aria-hidden="true" tabindex="-1"></a>    height<span class="op">=</span><span class="dv">760</span>,</span>
+<span id="cb7-160"><a href="#cb7-160" aria-hidden="true" tabindex="-1"></a>    margin<span class="op">=</span>{<span class="st">"t"</span>: <span class="dv">160</span>, <span class="st">"b"</span>: <span class="dv">50</span>, <span class="st">"l"</span>: <span class="dv">60</span>, <span class="st">"r"</span>: <span class="dv">30</span>},</span>
+<span id="cb7-161"><a href="#cb7-161" aria-hidden="true" tabindex="-1"></a>    updatemenus<span class="op">=</span>[</span>
+<span id="cb7-162"><a href="#cb7-162" aria-hidden="true" tabindex="-1"></a>        {</span>
+<span id="cb7-163"><a href="#cb7-163" aria-hidden="true" tabindex="-1"></a>            <span class="st">"buttons"</span>: case_buttons,</span>
+<span id="cb7-164"><a href="#cb7-164" aria-hidden="true" tabindex="-1"></a>            <span class="st">"direction"</span>: <span class="st">"down"</span>,</span>
+<span id="cb7-165"><a href="#cb7-165" aria-hidden="true" tabindex="-1"></a>            <span class="st">"showactive"</span>: <span class="va">True</span>,</span>
+<span id="cb7-166"><a href="#cb7-166" aria-hidden="true" tabindex="-1"></a>            <span class="st">"x"</span>: <span class="fl">0.0</span>,</span>
+<span id="cb7-167"><a href="#cb7-167" aria-hidden="true" tabindex="-1"></a>            <span class="st">"xanchor"</span>: <span class="st">"left"</span>,</span>
+<span id="cb7-168"><a href="#cb7-168" aria-hidden="true" tabindex="-1"></a>            <span class="st">"y"</span>: <span class="fl">1.22</span>,</span>
+<span id="cb7-169"><a href="#cb7-169" aria-hidden="true" tabindex="-1"></a>            <span class="st">"yanchor"</span>: <span class="st">"top"</span>,</span>
+<span id="cb7-170"><a href="#cb7-170" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb7-171"><a href="#cb7-171" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb7-172"><a href="#cb7-172" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb7-173"><a href="#cb7-173" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-174"><a href="#cb7-174" aria-hidden="true" tabindex="-1"></a>plotly_html_path <span class="op">=</span> Path(<span class="st">"20261006-advection-interactive.html"</span>)</span>
+<span id="cb7-175"><a href="#cb7-175" aria-hidden="true" tabindex="-1"></a>fig.write_html(</span>
+<span id="cb7-176"><a href="#cb7-176" aria-hidden="true" tabindex="-1"></a>    plotly_html_path,</span>
+<span id="cb7-177"><a href="#cb7-177" aria-hidden="true" tabindex="-1"></a>    include_plotlyjs<span class="op">=</span><span class="st">"cdn"</span>,</span>
+<span id="cb7-178"><a href="#cb7-178" aria-hidden="true" tabindex="-1"></a>    full_html<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb7-179"><a href="#cb7-179" aria-hidden="true" tabindex="-1"></a>    div_id<span class="op">=</span><span class="st">"advection-case-explorer"</span>,</span>
+<span id="cb7-180"><a href="#cb7-180" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb7-181"><a href="#cb7-181" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Generated </span><span class="sc">{</span>plotly_html_path<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display">
-<script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"db9f152c54394b6e9164d426f5fc92c3","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
-</script>
-</div>
 </div>
 </section>
 <section id="automatic-checks" class="level2">
 <h2 class="anchored" data-anchor-id="automatic-checks">6. Automatic checks</h2>
 <p>Test properties with evidence independent of the flux implementation: - A constant field survives one step to absolute tolerance 1e-14. - At C = 1, both methods match a cyclic shift of an arbitrary vector to 1e-13 in one step. - Every stable run (C &lt;= 1) preserves mass to absolute drift &lt;= 1e-12. - For upwind C &lt;= 1, bounds remain within the initial bounds plus tolerance 1e-12, and TV never exceeds its initial value by more than 1e-10. - At C = 1 and T = 1, both final states match initial states to 1e-11. - Each top-hat run at C = 1.25 triggers the guard or has maximum amplitude at least ten times its initial maximum by T = 1.</p>
 <p>Do not impose positivity or TVD checks on Lax-Wendroff as though they were guaranteed properties. Do not assert mass tolerance after catastrophic growth: cancellation and roundoff can dominate then.</p>
-<div id="0602af89" class="cell" data-execution_count="15">
+<div id="0602af89" class="cell" data-execution_count="40">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>tolerance <span class="op">=</span> <span class="fl">1e-12</span></span>
