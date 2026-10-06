@@ -268,7 +268,7 @@ window.Quarto = {
 <p>Store true cell averages. For the sine signal, derive the cell integral analytically (the sine amplitude is multiplied by sinc(dx), with NumPy’s normalized sinc convention). The top-hat edges align with this mesh, so its initial cell averages are exactly zero or one.</p>
 <p>Run to T = 1, one complete transit around the ring. The exact final cell-average vector equals the initial vector. If an unstable run terminates early, do not compare its vector with the T = 1 reference. Record the actual stop time and reason.</p>
 <p>Before implementation, predict which method will be bounded, diffusive, oscillatory, or unstable for C in {0.5, 1.0, 1.25}.</p>
-<div id="af03a541" class="cell" data-execution_count="1">
+<div id="af03a541" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
@@ -315,7 +315,7 @@ window.Quarto = {
 <p><strong>Tasks:</strong> Implement separate flux and stepping functions. Use old-state arrays when calculating the full flux vector; avoid updating cells in place. Show on paper why the flux differences telescope in the global sum. Derive the update weights and explain the upwind convex-combination condition.</p>
 <p>Use dt = C dx/a, with a shortened final step only if necessary to hit T exactly. Log the actual CFL and use the actual dt in the Lax-Wendroff flux. The specified cases divide T into an integer number of nominal steps, apart from floating-point roundoff.</p>
 <p>For runs exceeding max(abs(q)) = 1e6, or producing nonfinite values, stop deliberately and record the failure. Retain the finite history up to that point. This guard protects the experiment; it is not a limiter or a stability fix.</p>
-<div id="5091accd" class="cell" data-execution_count="2">
+<div id="5091accd" class="cell" data-execution_count="10">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> set_up_initial_conditions(cell_edges, profile):</span>
@@ -418,7 +418,7 @@ A_{\rm range}=\max_iq_i-\min_iq_i.\]</span> Include the last-to-first periodic j
 <p>For the top hat, record undershoot max(0,-min(q)) and overshoot max(0,max(q)-1). A conservative method need not preserve bounds, and boundedness is not the same as nondiffusive transport.</p>
 <p><strong>Predict and check:</strong> Upwind at C = 0.5 smears a discontinuity. Lax-Wendroff can maintain smooth signal amplitude better but ring near discontinuities. At C = 1 both schemes shift exactly one cell per step. C = 1.25 lies outside their linear stability ranges for this equation. The top hat excites short-wave content needed to expose instability; a smooth low-frequency signal may hide it over a short run.</p>
 <p>Optional final-return discrepancy may be reported, but it is not the learning objective. Do not compute Richardson extrapolation, GCI, or mesh-convergence orders.</p>
-<div id="d80e0bd2" class="cell" data-execution_count="3">
+<div id="d80e0bd2" class="cell" data-execution_count="11">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>METHOD_VALUES <span class="op">=</span> (<span class="st">"upwind"</span>, <span class="st">"lax-wendroff"</span>)</span>
@@ -455,7 +455,7 @@ Completed top-hat profile runs.</code></pre>
 <h2 class="anchored" data-anchor-id="results-and-diagnostics">4. Results and diagnostics</h2>
 <p>Display one table with profile, method, requested CFL, expected stability behavior, actual terminal time, stop reason, maximum mass drift, initial/final TV, min/max values, and smooth-signal amplitude ratio when applicable.</p>
 <p>Explain which stable case is most diffusive and which creates new extrema. Record whether the unstable top-hat runs trigger the guard or finish with substantial amplification. Do not interpret tiny relative mass drift after catastrophic growth as useful accuracy.</p>
-<div id="7b30674c" class="cell" data-execution_count="5">
+<div id="7b30674c" class="cell" data-execution_count="12">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> first_mode_amplitude(q, cell_centers):</span>
@@ -674,7 +674,7 @@ Completed top-hat profile runs.</code></pre>
 <h2 class="anchored" data-anchor-id="solution-and-diagnostic-plots">5. Solution and diagnostic plots</h2>
 <p>Create three static figures: 1. Smooth final profiles for both methods at C = 0.5 and 1.0, over the exact final cell averages. 2. Top-hat final profiles for both methods at C = 0.5 and 1.0; zoom near an edge to distinguish diffusion from ringing. 3. Time histories of mass drift, total variation, and max(abs(q)) for top-hat cases including C = 1.25. Use a logarithmic vertical scale for amplification where appropriate.</p>
 <p>The interactive explorer below lets you select the profile, method, and CFL to inspect the final solution and its diagnostic histories. Unstable histories stop at their actual recorded times. The static figures remain available for side-by-side comparison.</p>
-<div id="a8a36fd0" class="cell" data-execution_count="6">
+<div id="a8a36fd0" class="cell" data-execution_count="13">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>smooth_initial <span class="op">=</span> set_up_initial_conditions(CELL_EDGES, <span class="st">"smooth"</span>)</span>
@@ -742,7 +742,7 @@ Completed top-hat profile runs.</code></pre>
 </div>
 </div>
 </div>
-<div id="81d68ac7" class="cell" data-execution_count="8">
+<div id="81d68ac7" class="cell" data-execution_count="14">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> ipywidgets <span class="im">as</span> widgets</span>
@@ -818,7 +818,7 @@ Completed top-hat profile runs.</code></pre>
 </details>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"c3434fa71ab8485faa62326822b5cf94","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+{"model_id":"db9f152c54394b6e9164d426f5fc92c3","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 </div>
@@ -827,7 +827,7 @@ Completed top-hat profile runs.</code></pre>
 <h2 class="anchored" data-anchor-id="automatic-checks">6. Automatic checks</h2>
 <p>Test properties with evidence independent of the flux implementation: - A constant field survives one step to absolute tolerance 1e-14. - At C = 1, both methods match a cyclic shift of an arbitrary vector to 1e-13 in one step. - Every stable run (C &lt;= 1) preserves mass to absolute drift &lt;= 1e-12. - For upwind C &lt;= 1, bounds remain within the initial bounds plus tolerance 1e-12, and TV never exceeds its initial value by more than 1e-10. - At C = 1 and T = 1, both final states match initial states to 1e-11. - Each top-hat run at C = 1.25 triggers the guard or has maximum amplitude at least ten times its initial maximum by T = 1.</p>
 <p>Do not impose positivity or TVD checks on Lax-Wendroff as though they were guaranteed properties. Do not assert mass tolerance after catastrophic growth: cancellation and roundoff can dominate then.</p>
-<div id="0602af89" class="cell" data-execution_count="7">
+<div id="0602af89" class="cell" data-execution_count="15">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>tolerance <span class="op">=</span> <span class="fl">1e-12</span></span>
