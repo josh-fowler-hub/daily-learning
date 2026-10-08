@@ -2,6 +2,8 @@
   {
     "listing": "/index.html",
     "items": [
+      "/20261008-aos-vs-soa-flux-kernel.html",
+      "/20261007-cg-line-preconditioning.html",
       "/20261006-advection-cfl-conservation.html",
       "/20261005-grid-convergence-and-discretization-uncertainty.html",
       "/20261002-heat-balance-uncertainty.html",

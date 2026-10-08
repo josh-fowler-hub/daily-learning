@@ -2,34 +2,42 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://josh-fowler-hub.github.io/daily-learning/problem-template.html</loc>
-    <lastmod>2026-10-05T20:41:31.333Z</lastmod>
+    <lastmod>2026-10-02T01:48:47.602Z</lastmod>
   </url>
   <url>
-    <loc>https://josh-fowler-hub.github.io/daily-learning/20260929-verify-heat-conduction.html</loc>
-    <lastmod>2026-10-05T20:41:31.327Z</lastmod>
-  </url>
-  <url>
-    <loc>https://josh-fowler-hub.github.io/daily-learning/20260930-solver-error.html</loc>
-    <lastmod>2026-10-05T20:41:31.328Z</lastmod>
+    <loc>https://josh-fowler-hub.github.io/daily-learning/20261008-aos-vs-soa-flux-kernel.html</loc>
+    <lastmod>2026-10-08T21:22:11.654Z</lastmod>
   </url>
   <url>
     <loc>https://josh-fowler-hub.github.io/daily-learning/20261006-advection-cfl-conservation.html</loc>
-    <lastmod>2026-10-06T20:01:15.881Z</lastmod>
+    <lastmod>2026-10-08T13:19:30.201Z</lastmod>
   </url>
   <url>
     <loc>https://josh-fowler-hub.github.io/daily-learning/20261002-heat-balance-uncertainty.html</loc>
-    <lastmod>2026-10-05T20:41:31.328Z</lastmod>
+    <lastmod>2026-10-02T14:56:58.664Z</lastmod>
   </url>
   <url>
-    <loc>https://josh-fowler-hub.github.io/daily-learning/index.html</loc>
-    <lastmod>2026-10-05T20:41:31.333Z</lastmod>
+    <loc>https://josh-fowler-hub.github.io/daily-learning/20260930-solver-error.html</loc>
+    <lastmod>2026-10-02T01:34:09.369Z</lastmod>
   </url>
   <url>
-    <loc>https://josh-fowler-hub.github.io/daily-learning/20261005-grid-convergence-and-discretization-uncertainty.html</loc>
-    <lastmod>2026-10-05T21:39:05.874Z</lastmod>
+    <loc>https://josh-fowler-hub.github.io/daily-learning/20260929-verify-heat-conduction.html</loc>
+    <lastmod>2026-10-02T01:33:51.452Z</lastmod>
   </url>
   <url>
     <loc>https://josh-fowler-hub.github.io/daily-learning/20261001-estimate-mesh-error.html</loc>
-    <lastmod>2026-10-05T20:41:31.328Z</lastmod>
+    <lastmod>2026-10-02T14:49:23.461Z</lastmod>
+  </url>
+  <url>
+    <loc>https://josh-fowler-hub.github.io/daily-learning/20261005-grid-convergence-and-discretization-uncertainty.html</loc>
+    <lastmod>2026-10-08T13:19:30.198Z</lastmod>
+  </url>
+  <url>
+    <loc>https://josh-fowler-hub.github.io/daily-learning/20261007-cg-line-preconditioning.html</loc>
+    <lastmod>2026-10-08T19:22:08.271Z</lastmod>
+  </url>
+  <url>
+    <loc>https://josh-fowler-hub.github.io/daily-learning/index.html</loc>
+    <lastmod>2026-10-02T01:57:21.556Z</lastmod>
   </url>
 </urlset>

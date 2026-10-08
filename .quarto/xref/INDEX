@@ -22,5 +22,11 @@
   },
   "20261006-advection-cfl-conservation.ipynb": {
     "20261006-advection-cfl-conservation.html": "bd27570e"
+  },
+  "20261007-cg-line-preconditioning.ipynb": {
+    "20261007-cg-line-preconditioning.html": "c36dbd6e"
+  },
+  "20261008-aos-vs-soa-flux-kernel.ipynb": {
+    "20261008-aos-vs-soa-flux-kernel.html": "9d7baf5d"
   }
 }

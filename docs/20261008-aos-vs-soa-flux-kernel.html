@@ -1,0 +1,1853 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="dcterms.date" content="2026-10-08">
+<meta name="description" content="Measure how data layout changes throughput for a fixed compressible-flow kernel.">
+
+<title>AoS vs SoA for a Finite-Volume Flux Kernel – Daily Learning &amp; Refreshers</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-6c0ad46e1861a38265c10768182fb462.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-dad9a4322ad7fa4720762ae757f50ef1.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top quarto-banner">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">Daily Learning &amp; Refreshers</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./index.html"> 
+<span class="menu-text">Practice Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="https://josh-fowler-hub.github.io/"> 
+<span class="menu-text">Portfolio</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/josh-fowler-hub/daily-learning"> <i class="bi bi-github" role="img" aria-label="GitHub repository">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <div class="quarto-title-block"><div><h1 class="title">AoS vs SoA for a Finite-Volume Flux Kernel</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li></ul></div></div>
+                  <div>
+        <div class="description">
+          Measure how data layout changes throughput for a fixed compressible-flow kernel.
+        </div>
+      </div>
+                          <div class="quarto-categories">
+                <div class="quarto-category">scientific computing</div>
+                <div class="quarto-category">memory layout</div>
+                <div class="quarto-category">performance</div>
+              </div>
+                  </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">October 8, 2026</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#aos-vs-soa-for-a-finite-volume-flux-kernel" id="toc-aos-vs-soa-for-a-finite-volume-flux-kernel" class="nav-link active" data-scroll-target="#aos-vs-soa-for-a-finite-volume-flux-kernel">AoS vs SoA for a Finite-Volume Flux Kernel</a>
+  <ul class="collapse">
+  <li><a href="#when-the-arithmetic-is-identical-does-layout-control-throughput" id="toc-when-the-arithmetic-is-identical-does-layout-control-throughput" class="nav-link" data-scroll-target="#when-the-arithmetic-is-identical-does-layout-control-throughput">When the arithmetic is identical, does layout control throughput?</a></li>
+  <li><a href="#kernel-and-storage-layouts" id="toc-kernel-and-storage-layouts" class="nav-link" data-scroll-target="#kernel-and-storage-layouts">1. Kernel and storage layouts</a></li>
+  <li><a href="#reproducible-admissible-state" id="toc-reproducible-admissible-state" class="nav-link" data-scroll-target="#reproducible-admissible-state">2. Reproducible admissible state</a></li>
+  <li><a href="#correctness-before-performance" id="toc-correctness-before-performance" class="nav-link" data-scroll-target="#correctness-before-performance">3. Correctness before performance</a></li>
+  <li><a href="#timing-protocol-and-traffic-model" id="toc-timing-protocol-and-traffic-model" class="nav-link" data-scroll-target="#timing-protocol-and-traffic-model">4. Timing protocol and traffic model</a></li>
+  <li><a href="#required-plots-and-interpretation" id="toc-required-plots-and-interpretation" class="nav-link" data-scroll-target="#required-plots-and-interpretation">5. Required plots and interpretation</a></li>
+  <li><a href="#automatic-success-checks" id="toc-automatic-success-checks" class="nav-link" data-scroll-target="#automatic-success-checks">6. Automatic success checks</a></li>
+  <li><a href="#discussion-stretch-goal-and-references" id="toc-discussion-stretch-goal-and-references" class="nav-link" data-scroll-target="#discussion-stretch-goal-and-references">7. Discussion, stretch goal, and references</a>
+  <ul class="collapse">
+  <li><a href="#scope-and-limitations" id="toc-scope-and-limitations" class="nav-link" data-scroll-target="#scope-and-limitations">Scope and limitations</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
+  </ul></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+
+<section id="aos-vs-soa-for-a-finite-volume-flux-kernel" class="level1">
+<h1>AoS vs SoA for a Finite-Volume Flux Kernel</h1>
+<section id="when-the-arithmetic-is-identical-does-layout-control-throughput" class="level3">
+<h3 class="anchored" data-anchor-id="when-the-arithmetic-is-identical-does-layout-control-throughput">When the arithmetic is identical, does layout control throughput?</h3>
+<p><strong>Learning goal:</strong> Implement the same 1D Euler/Rusanov residual kernel using array-of-structures (AoS) and structure-of-arrays (SoA) storage, verify numerical equivalence, and explain measured throughput using stride, working-set size, and a simple bandwidth model.</p>
+<p><strong>Time:</strong> 60-90 minutes. Python, NumPy, Numba, Matplotlib. Use one fixed physical state per problem size; this is a performance experiment, not a grid-convergence study.</p>
+<p><strong>Primary question:</strong> Which layout better matches the loop and field-access pattern on your CPU, and does the answer change between fused and split kernels?</p>
+<p><strong>Success targets:</strong> Both layouts agree to tight floating-point tolerance; all generated states remain physically admissible; timings exclude compilation and allocation; results report median time, cell-updates/s, estimated useful bandwidth, and run-to-run spread.</p>
+<p>The code cells contain a fully commented implementation. Predict the winner before measuring, then run the cells in order. A performance result without a verified equivalent computation is not valid.</p>
+</section>
+<section id="kernel-and-storage-layouts" class="level2">
+<h2 class="anchored" data-anchor-id="kernel-and-storage-layouts">1. Kernel and storage layouts</h2>
+<p>For the 1D Euler conserved state <span class="math display">\[U=(\rho,\rho u,E)^T,\qquad p=(\gamma-1)\left(E-\tfrac12\rho u^2\right),\]</span> the physical flux is <span class="math display">\[F(U)=\left(\rho u,\rho u^2+p,u(E+p)\right)^T.\]</span> At each periodic face, evaluate the local Lax-Friedrichs/Rusanov flux <span class="math display">\[F_{i+1/2}=\tfrac12\left[F(U_i)+F(U_{i+1})\right]-\tfrac12s_{i+1/2}(U_{i+1}-U_i),\]</span> where <span class="math inline">\(s_{i+1/2}=\max(|u_i|+c_i,|u_{i+1}|+c_{i+1})\)</span> and <span class="math inline">\(c=\sqrt{\gamma p/\rho}\)</span>. Return the unscaled residual <span class="math inline">\(R_i=F_{i+1/2}-F_{i-1/2}\)</span>. Do not advance a solution in time.</p>
+<p>Implement the identical operation in two layouts:</p>
+<ul>
+<li><strong>AoS:</strong> one C-contiguous array <code>U.shape == (N, 3)</code>; the three fields for one cell are adjacent.</li>
+<li><strong>SoA:</strong> three C-contiguous arrays <code>rho</code>, <code>mom</code>, and <code>energy</code>; one field is adjacent across cells.</li>
+</ul>
+<p>Use explicit Numba loops with periodic index wrap. Do not use <code>np.roll</code>, temporary face arrays, parallel execution, or <code>fastmath</code> in the required experiment; those alter the memory traffic or numerical contract. Preallocate outputs.</p>
+<div id="680f80a5" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-08T21:17:47.222325Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-08T21:17:47.222221Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-08T21:17:47.523339Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-08T21:17:47.522865Z&quot;}}" data-execution_count="16">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> platform</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> time <span class="im">import</span> perf_counter_ns</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="im">from</span> numba <span class="im">import</span> njit, __version__ <span class="im">as</span> numba_version, get_num_threads</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="cf">except</span> <span class="pp">ImportError</span> <span class="im">as</span> exc:</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">raise</span> <span class="pp">RuntimeError</span>(<span class="st">"Install numba for this exercise: python -m pip install numba"</span>) <span class="im">from</span> exc</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Ratio of specific heats for the ideal-gas Euler equations.</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>GAMMA <span class="op">=</span> <span class="fl">1.4</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co"># The largest case has over 100 MiB of combined input and output arrays.</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>SIZES <span class="op">=</span> (<span class="dv">2</span><span class="op">**</span><span class="dv">12</span>, <span class="dv">2</span><span class="op">**</span><span class="dv">15</span>, <span class="dv">2</span><span class="op">**</span><span class="dv">18</span>, <span class="dv">2</span><span class="op">**</span><span class="dv">22</span>)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>REPEATS <span class="op">=</span> <span class="dv">9</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>SEED <span class="op">=</span> <span class="dv">8</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Capture enough context to judge how portable the timing results may be.</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Some virtual machines do not expose a CPU model, so keep the OS string too.</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>CPU_MODEL <span class="op">=</span> platform.processor() <span class="kw">or</span> platform.uname().processor <span class="kw">or</span> <span class="st">"not reported by OS"</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>SOFTWARE_CONTEXT <span class="op">=</span> {</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    <span class="st">"cpu_model"</span>: CPU_MODEL,</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    <span class="st">"platform"</span>: platform.platform(),</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    <span class="st">"python"</span>: sys.version.split()[<span class="dv">0</span>],</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    <span class="st">"numpy"</span>: np.__version__,</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    <span class="st">"numba"</span>: numba_version,</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    <span class="st">"logical_cpu_count"</span>: os.cpu_count(),</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    <span class="st">"numba_thread_pool_size"</span>: get_num_threads(),</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>    <span class="st">"kernel_execution"</span>: <span class="st">"serial; no parallel=True"</span>,</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a><span class="co"># Predict before measuring: AoS keeps all three values of a cell together,</span></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a><span class="co"># while SoA gives each conserved field a contiguous stream. Either may win</span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a><span class="co"># depending on cache behavior and compiler vectorization, so do not assume.</span></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>PREDICTION <span class="op">=</span> (</span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>    <span class="st">"No universal winner is assumed. AoS provides nearby fields per cell; "</span></span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>    <span class="st">"SoA provides contiguous field streams. The measured result decides."</span></span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a><span class="co"># Use consistent plot defaults so the three comparisons are easy to read.</span></span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>plt.rcParams.update({</span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>    <span class="st">"figure.figsize"</span>: (<span class="dv">8</span>, <span class="dv">5</span>),</span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>    <span class="st">"axes.grid"</span>: <span class="va">True</span>,</span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>    <span class="st">"grid.alpha"</span>: <span class="fl">0.3</span>,</span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>    <span class="st">"font.size"</span>: <span class="dv">10</span>,</span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Benchmark context:"</span>)</span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name, value <span class="kw">in</span> SOFTWARE_CONTEXT.items():</span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"  </span><span class="sc">{</span>name<span class="sc">}</span><span class="ss">: </span><span class="sc">{</span>value<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Prediction:"</span>, PREDICTION)</span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"The kernels are serial regardless of the available Numba thread pool."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Benchmark context:
+  cpu_model: AMD64 Family 26 Model 68 Stepping 0, AuthenticAMD
+  platform: Windows-11-10.0.26200-SP0
+  python: 3.13.14
+  numpy: 2.5.3
+  numba: 0.68.0
+  logical_cpu_count: 8
+  numba_thread_pool_size: 8
+  kernel_execution: serial; no parallel=True
+Prediction: No universal winner is assumed. AoS provides nearby fields per cell; SoA provides contiguous field streams. The measured result decides.
+The kernels are serial regardless of the available Numba thread pool.</code></pre>
+</div>
+</div>
+</section>
+<section id="reproducible-admissible-state" class="level2">
+<h2 class="anchored" data-anchor-id="reproducible-admissible-state">2. Reproducible admissible state</h2>
+<p>Generate one smooth-but-nonuniform state for each N using cell centers <span class="math inline">\(x_i=(i+1/2)/N\)</span>: <span class="math display">\[\rho=1+0.15\sin(2\pi x)+0.03\eta_\rho,\]</span> <span class="math display">\[u=0.35+0.10\cos(6\pi x)+0.02\eta_u,\]</span> <span class="math display">\[p=1+0.10\sin(4\pi x+0.3)+0.03\eta_p,\]</span> where each seeded random component is uniform on <span class="math inline">\([-1,1]\)</span>. Construct <span class="math inline">\(\rho u\)</span> and <span class="math inline">\(E=p/(\gamma-1)+\rho u^2/2\)</span>.</p>
+<p>Create AoS and SoA inputs from the same underlying values. Assert positive density and pressure. Print array shapes, strides, contiguity flags, and total input/output bytes. Explain which index is unit-stride in each representation.</p>
+<p>Allocate every array before timing. The output layout must match the input layout. Use float64 for the main experiment.</p>
+<div id="16dcccdd" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-08T21:17:47.524588Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-08T21:17:47.524446Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-08T21:17:47.543173Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-08T21:17:47.542812Z&quot;}}" data-execution_count="17">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> make_state(n, seed<span class="op">=</span>SEED):</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Generate the specified deterministic state in both contiguous layouts."""</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Cell-center coordinates are common to both layouts, so each cell has</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># identical physical values regardless of how those values are stored.</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> (np.arange(n, dtype<span class="op">=</span>np.float64) <span class="op">+</span> <span class="fl">0.5</span>) <span class="op">/</span> n</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    rng <span class="op">=</span> np.random.default_rng(seed)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Draw independent bounded perturbations, as prescribed by the exercise.</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    noise_rho <span class="op">=</span> rng.uniform(<span class="op">-</span><span class="fl">1.0</span>, <span class="fl">1.0</span>, size<span class="op">=</span>n)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    noise_u <span class="op">=</span> rng.uniform(<span class="op">-</span><span class="fl">1.0</span>, <span class="fl">1.0</span>, size<span class="op">=</span>n)</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    noise_p <span class="op">=</span> rng.uniform(<span class="op">-</span><span class="fl">1.0</span>, <span class="fl">1.0</span>, size<span class="op">=</span>n)</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    rho <span class="op">=</span> <span class="fl">1.0</span> <span class="op">+</span> <span class="fl">0.15</span> <span class="op">*</span> np.sin(<span class="fl">2.0</span> <span class="op">*</span> np.pi <span class="op">*</span> x) <span class="op">+</span> <span class="fl">0.03</span> <span class="op">*</span> noise_rho</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    velocity <span class="op">=</span> <span class="fl">0.35</span> <span class="op">+</span> <span class="fl">0.10</span> <span class="op">*</span> np.cos(<span class="fl">6.0</span> <span class="op">*</span> np.pi <span class="op">*</span> x) <span class="op">+</span> <span class="fl">0.02</span> <span class="op">*</span> noise_u</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    pressure <span class="op">=</span> <span class="fl">1.0</span> <span class="op">+</span> <span class="fl">0.10</span> <span class="op">*</span> np.sin(<span class="fl">4.0</span> <span class="op">*</span> np.pi <span class="op">*</span> x <span class="op">+</span> <span class="fl">0.3</span>) <span class="op">+</span> <span class="fl">0.03</span> <span class="op">*</span> noise_p</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Convert primitive variables to conserved variables for the Euler system.</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    momentum <span class="op">=</span> rho <span class="op">*</span> velocity</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    energy <span class="op">=</span> pressure <span class="op">/</span> (GAMMA <span class="op">-</span> <span class="fl">1.0</span>) <span class="op">+</span> <span class="fl">0.5</span> <span class="op">*</span> rho <span class="op">*</span> velocity<span class="op">**</span><span class="dv">2</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    <span class="co"># AoS stores all variables for a cell in one row; SoA stores each field</span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>    <span class="co"># in its own contiguous vector. Explicit dtype/order avoids hidden copies.</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    aos <span class="op">=</span> np.empty((n, <span class="dv">3</span>), dtype<span class="op">=</span>np.float64, order<span class="op">=</span><span class="st">"C"</span>)</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>    aos[:, <span class="dv">0</span>] <span class="op">=</span> rho</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>    aos[:, <span class="dv">1</span>] <span class="op">=</span> momentum</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>    aos[:, <span class="dv">2</span>] <span class="op">=</span> energy</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>    soa <span class="op">=</span> (</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>        np.ascontiguousarray(rho, dtype<span class="op">=</span>np.float64),</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>        np.ascontiguousarray(momentum, dtype<span class="op">=</span>np.float64),</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>        np.ascontiguousarray(energy, dtype<span class="op">=</span>np.float64),</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> aos, soa</span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a><span class="at">@njit</span>(cache<span class="op">=</span><span class="va">True</span>, inline<span class="op">=</span><span class="st">"always"</span>)</span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> euler_flux_and_speed(rho, momentum, energy, gamma):</span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Return physical flux components and |u|+c for one admissible state."""</span></span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Recover primitive variables from the conserved state U=(rho,rho*u,E).</span></span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>    velocity <span class="op">=</span> momentum <span class="op">/</span> rho</span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>    pressure <span class="op">=</span> (gamma <span class="op">-</span> <span class="fl">1.0</span>) <span class="op">*</span> (energy <span class="op">-</span> <span class="fl">0.5</span> <span class="op">*</span> momentum <span class="op">*</span> velocity)</span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>    sound_speed <span class="op">=</span> np.sqrt(gamma <span class="op">*</span> pressure <span class="op">/</span> rho)</span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>    <span class="co"># The Euler flux is (momentum, momentum*u+p, u*(E+p)).</span></span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>    flux_rho <span class="op">=</span> momentum</span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>    flux_momentum <span class="op">=</span> momentum <span class="op">*</span> velocity <span class="op">+</span> pressure</span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>    flux_energy <span class="op">=</span> velocity <span class="op">*</span> (energy <span class="op">+</span> pressure)</span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>    wave_speed <span class="op">=</span> <span class="bu">abs</span>(velocity) <span class="op">+</span> sound_speed</span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> flux_rho, flux_momentum, flux_energy, wave_speed</span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a><span class="at">@njit</span>(cache<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> rusanov_face(left_rho, left_mom, left_energy,</span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a>                 right_rho, right_mom, right_energy, gamma):</span>
+<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Compute one local Lax-Friedrichs/Rusanov numerical face flux."""</span></span>
+<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Evaluate the physical flux and signal speed on both sides of the face.</span></span>
+<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a>    fl0, fl1, fl2, sl <span class="op">=</span> euler_flux_and_speed(left_rho, left_mom, left_energy, gamma)</span>
+<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a>    fr0, fr1, fr2, sr <span class="op">=</span> euler_flux_and_speed(right_rho, right_mom, right_energy, gamma)</span>
+<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a>    speed <span class="op">=</span> <span class="bu">max</span>(sl, sr)</span>
+<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Average physical fluxes, then subtract numerical diffusion proportional</span></span>
+<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a>    <span class="co"># to the jump in each conserved quantity.</span></span>
+<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a>    half_speed <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> speed</span>
+<span id="cb3-60"><a href="#cb3-60" aria-hidden="true" tabindex="-1"></a>    face_rho <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> (fl0 <span class="op">+</span> fr0) <span class="op">-</span> half_speed <span class="op">*</span> (right_rho <span class="op">-</span> left_rho)</span>
+<span id="cb3-61"><a href="#cb3-61" aria-hidden="true" tabindex="-1"></a>    face_mom <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> (fl1 <span class="op">+</span> fr1) <span class="op">-</span> half_speed <span class="op">*</span> (right_mom <span class="op">-</span> left_mom)</span>
+<span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a>    face_energy <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> (fl2 <span class="op">+</span> fr2) <span class="op">-</span> half_speed <span class="op">*</span> (right_energy <span class="op">-</span> left_energy)</span>
+<span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> face_rho, face_mom, face_energy</span>
+<span id="cb3-64"><a href="#cb3-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-65"><a href="#cb3-65" aria-hidden="true" tabindex="-1"></a><span class="at">@njit</span>(cache<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb3-66"><a href="#cb3-66" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> residual_aos(U, R, gamma):</span>
+<span id="cb3-67"><a href="#cb3-67" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Write periodic Rusanov flux differences into preallocated AoS output."""</span></span>
+<span id="cb3-68"><a href="#cb3-68" aria-hidden="true" tabindex="-1"></a>    n <span class="op">=</span> U.shape[<span class="dv">0</span>]</span>
+<span id="cb3-69"><a href="#cb3-69" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(n):</span>
+<span id="cb3-70"><a href="#cb3-70" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Indices wrap around because the domain is periodic. The right face</span></span>
+<span id="cb3-71"><a href="#cb3-71" aria-hidden="true" tabindex="-1"></a>        <span class="co"># is between i and i+1; the left face is between i-1 and i.</span></span>
+<span id="cb3-72"><a href="#cb3-72" aria-hidden="true" tabindex="-1"></a>        ip <span class="op">=</span> i <span class="op">+</span> <span class="dv">1</span></span>
+<span id="cb3-73"><a href="#cb3-73" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> ip <span class="op">==</span> n:</span>
+<span id="cb3-74"><a href="#cb3-74" aria-hidden="true" tabindex="-1"></a>            ip <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb3-75"><a href="#cb3-75" aria-hidden="true" tabindex="-1"></a>        im <span class="op">=</span> i <span class="op">-</span> <span class="dv">1</span></span>
+<span id="cb3-76"><a href="#cb3-76" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> im <span class="op">&lt;</span> <span class="dv">0</span>:</span>
+<span id="cb3-77"><a href="#cb3-77" aria-hidden="true" tabindex="-1"></a>            im <span class="op">=</span> n <span class="op">-</span> <span class="dv">1</span></span>
+<span id="cb3-78"><a href="#cb3-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-79"><a href="#cb3-79" aria-hidden="true" tabindex="-1"></a>        <span class="co"># F_{i+1/2} and F_{i-1/2} are evaluated using the same helper and</span></span>
+<span id="cb3-80"><a href="#cb3-80" aria-hidden="true" tabindex="-1"></a>        <span class="co"># operation order as the SoA kernel to make this a fair comparison.</span></span>
+<span id="cb3-81"><a href="#cb3-81" aria-hidden="true" tabindex="-1"></a>        right0, right1, right2 <span class="op">=</span> rusanov_face(</span>
+<span id="cb3-82"><a href="#cb3-82" aria-hidden="true" tabindex="-1"></a>            U[i, <span class="dv">0</span>], U[i, <span class="dv">1</span>], U[i, <span class="dv">2</span>], U[ip, <span class="dv">0</span>], U[ip, <span class="dv">1</span>], U[ip, <span class="dv">2</span>], gamma</span>
+<span id="cb3-83"><a href="#cb3-83" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb3-84"><a href="#cb3-84" aria-hidden="true" tabindex="-1"></a>        left0, left1, left2 <span class="op">=</span> rusanov_face(</span>
+<span id="cb3-85"><a href="#cb3-85" aria-hidden="true" tabindex="-1"></a>            U[im, <span class="dv">0</span>], U[im, <span class="dv">1</span>], U[im, <span class="dv">2</span>], U[i, <span class="dv">0</span>], U[i, <span class="dv">1</span>], U[i, <span class="dv">2</span>], gamma</span>
+<span id="cb3-86"><a href="#cb3-86" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb3-87"><a href="#cb3-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-88"><a href="#cb3-88" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Store flux divergence (right minus left), without a time step or</span></span>
+<span id="cb3-89"><a href="#cb3-89" aria-hidden="true" tabindex="-1"></a>        <span class="co"># cell-width scale: this function computes residual only.</span></span>
+<span id="cb3-90"><a href="#cb3-90" aria-hidden="true" tabindex="-1"></a>        R[i, <span class="dv">0</span>] <span class="op">=</span> right0 <span class="op">-</span> left0</span>
+<span id="cb3-91"><a href="#cb3-91" aria-hidden="true" tabindex="-1"></a>        R[i, <span class="dv">1</span>] <span class="op">=</span> right1 <span class="op">-</span> left1</span>
+<span id="cb3-92"><a href="#cb3-92" aria-hidden="true" tabindex="-1"></a>        R[i, <span class="dv">2</span>] <span class="op">=</span> right2 <span class="op">-</span> left2</span>
+<span id="cb3-93"><a href="#cb3-93" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-94"><a href="#cb3-94" aria-hidden="true" tabindex="-1"></a><span class="at">@njit</span>(cache<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb3-95"><a href="#cb3-95" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> residual_soa(rho, mom, energy, r_rho, r_mom, r_energy, gamma):</span>
+<span id="cb3-96"><a href="#cb3-96" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Write the identical periodic residual into three preallocated SoA arrays."""</span></span>
+<span id="cb3-97"><a href="#cb3-97" aria-hidden="true" tabindex="-1"></a>    n <span class="op">=</span> rho.shape[<span class="dv">0</span>]</span>
+<span id="cb3-98"><a href="#cb3-98" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(n):</span>
+<span id="cb3-99"><a href="#cb3-99" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Use precisely the same periodic neighbors as in the AoS version.</span></span>
+<span id="cb3-100"><a href="#cb3-100" aria-hidden="true" tabindex="-1"></a>        ip <span class="op">=</span> i <span class="op">+</span> <span class="dv">1</span></span>
+<span id="cb3-101"><a href="#cb3-101" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> ip <span class="op">==</span> n:</span>
+<span id="cb3-102"><a href="#cb3-102" aria-hidden="true" tabindex="-1"></a>            ip <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb3-103"><a href="#cb3-103" aria-hidden="true" tabindex="-1"></a>        im <span class="op">=</span> i <span class="op">-</span> <span class="dv">1</span></span>
+<span id="cb3-104"><a href="#cb3-104" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> im <span class="op">&lt;</span> <span class="dv">0</span>:</span>
+<span id="cb3-105"><a href="#cb3-105" aria-hidden="true" tabindex="-1"></a>            im <span class="op">=</span> n <span class="op">-</span> <span class="dv">1</span></span>
+<span id="cb3-106"><a href="#cb3-106" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-107"><a href="#cb3-107" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Passing six scalar conserved values leaves storage layout as the</span></span>
+<span id="cb3-108"><a href="#cb3-108" aria-hidden="true" tabindex="-1"></a>        <span class="co"># only change; the shared face routine keeps the arithmetic identical.</span></span>
+<span id="cb3-109"><a href="#cb3-109" aria-hidden="true" tabindex="-1"></a>        right0, right1, right2 <span class="op">=</span> rusanov_face(</span>
+<span id="cb3-110"><a href="#cb3-110" aria-hidden="true" tabindex="-1"></a>            rho[i], mom[i], energy[i], rho[ip], mom[ip], energy[ip], gamma</span>
+<span id="cb3-111"><a href="#cb3-111" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb3-112"><a href="#cb3-112" aria-hidden="true" tabindex="-1"></a>        left0, left1, left2 <span class="op">=</span> rusanov_face(</span>
+<span id="cb3-113"><a href="#cb3-113" aria-hidden="true" tabindex="-1"></a>            rho[im], mom[im], energy[im], rho[i], mom[i], energy[i], gamma</span>
+<span id="cb3-114"><a href="#cb3-114" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb3-115"><a href="#cb3-115" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-116"><a href="#cb3-116" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Each output vector is contiguous; overwrite rather than accumulate.</span></span>
+<span id="cb3-117"><a href="#cb3-117" aria-hidden="true" tabindex="-1"></a>        r_rho[i] <span class="op">=</span> right0 <span class="op">-</span> left0</span>
+<span id="cb3-118"><a href="#cb3-118" aria-hidden="true" tabindex="-1"></a>        r_mom[i] <span class="op">=</span> right1 <span class="op">-</span> left1</span>
+<span id="cb3-119"><a href="#cb3-119" aria-hidden="true" tabindex="-1"></a>        r_energy[i] <span class="op">=</span> right2 <span class="op">-</span> left2</span>
+<span id="cb3-120"><a href="#cb3-120" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-121"><a href="#cb3-121" aria-hidden="true" tabindex="-1"></a><span class="co"># Optional stretch: split primitive/physical-flux work from the face loop.</span></span>
+<span id="cb3-122"><a href="#cb3-122" aria-hidden="true" tabindex="-1"></a><span class="co"># Each row/vector stores three physical-flux components plus one wave speed.</span></span>
+<span id="cb3-123"><a href="#cb3-123" aria-hidden="true" tabindex="-1"></a><span class="at">@njit</span>(cache<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb3-124"><a href="#cb3-124" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> prepare_aos(U, prepared, gamma):</span>
+<span id="cb3-125"><a href="#cb3-125" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""First split pass: compute physical fluxes and signal speeds per cell."""</span></span>
+<span id="cb3-126"><a href="#cb3-126" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(U.shape[<span class="dv">0</span>]):</span>
+<span id="cb3-127"><a href="#cb3-127" aria-hidden="true" tabindex="-1"></a>        <span class="co"># This evaluates primitive variables only once per cell and stores</span></span>
+<span id="cb3-128"><a href="#cb3-128" aria-hidden="true" tabindex="-1"></a>        <span class="co"># the face-independent quantities needed by the second pass.</span></span>
+<span id="cb3-129"><a href="#cb3-129" aria-hidden="true" tabindex="-1"></a>        f0, f1, f2, speed <span class="op">=</span> euler_flux_and_speed(</span>
+<span id="cb3-130"><a href="#cb3-130" aria-hidden="true" tabindex="-1"></a>            U[i, <span class="dv">0</span>], U[i, <span class="dv">1</span>], U[i, <span class="dv">2</span>], gamma</span>
+<span id="cb3-131"><a href="#cb3-131" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb3-132"><a href="#cb3-132" aria-hidden="true" tabindex="-1"></a>        prepared[i, <span class="dv">0</span>] <span class="op">=</span> f0</span>
+<span id="cb3-133"><a href="#cb3-133" aria-hidden="true" tabindex="-1"></a>        prepared[i, <span class="dv">1</span>] <span class="op">=</span> f1</span>
+<span id="cb3-134"><a href="#cb3-134" aria-hidden="true" tabindex="-1"></a>        prepared[i, <span class="dv">2</span>] <span class="op">=</span> f2</span>
+<span id="cb3-135"><a href="#cb3-135" aria-hidden="true" tabindex="-1"></a>        prepared[i, <span class="dv">3</span>] <span class="op">=</span> speed</span>
+<span id="cb3-136"><a href="#cb3-136" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-137"><a href="#cb3-137" aria-hidden="true" tabindex="-1"></a><span class="at">@njit</span>(cache<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb3-138"><a href="#cb3-138" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> prepare_soa(rho, mom, energy, f_rho, f_mom, f_energy, speed, gamma):</span>
+<span id="cb3-139"><a href="#cb3-139" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""First split pass for SoA: write flux and signal-speed field vectors."""</span></span>
+<span id="cb3-140"><a href="#cb3-140" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(rho.shape[<span class="dv">0</span>]):</span>
+<span id="cb3-141"><a href="#cb3-141" aria-hidden="true" tabindex="-1"></a>        <span class="co"># The arithmetic is shared with the AoS preparation pass; only the</span></span>
+<span id="cb3-142"><a href="#cb3-142" aria-hidden="true" tabindex="-1"></a>        <span class="co"># addresses used to read and write values differ by storage layout.</span></span>
+<span id="cb3-143"><a href="#cb3-143" aria-hidden="true" tabindex="-1"></a>        f0, f1, f2, cell_speed <span class="op">=</span> euler_flux_and_speed(</span>
+<span id="cb3-144"><a href="#cb3-144" aria-hidden="true" tabindex="-1"></a>            rho[i], mom[i], energy[i], gamma</span>
+<span id="cb3-145"><a href="#cb3-145" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb3-146"><a href="#cb3-146" aria-hidden="true" tabindex="-1"></a>        f_rho[i] <span class="op">=</span> f0</span>
+<span id="cb3-147"><a href="#cb3-147" aria-hidden="true" tabindex="-1"></a>        f_mom[i] <span class="op">=</span> f1</span>
+<span id="cb3-148"><a href="#cb3-148" aria-hidden="true" tabindex="-1"></a>        f_energy[i] <span class="op">=</span> f2</span>
+<span id="cb3-149"><a href="#cb3-149" aria-hidden="true" tabindex="-1"></a>        speed[i] <span class="op">=</span> cell_speed</span>
+<span id="cb3-150"><a href="#cb3-150" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-151"><a href="#cb3-151" aria-hidden="true" tabindex="-1"></a><span class="at">@njit</span>(cache<span class="op">=</span><span class="va">True</span>, inline<span class="op">=</span><span class="st">"always"</span>)</span>
+<span id="cb3-152"><a href="#cb3-152" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> cached_rusanov_face(left_rho, left_mom, left_energy,</span>
+<span id="cb3-153"><a href="#cb3-153" aria-hidden="true" tabindex="-1"></a>                        right_rho, right_mom, right_energy,</span>
+<span id="cb3-154"><a href="#cb3-154" aria-hidden="true" tabindex="-1"></a>                        lf0, lf1, lf2, ls, rf0, rf1, rf2, rs):</span>
+<span id="cb3-155"><a href="#cb3-155" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Evaluate a Rusanov face from precomputed physical fluxes and speeds."""</span></span>
+<span id="cb3-156"><a href="#cb3-156" aria-hidden="true" tabindex="-1"></a>    <span class="co"># The second pass needs the conserved jump for numerical diffusion and</span></span>
+<span id="cb3-157"><a href="#cb3-157" aria-hidden="true" tabindex="-1"></a>    <span class="co"># reuses the flux/speed arrays generated by the first pass.</span></span>
+<span id="cb3-158"><a href="#cb3-158" aria-hidden="true" tabindex="-1"></a>    speed <span class="op">=</span> <span class="bu">max</span>(ls, rs)</span>
+<span id="cb3-159"><a href="#cb3-159" aria-hidden="true" tabindex="-1"></a>    half_speed <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> speed</span>
+<span id="cb3-160"><a href="#cb3-160" aria-hidden="true" tabindex="-1"></a>    face0 <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> (lf0 <span class="op">+</span> rf0) <span class="op">-</span> half_speed <span class="op">*</span> (right_rho <span class="op">-</span> left_rho)</span>
+<span id="cb3-161"><a href="#cb3-161" aria-hidden="true" tabindex="-1"></a>    face1 <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> (lf1 <span class="op">+</span> rf1) <span class="op">-</span> half_speed <span class="op">*</span> (right_mom <span class="op">-</span> left_mom)</span>
+<span id="cb3-162"><a href="#cb3-162" aria-hidden="true" tabindex="-1"></a>    face2 <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> (lf2 <span class="op">+</span> rf2) <span class="op">-</span> half_speed <span class="op">*</span> (right_energy <span class="op">-</span> left_energy)</span>
+<span id="cb3-163"><a href="#cb3-163" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> face0, face1, face2</span>
+<span id="cb3-164"><a href="#cb3-164" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-165"><a href="#cb3-165" aria-hidden="true" tabindex="-1"></a><span class="at">@njit</span>(cache<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb3-166"><a href="#cb3-166" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> finish_aos(U, prepared, R):</span>
+<span id="cb3-167"><a href="#cb3-167" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Second split pass: compute cached periodic face flux differences for AoS."""</span></span>
+<span id="cb3-168"><a href="#cb3-168" aria-hidden="true" tabindex="-1"></a>    n <span class="op">=</span> U.shape[<span class="dv">0</span>]</span>
+<span id="cb3-169"><a href="#cb3-169" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(n):</span>
+<span id="cb3-170"><a href="#cb3-170" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Preserve the same periodic neighbors as the fused implementation.</span></span>
+<span id="cb3-171"><a href="#cb3-171" aria-hidden="true" tabindex="-1"></a>        ip <span class="op">=</span> i <span class="op">+</span> <span class="dv">1</span></span>
+<span id="cb3-172"><a href="#cb3-172" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> ip <span class="op">==</span> n:</span>
+<span id="cb3-173"><a href="#cb3-173" aria-hidden="true" tabindex="-1"></a>            ip <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb3-174"><a href="#cb3-174" aria-hidden="true" tabindex="-1"></a>        im <span class="op">=</span> i <span class="op">-</span> <span class="dv">1</span></span>
+<span id="cb3-175"><a href="#cb3-175" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> im <span class="op">&lt;</span> <span class="dv">0</span>:</span>
+<span id="cb3-176"><a href="#cb3-176" aria-hidden="true" tabindex="-1"></a>            im <span class="op">=</span> n <span class="op">-</span> <span class="dv">1</span></span>
+<span id="cb3-177"><a href="#cb3-177" aria-hidden="true" tabindex="-1"></a>        right0, right1, right2 <span class="op">=</span> cached_rusanov_face(</span>
+<span id="cb3-178"><a href="#cb3-178" aria-hidden="true" tabindex="-1"></a>            U[i, <span class="dv">0</span>], U[i, <span class="dv">1</span>], U[i, <span class="dv">2</span>], U[ip, <span class="dv">0</span>], U[ip, <span class="dv">1</span>], U[ip, <span class="dv">2</span>],</span>
+<span id="cb3-179"><a href="#cb3-179" aria-hidden="true" tabindex="-1"></a>            prepared[i, <span class="dv">0</span>], prepared[i, <span class="dv">1</span>], prepared[i, <span class="dv">2</span>], prepared[i, <span class="dv">3</span>],</span>
+<span id="cb3-180"><a href="#cb3-180" aria-hidden="true" tabindex="-1"></a>            prepared[ip, <span class="dv">0</span>], prepared[ip, <span class="dv">1</span>], prepared[ip, <span class="dv">2</span>], prepared[ip, <span class="dv">3</span>],</span>
+<span id="cb3-181"><a href="#cb3-181" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb3-182"><a href="#cb3-182" aria-hidden="true" tabindex="-1"></a>        left0, left1, left2 <span class="op">=</span> cached_rusanov_face(</span>
+<span id="cb3-183"><a href="#cb3-183" aria-hidden="true" tabindex="-1"></a>            U[im, <span class="dv">0</span>], U[im, <span class="dv">1</span>], U[im, <span class="dv">2</span>], U[i, <span class="dv">0</span>], U[i, <span class="dv">1</span>], U[i, <span class="dv">2</span>],</span>
+<span id="cb3-184"><a href="#cb3-184" aria-hidden="true" tabindex="-1"></a>            prepared[im, <span class="dv">0</span>], prepared[im, <span class="dv">1</span>], prepared[im, <span class="dv">2</span>], prepared[im, <span class="dv">3</span>],</span>
+<span id="cb3-185"><a href="#cb3-185" aria-hidden="true" tabindex="-1"></a>            prepared[i, <span class="dv">0</span>], prepared[i, <span class="dv">1</span>], prepared[i, <span class="dv">2</span>], prepared[i, <span class="dv">3</span>],</span>
+<span id="cb3-186"><a href="#cb3-186" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb3-187"><a href="#cb3-187" aria-hidden="true" tabindex="-1"></a>        R[i, <span class="dv">0</span>] <span class="op">=</span> right0 <span class="op">-</span> left0</span>
+<span id="cb3-188"><a href="#cb3-188" aria-hidden="true" tabindex="-1"></a>        R[i, <span class="dv">1</span>] <span class="op">=</span> right1 <span class="op">-</span> left1</span>
+<span id="cb3-189"><a href="#cb3-189" aria-hidden="true" tabindex="-1"></a>        R[i, <span class="dv">2</span>] <span class="op">=</span> right2 <span class="op">-</span> left2</span>
+<span id="cb3-190"><a href="#cb3-190" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-191"><a href="#cb3-191" aria-hidden="true" tabindex="-1"></a><span class="at">@njit</span>(cache<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb3-192"><a href="#cb3-192" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> finish_soa(rho, mom, energy, f_rho, f_mom, f_energy, speed,</span>
+<span id="cb3-193"><a href="#cb3-193" aria-hidden="true" tabindex="-1"></a>               r_rho, r_mom, r_energy):</span>
+<span id="cb3-194"><a href="#cb3-194" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Second split pass for SoA: write cached periodic flux differences."""</span></span>
+<span id="cb3-195"><a href="#cb3-195" aria-hidden="true" tabindex="-1"></a>    n <span class="op">=</span> rho.shape[<span class="dv">0</span>]</span>
+<span id="cb3-196"><a href="#cb3-196" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(n):</span>
+<span id="cb3-197"><a href="#cb3-197" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Wrap once per cell and reuse those indices for each conserved field.</span></span>
+<span id="cb3-198"><a href="#cb3-198" aria-hidden="true" tabindex="-1"></a>        ip <span class="op">=</span> i <span class="op">+</span> <span class="dv">1</span></span>
+<span id="cb3-199"><a href="#cb3-199" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> ip <span class="op">==</span> n:</span>
+<span id="cb3-200"><a href="#cb3-200" aria-hidden="true" tabindex="-1"></a>            ip <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb3-201"><a href="#cb3-201" aria-hidden="true" tabindex="-1"></a>        im <span class="op">=</span> i <span class="op">-</span> <span class="dv">1</span></span>
+<span id="cb3-202"><a href="#cb3-202" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> im <span class="op">&lt;</span> <span class="dv">0</span>:</span>
+<span id="cb3-203"><a href="#cb3-203" aria-hidden="true" tabindex="-1"></a>            im <span class="op">=</span> n <span class="op">-</span> <span class="dv">1</span></span>
+<span id="cb3-204"><a href="#cb3-204" aria-hidden="true" tabindex="-1"></a>        right0, right1, right2 <span class="op">=</span> cached_rusanov_face(</span>
+<span id="cb3-205"><a href="#cb3-205" aria-hidden="true" tabindex="-1"></a>            rho[i], mom[i], energy[i], rho[ip], mom[ip], energy[ip],</span>
+<span id="cb3-206"><a href="#cb3-206" aria-hidden="true" tabindex="-1"></a>            f_rho[i], f_mom[i], f_energy[i], speed[i],</span>
+<span id="cb3-207"><a href="#cb3-207" aria-hidden="true" tabindex="-1"></a>            f_rho[ip], f_mom[ip], f_energy[ip], speed[ip],</span>
+<span id="cb3-208"><a href="#cb3-208" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb3-209"><a href="#cb3-209" aria-hidden="true" tabindex="-1"></a>        left0, left1, left2 <span class="op">=</span> cached_rusanov_face(</span>
+<span id="cb3-210"><a href="#cb3-210" aria-hidden="true" tabindex="-1"></a>            rho[im], mom[im], energy[im], rho[i], mom[i], energy[i],</span>
+<span id="cb3-211"><a href="#cb3-211" aria-hidden="true" tabindex="-1"></a>            f_rho[im], f_mom[im], f_energy[im], speed[im],</span>
+<span id="cb3-212"><a href="#cb3-212" aria-hidden="true" tabindex="-1"></a>            f_rho[i], f_mom[i], f_energy[i], speed[i],</span>
+<span id="cb3-213"><a href="#cb3-213" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb3-214"><a href="#cb3-214" aria-hidden="true" tabindex="-1"></a>        r_rho[i] <span class="op">=</span> right0 <span class="op">-</span> left0</span>
+<span id="cb3-215"><a href="#cb3-215" aria-hidden="true" tabindex="-1"></a>        r_mom[i] <span class="op">=</span> right1 <span class="op">-</span> left1</span>
+<span id="cb3-216"><a href="#cb3-216" aria-hidden="true" tabindex="-1"></a>        r_energy[i] <span class="op">=</span> right2 <span class="op">-</span> left2</span>
+<span id="cb3-217"><a href="#cb3-217" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-218"><a href="#cb3-218" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> run_split_aos(U, prepared, R):</span>
+<span id="cb3-219"><a href="#cb3-219" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Run both preallocated AoS passes; keeping this wrapper makes timing fair."""</span></span>
+<span id="cb3-220"><a href="#cb3-220" aria-hidden="true" tabindex="-1"></a>    prepare_aos(U, prepared, GAMMA)</span>
+<span id="cb3-221"><a href="#cb3-221" aria-hidden="true" tabindex="-1"></a>    finish_aos(U, prepared, R)</span>
+<span id="cb3-222"><a href="#cb3-222" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-223"><a href="#cb3-223" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> run_split_soa(rho, mom, energy, prepared, outputs):</span>
+<span id="cb3-224"><a href="#cb3-224" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Run both preallocated SoA passes with no allocations in the timed call."""</span></span>
+<span id="cb3-225"><a href="#cb3-225" aria-hidden="true" tabindex="-1"></a>    prepare_soa(rho, mom, energy, <span class="op">*</span>prepared, GAMMA)</span>
+<span id="cb3-226"><a href="#cb3-226" aria-hidden="true" tabindex="-1"></a>    finish_soa(rho, mom, energy, <span class="op">*</span>prepared,</span>
+<span id="cb3-227"><a href="#cb3-227" aria-hidden="true" tabindex="-1"></a>               outputs[<span class="dv">0</span>], outputs[<span class="dv">1</span>], outputs[<span class="dv">2</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+</section>
+<section id="correctness-before-performance" class="level2">
+<h2 class="anchored" data-anchor-id="correctness-before-performance">3. Correctness before performance</h2>
+<p>Compile both kernels with a small state, then compare the three residual components. Because the mathematical operations and intended order are the same, require <span class="math display">\[\frac{\|R_{AoS}-R_{SoA}\|_2}{\max(\|R_{AoS}\|_2,10^{-300})}\le 5\times10^{-13}\]</span> and maximum componentwise absolute difference <span class="math inline">\(\le 5\times10^{-13}\)</span> for the supplied state range.</p>
+<p>Also check: finite outputs; discrete conservation <code>abs(sum(R[:,k])) &lt;= 2e-12*N*max(abs(R[:,k]))</code> for every conserved component; repeated calls overwrite rather than accumulate; and the input arrays are unchanged.</p>
+<p>These are equivalence and conservation checks on a fixed workload. They are not spatial-error or observed-order calculations.</p>
+<div id="184a08e5" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-08T21:17:47.544171Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-08T21:17:47.544069Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-08T21:17:47.980136Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-08T21:17:47.979458Z&quot;}}" data-execution_count="18">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Start small so Numba compiles the two layouts before any long run. The</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co"># dimensions and dtypes are the same as the large experiment, just fewer cells.</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>CHECK_N <span class="op">=</span> <span class="dv">64</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>U_check, (rho_check, mom_check, energy_check) <span class="op">=</span> make_state(CHECK_N)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>R_aos_check <span class="op">=</span> np.empty_like(U_check)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>r_rho_check <span class="op">=</span> np.empty_like(rho_check)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>r_mom_check <span class="op">=</span> np.empty_like(mom_check)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>r_energy_check <span class="op">=</span> np.empty_like(energy_check)</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Save exact input copies; kernels are only allowed to write the supplied outputs.</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>U_check_before <span class="op">=</span> U_check.copy()</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>soa_check_before <span class="op">=</span> <span class="bu">tuple</span>(a.copy() <span class="cf">for</span> a <span class="kw">in</span> (rho_check, mom_check, energy_check))</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>residual_aos(U_check, R_aos_check, GAMMA)</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>residual_soa(rho_check, mom_check, energy_check,</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>             r_rho_check, r_mom_check, r_energy_check, GAMMA)</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>R_soa_check <span class="op">=</span> np.column_stack((r_rho_check, r_mom_check, r_energy_check))</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare both a scaled norm and the worst component; these catch different</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="co"># failure modes and implement the tight tolerance required by the exercise.</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>difference <span class="op">=</span> R_aos_check <span class="op">-</span> R_soa_check</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>relative_difference <span class="op">=</span> np.linalg.norm(difference) <span class="op">/</span> <span class="bu">max</span>(np.linalg.norm(R_aos_check), <span class="fl">1e-300</span>)</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>maximum_difference <span class="op">=</span> np.<span class="bu">max</span>(np.<span class="bu">abs</span>(difference))</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> relative_difference <span class="op">&lt;=</span> <span class="fl">5e-13</span>, relative_difference</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> maximum_difference <span class="op">&lt;=</span> <span class="fl">5e-13</span>, maximum_difference</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a><span class="co"># Periodic flux differences telescope: sum_i(F_{i+1/2}-F_{i-1/2}) is zero.</span></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> np.isfinite(R_aos_check).<span class="bu">all</span>()</span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> component <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">3</span>):</span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>    component_scale <span class="op">=</span> <span class="bu">max</span>(np.<span class="bu">max</span>(np.<span class="bu">abs</span>(R_aos_check[:, component])), <span class="fl">1e-300</span>)</span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="bu">abs</span>(np.<span class="bu">sum</span>(R_aos_check[:, component])) <span class="op">&lt;=</span> <span class="fl">2e-12</span> <span class="op">*</span> CHECK_N <span class="op">*</span> component_scale</span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a><span class="co"># A second invocation must overwrite the complete output with identical values,</span></span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a><span class="co"># not add another residual onto old values. Sentinel fill makes this explicit.</span></span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>R_aos_expected <span class="op">=</span> R_aos_check.copy()</span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>R_aos_check.fill(<span class="fl">123.0</span>)</span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> output <span class="kw">in</span> (r_rho_check, r_mom_check, r_energy_check):</span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>    output.fill(<span class="op">-</span><span class="fl">456.0</span>)</span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>residual_aos(U_check, R_aos_check, GAMMA)</span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>residual_soa(rho_check, mom_check, energy_check,</span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>             r_rho_check, r_mom_check, r_energy_check, GAMMA)</span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> np.array_equal(R_aos_check, R_aos_expected)</span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> np.array_equal(np.column_stack((r_rho_check, r_mom_check, r_energy_check)), R_soa_check)</span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> np.array_equal(U_check, U_check_before)</span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> current, before <span class="kw">in</span> <span class="bu">zip</span>((rho_check, mom_check, energy_check), soa_check_before):</span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> np.array_equal(current, before)</span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a><span class="co"># Print actual layout facts. The last axis of AoS is unit-stride; each SoA</span></span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a><span class="co"># field vector is unit-stride across cells. Include input plus output bytes.</span></span>
+<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a>aos_bytes <span class="op">=</span> U_check.nbytes <span class="op">+</span> R_aos_check.nbytes</span>
+<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a>soa_bytes <span class="op">=</span> <span class="bu">sum</span>(a.nbytes <span class="cf">for</span> a <span class="kw">in</span> (rho_check, mom_check, energy_check,</span>
+<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a>                                   r_rho_check, r_mom_check, r_energy_check))</span>
+<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Correctness check state layout:"</span>)</span>
+<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"  AoS shape/strides/contiguous:"</span>, U_check.shape, U_check.strides, U_check.flags.c_contiguous)</span>
+<span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"  SoA shapes/strides/contiguous:"</span>,</span>
+<span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a>      [a.shape <span class="cf">for</span> a <span class="kw">in</span> (rho_check, mom_check, energy_check)],</span>
+<span id="cb4-56"><a href="#cb4-56" aria-hidden="true" tabindex="-1"></a>      [a.strides <span class="cf">for</span> a <span class="kw">in</span> (rho_check, mom_check, energy_check)],</span>
+<span id="cb4-57"><a href="#cb4-57" aria-hidden="true" tabindex="-1"></a>      [a.flags.c_contiguous <span class="cf">for</span> a <span class="kw">in</span> (rho_check, mom_check, energy_check)])</span>
+<span id="cb4-58"><a href="#cb4-58" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"  Output shapes/strides/contiguous:"</span>,</span>
+<span id="cb4-59"><a href="#cb4-59" aria-hidden="true" tabindex="-1"></a>      [R_aos_check.shape, r_rho_check.shape, r_mom_check.shape, r_energy_check.shape],</span>
+<span id="cb4-60"><a href="#cb4-60" aria-hidden="true" tabindex="-1"></a>      [R_aos_check.strides, r_rho_check.strides, r_mom_check.strides, r_energy_check.strides],</span>
+<span id="cb4-61"><a href="#cb4-61" aria-hidden="true" tabindex="-1"></a>      [R_aos_check.flags.c_contiguous, r_rho_check.flags.c_contiguous,</span>
+<span id="cb4-62"><a href="#cb4-62" aria-hidden="true" tabindex="-1"></a>       r_mom_check.flags.c_contiguous, r_energy_check.flags.c_contiguous])</span>
+<span id="cb4-63"><a href="#cb4-63" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"  input+output bytes per layout: AoS=</span><span class="sc">{</span>aos_bytes<span class="sc">:,}</span><span class="ss">, SoA=</span><span class="sc">{</span>soa_bytes<span class="sc">:,}</span><span class="ss">"</span>)</span>
+<span id="cb4-64"><a href="#cb4-64" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"  relative residual difference=</span><span class="sc">{</span>relative_difference<span class="sc">:.3e}</span><span class="ss">; max abs difference=</span><span class="sc">{</span>maximum_difference<span class="sc">:.3e}</span><span class="ss">"</span>)</span>
+<span id="cb4-65"><a href="#cb4-65" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"  Numba signatures compiled:"</span>, <span class="bu">len</span>(residual_aos.signatures), <span class="bu">len</span>(residual_soa.signatures))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Correctness check state layout:
+  AoS shape/strides/contiguous: (64, 3) (24, 8) True
+  SoA shapes/strides/contiguous: [(64,), (64,), (64,)] [(8,), (8,), (8,)] [True, True, True]
+  Output shapes/strides/contiguous: [(64, 3), (64,), (64,), (64,)] [(24, 8), (8,), (8,), (8,)] [True, True, True, True]
+  input+output bytes per layout: AoS=3,072, SoA=3,072
+  relative residual difference=0.000e+00; max abs difference=0.000e+00
+  Numba signatures compiled: 1 1</code></pre>
+</div>
+</div>
+</section>
+<section id="timing-protocol-and-traffic-model" class="level2">
+<h2 class="anchored" data-anchor-id="timing-protocol-and-traffic-model">4. Timing protocol and traffic model</h2>
+<p>For each N and layout:</p>
+<ol type="1">
+<li>Build and allocate outside the timed region.</li>
+<li>Warm the compiled kernel at least twice at that N.</li>
+<li>Time enough consecutive calls per sample that a sample lasts roughly 0.1-0.5 s; determine this batch count with an untimed pilot.</li>
+<li>Collect nine samples with <code>perf_counter_ns</code>; report median and interquartile range per call.</li>
+<li>Alternate AoS-first and SoA-first across problem sizes to reduce ordering bias. Do not time notebook display, allocation, compilation, conversion, or validation.</li>
+</ol>
+<p>Report throughput in million cell updates/s. Construct a transparent <strong>lower-bound useful-traffic model</strong>: each residual evaluation must at least read the three conserved fields and write the three residual fields once, or 48 bytes/cell in float64. Thus <span class="math display">\[B_{useful}=48N/t.\]</span> This is not measured DRAM traffic: neighbor reuse, write allocation, cache hierarchy, scalar reloads, and compiler transformations change physical traffic. Label it <code>estimated useful bandwidth</code>, never <code>hardware bandwidth</code>.</p>
+<p>Estimate arithmetic intensity by explicitly counting the main floating-point operations in your implementation and dividing by the 48-byte lower bound. State how square root, comparison, and division complicate a single-FLOP model.</p>
+<div id="23fce5af" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-08T21:17:47.981327Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-08T21:17:47.981194Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-08T21:18:12.585350Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-08T21:18:12.584770Z&quot;}}" data-execution_count="19">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> choose_batch_count(call, target_s<span class="op">=</span><span class="fl">0.2</span>):</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Choose a positive repetition count from one untimed pilot call."""</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># The pilot includes only the already-compiled kernel call; its elapsed</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># time is not retained as a performance sample.</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    start <span class="op">=</span> perf_counter_ns()</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    call()</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    pilot_s <span class="op">=</span> <span class="bu">max</span>((perf_counter_ns() <span class="op">-</span> start) <span class="op">*</span> <span class="fl">1e-9</span>, <span class="fl">1e-9</span>)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Target a moderate sample duration and cap pathological counts if a</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># tiny call is below timer resolution. max(1, ...) prevents zero repeats.</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">max</span>(<span class="dv">1</span>, <span class="bu">min</span>(<span class="dv">100_000</span>, <span class="bu">int</span>(np.ceil(target_s <span class="op">/</span> pilot_s))))</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> benchmark(call, batch_count, repeats<span class="op">=</span>REPEATS):</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Return raw seconds-per-call samples for a preallocated compiled kernel."""</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> batch_count <span class="op">&lt;</span> <span class="dv">1</span> <span class="kw">or</span> repeats <span class="op">&lt;</span> <span class="dv">1</span>:</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">"batch_count and repeats must both be positive."</span>)</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    samples <span class="op">=</span> np.empty(repeats, dtype<span class="op">=</span>np.float64)</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> sample_index <span class="kw">in</span> <span class="bu">range</span>(repeats):</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>        start <span class="op">=</span> perf_counter_ns()</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Keep allocation, validation, conversion, and display out of this loop.</span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(batch_count):</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>            call()</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>        elapsed_s <span class="op">=</span> (perf_counter_ns() <span class="op">-</span> start) <span class="op">*</span> <span class="fl">1e-9</span></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>        samples[sample_index] <span class="op">=</span> elapsed_s <span class="op">/</span> batch_count</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> samples</span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a><span class="co"># For each size, keep only this case's arrays alive. The arrays for the next</span></span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a><span class="co"># case are created after these references are released to limit peak memory.</span></span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>records <span class="op">=</span> []</span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> size_index, n <span class="kw">in</span> <span class="bu">enumerate</span>(SIZES):</span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>    U, (rho, mom, energy) <span class="op">=</span> make_state(n)</span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>    R <span class="op">=</span> np.empty_like(U)</span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>    r_rho <span class="op">=</span> np.empty_like(rho)</span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>    r_mom <span class="op">=</span> np.empty_like(mom)</span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>    r_energy <span class="op">=</span> np.empty_like(energy)</span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Alternating first layout reduces systematic benefit from always running</span></span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>    <span class="co"># the same representation first (warm caches, drift, or frequency changes).</span></span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>    aos_first <span class="op">=</span> (size_index <span class="op">%</span> <span class="dv">2</span> <span class="op">==</span> <span class="dv">0</span>)</span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a>    layout_order <span class="op">=</span> (<span class="st">"AoS"</span>, <span class="st">"SoA"</span>) <span class="cf">if</span> aos_first <span class="cf">else</span> (<span class="st">"SoA"</span>, <span class="st">"AoS"</span>)</span>
+<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a>    calls <span class="op">=</span> {</span>
+<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a>        <span class="st">"AoS"</span>: <span class="kw">lambda</span>: residual_aos(U, R, GAMMA),</span>
+<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a>        <span class="st">"SoA"</span>: <span class="kw">lambda</span>: residual_soa(rho, mom, energy,</span>
+<span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a>                                    r_rho, r_mom, r_energy, GAMMA),</span>
+<span id="cb6-44"><a href="#cb6-44" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb6-45"><a href="#cb6-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-46"><a href="#cb6-46" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> layout <span class="kw">in</span> layout_order:</span>
+<span id="cb6-47"><a href="#cb6-47" aria-hidden="true" tabindex="-1"></a>        call <span class="op">=</span> calls[layout]</span>
+<span id="cb6-48"><a href="#cb6-48" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Warm this exact size at least twice after compilation; the pilot</span></span>
+<span id="cb6-49"><a href="#cb6-49" aria-hidden="true" tabindex="-1"></a>        <span class="co"># inside choose_batch_count adds another call but is not timed as data.</span></span>
+<span id="cb6-50"><a href="#cb6-50" aria-hidden="true" tabindex="-1"></a>        call()</span>
+<span id="cb6-51"><a href="#cb6-51" aria-hidden="true" tabindex="-1"></a>        call()</span>
+<span id="cb6-52"><a href="#cb6-52" aria-hidden="true" tabindex="-1"></a>        batch_count <span class="op">=</span> choose_batch_count(call, target_s<span class="op">=</span><span class="fl">0.2</span>)</span>
+<span id="cb6-53"><a href="#cb6-53" aria-hidden="true" tabindex="-1"></a>        samples <span class="op">=</span> benchmark(call, batch_count, repeats<span class="op">=</span>REPEATS)</span>
+<span id="cb6-54"><a href="#cb6-54" aria-hidden="true" tabindex="-1"></a>        median_s <span class="op">=</span> <span class="bu">float</span>(np.median(samples))</span>
+<span id="cb6-55"><a href="#cb6-55" aria-hidden="true" tabindex="-1"></a>        q1_s, q3_s <span class="op">=</span> np.percentile(samples, [<span class="dv">25</span>, <span class="dv">75</span>])</span>
+<span id="cb6-56"><a href="#cb6-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-57"><a href="#cb6-57" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Both layouts read 3 and write 3 float64 values per cell in the</span></span>
+<span id="cb6-58"><a href="#cb6-58" aria-hidden="true" tabindex="-1"></a>        <span class="co"># documented useful-traffic lower bound (48 bytes per cell).</span></span>
+<span id="cb6-59"><a href="#cb6-59" aria-hidden="true" tabindex="-1"></a>        useful_bytes <span class="op">=</span> <span class="dv">48</span> <span class="op">*</span> n</span>
+<span id="cb6-60"><a href="#cb6-60" aria-hidden="true" tabindex="-1"></a>        working_set_bytes <span class="op">=</span> <span class="dv">6</span> <span class="op">*</span> <span class="dv">8</span> <span class="op">*</span> n</span>
+<span id="cb6-61"><a href="#cb6-61" aria-hidden="true" tabindex="-1"></a>        records.append({</span>
+<span id="cb6-62"><a href="#cb6-62" aria-hidden="true" tabindex="-1"></a>            <span class="st">"N"</span>: n,</span>
+<span id="cb6-63"><a href="#cb6-63" aria-hidden="true" tabindex="-1"></a>            <span class="st">"layout"</span>: layout,</span>
+<span id="cb6-64"><a href="#cb6-64" aria-hidden="true" tabindex="-1"></a>            <span class="st">"samples_s"</span>: samples,</span>
+<span id="cb6-65"><a href="#cb6-65" aria-hidden="true" tabindex="-1"></a>            <span class="st">"median_s"</span>: median_s,</span>
+<span id="cb6-66"><a href="#cb6-66" aria-hidden="true" tabindex="-1"></a>            <span class="st">"q1_s"</span>: <span class="bu">float</span>(q1_s),</span>
+<span id="cb6-67"><a href="#cb6-67" aria-hidden="true" tabindex="-1"></a>            <span class="st">"q3_s"</span>: <span class="bu">float</span>(q3_s),</span>
+<span id="cb6-68"><a href="#cb6-68" aria-hidden="true" tabindex="-1"></a>            <span class="st">"iqr_s"</span>: <span class="bu">float</span>(q3_s <span class="op">-</span> q1_s),</span>
+<span id="cb6-69"><a href="#cb6-69" aria-hidden="true" tabindex="-1"></a>            <span class="st">"batch_count"</span>: batch_count,</span>
+<span id="cb6-70"><a href="#cb6-70" aria-hidden="true" tabindex="-1"></a>            <span class="st">"repeats"</span>: REPEATS,</span>
+<span id="cb6-71"><a href="#cb6-71" aria-hidden="true" tabindex="-1"></a>            <span class="st">"mlups"</span>: n <span class="op">/</span> median_s <span class="op">/</span> <span class="fl">1e6</span>,</span>
+<span id="cb6-72"><a href="#cb6-72" aria-hidden="true" tabindex="-1"></a>            <span class="st">"useful_bytes"</span>: useful_bytes,</span>
+<span id="cb6-73"><a href="#cb6-73" aria-hidden="true" tabindex="-1"></a>            <span class="st">"estimated_useful_gbps"</span>: useful_bytes <span class="op">/</span> median_s <span class="op">/</span> <span class="fl">1e9</span>,</span>
+<span id="cb6-74"><a href="#cb6-74" aria-hidden="true" tabindex="-1"></a>            <span class="st">"working_set_bytes"</span>: working_set_bytes,</span>
+<span id="cb6-75"><a href="#cb6-75" aria-hidden="true" tabindex="-1"></a>            <span class="st">"input_strides"</span>: U.strides <span class="cf">if</span> layout <span class="op">==</span> <span class="st">"AoS"</span> <span class="cf">else</span> (rho.strides, mom.strides, energy.strides),</span>
+<span id="cb6-76"><a href="#cb6-76" aria-hidden="true" tabindex="-1"></a>            <span class="st">"output_strides"</span>: R.strides <span class="cf">if</span> layout <span class="op">==</span> <span class="st">"AoS"</span> <span class="cf">else</span> (r_rho.strides, r_mom.strides, r_energy.strides),</span>
+<span id="cb6-77"><a href="#cb6-77" aria-hidden="true" tabindex="-1"></a>            <span class="st">"signatures_present"</span>: <span class="bu">bool</span>(residual_aos.signatures <span class="kw">and</span> residual_soa.signatures),</span>
+<span id="cb6-78"><a href="#cb6-78" aria-hidden="true" tabindex="-1"></a>        })</span>
+<span id="cb6-79"><a href="#cb6-79" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"N=</span><span class="sc">{</span>n<span class="sc">:&gt;8,}</span><span class="ss"> </span><span class="sc">{</span>layout<span class="sc">:&gt;3}</span><span class="ss"> batch=</span><span class="sc">{</span>batch_count<span class="sc">:&gt;5,}</span><span class="ss"> "</span></span>
+<span id="cb6-80"><a href="#cb6-80" aria-hidden="true" tabindex="-1"></a>              <span class="ss">f"median=</span><span class="sc">{</span>median_s<span class="sc">:.4e}</span><span class="ss"> s MLUPS=</span><span class="sc">{</span>n <span class="op">/</span> median_s <span class="op">/</span> <span class="fl">1e6</span><span class="sc">:.2f}</span><span class="ss">"</span>)</span>
+<span id="cb6-81"><a href="#cb6-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-82"><a href="#cb6-82" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Drop the large inputs and outputs before allocating the next grid.</span></span>
+<span id="cb6-83"><a href="#cb6-83" aria-hidden="true" tabindex="-1"></a>    <span class="kw">del</span> U, rho, mom, energy, R, r_rho, r_mom, r_energy, calls</span>
+<span id="cb6-84"><a href="#cb6-84" aria-hidden="true" tabindex="-1"></a>    <span class="kw">del</span> call</span>
+<span id="cb6-85"><a href="#cb6-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-86"><a href="#cb6-86" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Recorded </span><span class="sc">{</span><span class="bu">len</span>(records)<span class="sc">}</span><span class="ss"> fused configurations; each has </span><span class="sc">{</span>REPEATS<span class="sc">}</span><span class="ss"> raw samples."</span>)</span>
+<span id="cb6-87"><a href="#cb6-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-88"><a href="#cb6-88" aria-hidden="true" tabindex="-1"></a><span class="co"># Stretch comparison: now measure the two-pass form at only the two largest</span></span>
+<span id="cb6-89"><a href="#cb6-89" aria-hidden="true" tabindex="-1"></a><span class="co"># sizes. This isolates the cost of materializing flux/speed temporaries from</span></span>
+<span id="cb6-90"><a href="#cb6-90" aria-hidden="true" tabindex="-1"></a><span class="co"># the required fused kernel, while reusing the same state and timing protocol.</span></span>
+<span id="cb6-91"><a href="#cb6-91" aria-hidden="true" tabindex="-1"></a>split_records <span class="op">=</span> []</span>
+<span id="cb6-92"><a href="#cb6-92" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> n <span class="kw">in</span> SIZES[<span class="op">-</span><span class="dv">2</span>:]:</span>
+<span id="cb6-93"><a href="#cb6-93" aria-hidden="true" tabindex="-1"></a>    U, (rho, mom, energy) <span class="op">=</span> make_state(n)</span>
+<span id="cb6-94"><a href="#cb6-94" aria-hidden="true" tabindex="-1"></a>    R_fused <span class="op">=</span> np.empty_like(U)</span>
+<span id="cb6-95"><a href="#cb6-95" aria-hidden="true" tabindex="-1"></a>    r_rho_fused <span class="op">=</span> np.empty_like(rho)</span>
+<span id="cb6-96"><a href="#cb6-96" aria-hidden="true" tabindex="-1"></a>    r_mom_fused <span class="op">=</span> np.empty_like(mom)</span>
+<span id="cb6-97"><a href="#cb6-97" aria-hidden="true" tabindex="-1"></a>    r_energy_fused <span class="op">=</span> np.empty_like(energy)</span>
+<span id="cb6-98"><a href="#cb6-98" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-99"><a href="#cb6-99" aria-hidden="true" tabindex="-1"></a>    <span class="co"># First measure AoS split: one N-by-4 scratch array holds three fluxes</span></span>
+<span id="cb6-100"><a href="#cb6-100" aria-hidden="true" tabindex="-1"></a>    <span class="co"># and one wave speed; outputs and all scratch storage are preallocated.</span></span>
+<span id="cb6-101"><a href="#cb6-101" aria-hidden="true" tabindex="-1"></a>    prepared_aos <span class="op">=</span> np.empty((n, <span class="dv">4</span>), dtype<span class="op">=</span>np.float64, order<span class="op">=</span><span class="st">"C"</span>)</span>
+<span id="cb6-102"><a href="#cb6-102" aria-hidden="true" tabindex="-1"></a>    R_split_aos <span class="op">=</span> np.empty_like(U)</span>
+<span id="cb6-103"><a href="#cb6-103" aria-hidden="true" tabindex="-1"></a>    residual_aos(U, R_fused, GAMMA)</span>
+<span id="cb6-104"><a href="#cb6-104" aria-hidden="true" tabindex="-1"></a>    run_split_aos(U, prepared_aos, R_split_aos)</span>
+<span id="cb6-105"><a href="#cb6-105" aria-hidden="true" tabindex="-1"></a>    aos_error <span class="op">=</span> np.<span class="bu">max</span>(np.<span class="bu">abs</span>(R_fused <span class="op">-</span> R_split_aos))</span>
+<span id="cb6-106"><a href="#cb6-106" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> np.allclose(R_fused, R_split_aos, rtol<span class="op">=</span><span class="fl">5e-13</span>, atol<span class="op">=</span><span class="fl">5e-13</span>), aos_error</span>
+<span id="cb6-107"><a href="#cb6-107" aria-hidden="true" tabindex="-1"></a>    aos_call <span class="op">=</span> <span class="kw">lambda</span>: run_split_aos(U, prepared_aos, R_split_aos)</span>
+<span id="cb6-108"><a href="#cb6-108" aria-hidden="true" tabindex="-1"></a>    aos_call()</span>
+<span id="cb6-109"><a href="#cb6-109" aria-hidden="true" tabindex="-1"></a>    aos_call()</span>
+<span id="cb6-110"><a href="#cb6-110" aria-hidden="true" tabindex="-1"></a>    aos_batch <span class="op">=</span> choose_batch_count(aos_call, target_s<span class="op">=</span><span class="fl">0.2</span>)</span>
+<span id="cb6-111"><a href="#cb6-111" aria-hidden="true" tabindex="-1"></a>    aos_samples <span class="op">=</span> benchmark(aos_call, aos_batch, repeats<span class="op">=</span>REPEATS)</span>
+<span id="cb6-112"><a href="#cb6-112" aria-hidden="true" tabindex="-1"></a>    aos_median <span class="op">=</span> <span class="bu">float</span>(np.median(aos_samples))</span>
+<span id="cb6-113"><a href="#cb6-113" aria-hidden="true" tabindex="-1"></a>    aos_q1, aos_q3 <span class="op">=</span> np.percentile(aos_samples, [<span class="dv">25</span>, <span class="dv">75</span>])</span>
+<span id="cb6-114"><a href="#cb6-114" aria-hidden="true" tabindex="-1"></a>    split_records.append({</span>
+<span id="cb6-115"><a href="#cb6-115" aria-hidden="true" tabindex="-1"></a>        <span class="st">"N"</span>: n, <span class="st">"layout"</span>: <span class="st">"AoS"</span>, <span class="st">"samples_s"</span>: aos_samples,</span>
+<span id="cb6-116"><a href="#cb6-116" aria-hidden="true" tabindex="-1"></a>        <span class="st">"median_s"</span>: aos_median, <span class="st">"q1_s"</span>: <span class="bu">float</span>(aos_q1), <span class="st">"q3_s"</span>: <span class="bu">float</span>(aos_q3),</span>
+<span id="cb6-117"><a href="#cb6-117" aria-hidden="true" tabindex="-1"></a>        <span class="st">"iqr_s"</span>: <span class="bu">float</span>(aos_q3 <span class="op">-</span> aos_q1), <span class="st">"batch_count"</span>: aos_batch,</span>
+<span id="cb6-118"><a href="#cb6-118" aria-hidden="true" tabindex="-1"></a>        <span class="st">"repeats"</span>: REPEATS, <span class="st">"max_fused_difference"</span>: <span class="bu">float</span>(aos_error),</span>
+<span id="cb6-119"><a href="#cb6-119" aria-hidden="true" tabindex="-1"></a>        <span class="st">"working_set_bytes"</span>: <span class="dv">80</span> <span class="op">*</span> n, <span class="st">"traffic_bytes"</span>: <span class="dv">136</span> <span class="op">*</span> n,</span>
+<span id="cb6-120"><a href="#cb6-120" aria-hidden="true" tabindex="-1"></a>        <span class="st">"estimated_useful_gbps"</span>: <span class="dv">136</span> <span class="op">*</span> n <span class="op">/</span> aos_median <span class="op">/</span> <span class="fl">1e9</span>,</span>
+<span id="cb6-121"><a href="#cb6-121" aria-hidden="true" tabindex="-1"></a>        <span class="st">"signatures_present"</span>: <span class="bu">bool</span>(prepare_aos.signatures <span class="kw">and</span> finish_aos.signatures),</span>
+<span id="cb6-122"><a href="#cb6-122" aria-hidden="true" tabindex="-1"></a>    })</span>
+<span id="cb6-123"><a href="#cb6-123" aria-hidden="true" tabindex="-1"></a>    <span class="kw">del</span> prepared_aos, R_split_aos, aos_call, aos_samples</span>
+<span id="cb6-124"><a href="#cb6-124" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-125"><a href="#cb6-125" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Then measure SoA with four separate scratch vectors. Recompute the fused</span></span>
+<span id="cb6-126"><a href="#cb6-126" aria-hidden="true" tabindex="-1"></a>    <span class="co"># reference into its SoA output so both algorithms consume identical inputs.</span></span>
+<span id="cb6-127"><a href="#cb6-127" aria-hidden="true" tabindex="-1"></a>    prepared_soa <span class="op">=</span> <span class="bu">tuple</span>(np.empty(n, dtype<span class="op">=</span>np.float64) <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>))</span>
+<span id="cb6-128"><a href="#cb6-128" aria-hidden="true" tabindex="-1"></a>    R_split_soa <span class="op">=</span> <span class="bu">tuple</span>(np.empty(n, dtype<span class="op">=</span>np.float64) <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">3</span>))</span>
+<span id="cb6-129"><a href="#cb6-129" aria-hidden="true" tabindex="-1"></a>    residual_soa(rho, mom, energy, r_rho_fused, r_mom_fused, r_energy_fused, GAMMA)</span>
+<span id="cb6-130"><a href="#cb6-130" aria-hidden="true" tabindex="-1"></a>    run_split_soa(rho, mom, energy, prepared_soa, R_split_soa)</span>
+<span id="cb6-131"><a href="#cb6-131" aria-hidden="true" tabindex="-1"></a>    soa_error <span class="op">=</span> <span class="bu">max</span>(<span class="bu">float</span>(np.<span class="bu">max</span>(np.<span class="bu">abs</span>(fused <span class="op">-</span> split)))</span>
+<span id="cb6-132"><a href="#cb6-132" aria-hidden="true" tabindex="-1"></a>                    <span class="cf">for</span> fused, split <span class="kw">in</span> <span class="bu">zip</span>((r_rho_fused, r_mom_fused, r_energy_fused), R_split_soa))</span>
+<span id="cb6-133"><a href="#cb6-133" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="bu">all</span>(np.allclose(fused, split, rtol<span class="op">=</span><span class="fl">5e-13</span>, atol<span class="op">=</span><span class="fl">5e-13</span>)</span>
+<span id="cb6-134"><a href="#cb6-134" aria-hidden="true" tabindex="-1"></a>               <span class="cf">for</span> fused, split <span class="kw">in</span> <span class="bu">zip</span>((r_rho_fused, r_mom_fused, r_energy_fused), R_split_soa)), soa_error</span>
+<span id="cb6-135"><a href="#cb6-135" aria-hidden="true" tabindex="-1"></a>    soa_call <span class="op">=</span> <span class="kw">lambda</span>: run_split_soa(rho, mom, energy, prepared_soa, R_split_soa)</span>
+<span id="cb6-136"><a href="#cb6-136" aria-hidden="true" tabindex="-1"></a>    soa_call()</span>
+<span id="cb6-137"><a href="#cb6-137" aria-hidden="true" tabindex="-1"></a>    soa_call()</span>
+<span id="cb6-138"><a href="#cb6-138" aria-hidden="true" tabindex="-1"></a>    soa_batch <span class="op">=</span> choose_batch_count(soa_call, target_s<span class="op">=</span><span class="fl">0.2</span>)</span>
+<span id="cb6-139"><a href="#cb6-139" aria-hidden="true" tabindex="-1"></a>    soa_samples <span class="op">=</span> benchmark(soa_call, soa_batch, repeats<span class="op">=</span>REPEATS)</span>
+<span id="cb6-140"><a href="#cb6-140" aria-hidden="true" tabindex="-1"></a>    soa_median <span class="op">=</span> <span class="bu">float</span>(np.median(soa_samples))</span>
+<span id="cb6-141"><a href="#cb6-141" aria-hidden="true" tabindex="-1"></a>    soa_q1, soa_q3 <span class="op">=</span> np.percentile(soa_samples, [<span class="dv">25</span>, <span class="dv">75</span>])</span>
+<span id="cb6-142"><a href="#cb6-142" aria-hidden="true" tabindex="-1"></a>    split_records.append({</span>
+<span id="cb6-143"><a href="#cb6-143" aria-hidden="true" tabindex="-1"></a>        <span class="st">"N"</span>: n, <span class="st">"layout"</span>: <span class="st">"SoA"</span>, <span class="st">"samples_s"</span>: soa_samples,</span>
+<span id="cb6-144"><a href="#cb6-144" aria-hidden="true" tabindex="-1"></a>        <span class="st">"median_s"</span>: soa_median, <span class="st">"q1_s"</span>: <span class="bu">float</span>(soa_q1), <span class="st">"q3_s"</span>: <span class="bu">float</span>(soa_q3),</span>
+<span id="cb6-145"><a href="#cb6-145" aria-hidden="true" tabindex="-1"></a>        <span class="st">"iqr_s"</span>: <span class="bu">float</span>(soa_q3 <span class="op">-</span> soa_q1), <span class="st">"batch_count"</span>: soa_batch,</span>
+<span id="cb6-146"><a href="#cb6-146" aria-hidden="true" tabindex="-1"></a>        <span class="st">"repeats"</span>: REPEATS, <span class="st">"max_fused_difference"</span>: <span class="bu">float</span>(soa_error),</span>
+<span id="cb6-147"><a href="#cb6-147" aria-hidden="true" tabindex="-1"></a>        <span class="st">"working_set_bytes"</span>: <span class="dv">80</span> <span class="op">*</span> n, <span class="st">"traffic_bytes"</span>: <span class="dv">136</span> <span class="op">*</span> n,</span>
+<span id="cb6-148"><a href="#cb6-148" aria-hidden="true" tabindex="-1"></a>        <span class="st">"estimated_useful_gbps"</span>: <span class="dv">136</span> <span class="op">*</span> n <span class="op">/</span> soa_median <span class="op">/</span> <span class="fl">1e9</span>,</span>
+<span id="cb6-149"><a href="#cb6-149" aria-hidden="true" tabindex="-1"></a>        <span class="st">"signatures_present"</span>: <span class="bu">bool</span>(prepare_soa.signatures <span class="kw">and</span> finish_soa.signatures),</span>
+<span id="cb6-150"><a href="#cb6-150" aria-hidden="true" tabindex="-1"></a>    })</span>
+<span id="cb6-151"><a href="#cb6-151" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"N=</span><span class="sc">{</span>n<span class="sc">:&gt;8,}</span><span class="ss"> split AoS=</span><span class="sc">{</span>aos_median<span class="sc">:.4e}</span><span class="ss">s SoA=</span><span class="sc">{</span>soa_median<span class="sc">:.4e}</span><span class="ss">s "</span></span>
+<span id="cb6-152"><a href="#cb6-152" aria-hidden="true" tabindex="-1"></a>          <span class="ss">f"max fused differences=</span><span class="sc">{</span>aos_error<span class="sc">:.2e}</span><span class="ss">/</span><span class="sc">{</span>soa_error<span class="sc">:.2e}</span><span class="ss">"</span>)</span>
+<span id="cb6-153"><a href="#cb6-153" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-154"><a href="#cb6-154" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Release scratch and outputs before generating the next large test state.</span></span>
+<span id="cb6-155"><a href="#cb6-155" aria-hidden="true" tabindex="-1"></a>    <span class="kw">del</span> U, rho, mom, energy, R_fused, r_rho_fused, r_mom_fused, r_energy_fused</span>
+<span id="cb6-156"><a href="#cb6-156" aria-hidden="true" tabindex="-1"></a>    <span class="kw">del</span> prepared_soa, R_split_soa, soa_call, soa_samples</span>
+<span id="cb6-157"><a href="#cb6-157" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-158"><a href="#cb6-158" aria-hidden="true" tabindex="-1"></a><span class="co"># Show the split-run costs separately; 136 bytes/cell includes the two state</span></span>
+<span id="cb6-159"><a href="#cb6-159" aria-hidden="true" tabindex="-1"></a><span class="co"># reads, four temporary writes and reads, and three residual writes. It is a</span></span>
+<span id="cb6-160"><a href="#cb6-160" aria-hidden="true" tabindex="-1"></a><span class="co"># useful-traffic model, not physical DRAM traffic or measured bandwidth.</span></span>
+<span id="cb6-161"><a href="#cb6-161" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> IPython.display <span class="im">import</span> display, Markdown</span>
+<span id="cb6-162"><a href="#cb6-162" aria-hidden="true" tabindex="-1"></a>split_table <span class="op">=</span> [</span>
+<span id="cb6-163"><a href="#cb6-163" aria-hidden="true" tabindex="-1"></a>    <span class="st">"| N | layout | median split (s) | IQR (s) | fused/split speedup | working set (MiB) | estimated useful GB/s | max fused diff |"</span>,</span>
+<span id="cb6-164"><a href="#cb6-164" aria-hidden="true" tabindex="-1"></a>    <span class="st">"|---:|:---|---:|---:|---:|---:|---:|---:|"</span>,</span>
+<span id="cb6-165"><a href="#cb6-165" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb6-166"><a href="#cb6-166" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> result <span class="kw">in</span> split_records:</span>
+<span id="cb6-167"><a href="#cb6-167" aria-hidden="true" tabindex="-1"></a>    fused_median <span class="op">=</span> <span class="bu">next</span>(r[<span class="st">"median_s"</span>] <span class="cf">for</span> r <span class="kw">in</span> records</span>
+<span id="cb6-168"><a href="#cb6-168" aria-hidden="true" tabindex="-1"></a>                        <span class="cf">if</span> r[<span class="st">"N"</span>] <span class="op">==</span> result[<span class="st">"N"</span>] <span class="kw">and</span> r[<span class="st">"layout"</span>] <span class="op">==</span> result[<span class="st">"layout"</span>])</span>
+<span id="cb6-169"><a href="#cb6-169" aria-hidden="true" tabindex="-1"></a>    result[<span class="st">"fused_speedup"</span>] <span class="op">=</span> fused_median <span class="op">/</span> result[<span class="st">"median_s"</span>]</span>
+<span id="cb6-170"><a href="#cb6-170" aria-hidden="true" tabindex="-1"></a>    split_table.append(</span>
+<span id="cb6-171"><a href="#cb6-171" aria-hidden="true" tabindex="-1"></a>        <span class="ss">f"| </span><span class="sc">{</span>result[<span class="st">'N'</span>]<span class="sc">:,}</span><span class="ss"> | </span><span class="sc">{</span>result[<span class="st">'layout'</span>]<span class="sc">}</span><span class="ss"> | </span><span class="sc">{</span>result[<span class="st">'median_s'</span>]<span class="sc">:.4e}</span><span class="ss"> "</span></span>
+<span id="cb6-172"><a href="#cb6-172" aria-hidden="true" tabindex="-1"></a>        <span class="ss">f"| </span><span class="sc">{</span>result[<span class="st">'iqr_s'</span>]<span class="sc">:.3e}</span><span class="ss"> | </span><span class="sc">{</span>result[<span class="st">'fused_speedup'</span>]<span class="sc">:.3f}</span><span class="ss"> "</span></span>
+<span id="cb6-173"><a href="#cb6-173" aria-hidden="true" tabindex="-1"></a>        <span class="ss">f"| </span><span class="sc">{</span>result[<span class="st">'working_set_bytes'</span>] <span class="op">/</span> <span class="dv">2</span><span class="op">**</span><span class="dv">20</span><span class="sc">:.1f}</span><span class="ss"> "</span></span>
+<span id="cb6-174"><a href="#cb6-174" aria-hidden="true" tabindex="-1"></a>        <span class="ss">f"| </span><span class="sc">{</span>result[<span class="st">'estimated_useful_gbps'</span>]<span class="sc">:.3f}</span><span class="ss"> | </span><span class="sc">{</span>result[<span class="st">'max_fused_difference'</span>]<span class="sc">:.2e}</span><span class="ss"> |"</span></span>
+<span id="cb6-175"><a href="#cb6-175" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb6-176"><a href="#cb6-176" aria-hidden="true" tabindex="-1"></a>display(Markdown(<span class="st">"### Optional two-pass stretch results</span><span class="ch">\n\n</span><span class="st">"</span> <span class="op">+</span> <span class="st">"</span><span class="ch">\n</span><span class="st">"</span>.join(split_table)))</span>
+<span id="cb6-177"><a href="#cb6-177" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"For split kernels, 136 useful bytes/cell = 24 input bytes in each pass "</span></span>
+<span id="cb6-178"><a href="#cb6-178" aria-hidden="true" tabindex="-1"></a>      <span class="st">"+ 32 temporary bytes written + 32 temporary bytes read + 24 output bytes."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>N=   4,096 AoS batch=4,619 median=4.4814e-05 s MLUPS=91.40
+N=   4,096 SoA batch=4,673 median=4.5012e-05 s MLUPS=91.00
+N=  32,768 SoA batch=  568 median=3.6026e-04 s MLUPS=90.96
+N=  32,768 AoS batch=  578 median=3.5842e-04 s MLUPS=91.42
+N= 262,144 AoS batch=   73 median=2.8613e-03 s MLUPS=91.62
+N= 262,144 SoA batch=   73 median=2.8461e-03 s MLUPS=92.11
+N=4,194,304 SoA batch=    5 median=4.5640e-02 s MLUPS=91.90
+N=4,194,304 AoS batch=    5 median=4.5543e-02 s MLUPS=92.10
+Recorded 8 fused configurations; each has 9 raw samples.
+N= 262,144 split AoS=1.5236e-03s SoA=1.2528e-03s max fused differences=0.00e+00/0.00e+00
+N=4,194,304 split AoS=2.4800e-02s SoA=2.2697e-02s max fused differences=0.00e+00/0.00e+00</code></pre>
+</div>
+<section id="optional-two-pass-stretch-results" class="level3 cell-output cell-output-display cell-output-markdown">
+<h3 class="anchored" data-anchor-id="optional-two-pass-stretch-results">Optional two-pass stretch results</h3>
+<table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: right;">N</th>
+<th style="text-align: left;">layout</th>
+<th style="text-align: right;">median split (s)</th>
+<th style="text-align: right;">IQR (s)</th>
+<th style="text-align: right;">fused/split speedup</th>
+<th style="text-align: right;">working set (MiB)</th>
+<th style="text-align: right;">estimated useful GB/s</th>
+<th style="text-align: right;">max fused diff</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">262,144</td>
+<td style="text-align: left;">AoS</td>
+<td style="text-align: right;">1.5236e-03</td>
+<td style="text-align: right;">1.006e-05</td>
+<td style="text-align: right;">1.878</td>
+<td style="text-align: right;">20.0</td>
+<td style="text-align: right;">23.400</td>
+<td style="text-align: right;">0.00e+00</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">262,144</td>
+<td style="text-align: left;">SoA</td>
+<td style="text-align: right;">1.2528e-03</td>
+<td style="text-align: right;">1.673e-05</td>
+<td style="text-align: right;">2.272</td>
+<td style="text-align: right;">20.0</td>
+<td style="text-align: right;">28.457</td>
+<td style="text-align: right;">0.00e+00</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">4,194,304</td>
+<td style="text-align: left;">AoS</td>
+<td style="text-align: right;">2.4800e-02</td>
+<td style="text-align: right;">2.212e-04</td>
+<td style="text-align: right;">1.836</td>
+<td style="text-align: right;">320.0</td>
+<td style="text-align: right;">23.001</td>
+<td style="text-align: right;">0.00e+00</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4,194,304</td>
+<td style="text-align: left;">SoA</td>
+<td style="text-align: right;">2.2697e-02</td>
+<td style="text-align: right;">6.916e-04</td>
+<td style="text-align: right;">2.011</td>
+<td style="text-align: right;">320.0</td>
+<td style="text-align: right;">25.132</td>
+<td style="text-align: right;">0.00e+00</td>
+</tr>
+</tbody>
+</table>
+</section>
+<div class="cell-output cell-output-stdout">
+<pre><code>For split kernels, 136 useful bytes/cell = 24 input bytes in each pass + 32 temporary bytes written + 32 temporary bytes read + 24 output bytes.</code></pre>
+</div>
+</div>
+</section>
+<section id="required-plots-and-interpretation" class="level2">
+<h2 class="anchored" data-anchor-id="required-plots-and-interpretation">5. Required plots and interpretation</h2>
+<p>Create three diagnostics:</p>
+<ol type="1">
+<li>Median kernel time versus N on log-log axes, with IQR error bars.</li>
+<li>Throughput in million cell updates/s versus total working-set size; mark approximate L2/L3 sizes if you can obtain them reliably, otherwise omit the cache markers.</li>
+<li>SoA/AoS speedup and estimated useful bandwidth versus N.</li>
+</ol>
+<p>Then answer:</p>
+<ul>
+<li>Does either layout win consistently? Quantify the range, not only the largest case.</li>
+<li>Where does throughput change as the working set leaves cache?</li>
+<li>Does AoS benefit because all fields of one cell are consumed together, or does SoA expose more regular streams/vectorization? Use evidence from your measurements and strides.</li>
+<li>Why does a 48-byte useful model not prove that the kernel reached a fraction of peak DRAM bandwidth?</li>
+<li>Which layout would you choose for a Titan Numerics CPU flux kernel, and what new evidence would you demand before choosing a GPU layout?</li>
+</ul>
+<div id="fd87fdb4" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-08T21:18:12.586717Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-08T21:18:12.586608Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-08T21:18:13.073960Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-08T21:18:13.073509Z&quot;}}" data-execution_count="20">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> IPython.display <span class="im">import</span> display, Markdown</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Put the measured metadata and units beside the table, not only in hidden</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co"># variables, so the performance data remain interpretable when shared.</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Measured environment:"</span>, SOFTWARE_CONTEXT)</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>table_header <span class="op">=</span> <span class="st">"| N | layout | median (s/call) | IQR (s) | MLUPS | estimated useful GB/s | working set (MiB) | batch |"</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>table_separator <span class="op">=</span> <span class="st">"|---:|:---|---:|---:|---:|---:|---:|---:|"</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>table_rows <span class="op">=</span> [table_header, table_separator]</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> record <span class="kw">in</span> records:</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    table_rows.append(</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>        <span class="ss">f"| </span><span class="sc">{</span>record[<span class="st">'N'</span>]<span class="sc">:,}</span><span class="ss"> | </span><span class="sc">{</span>record[<span class="st">'layout'</span>]<span class="sc">}</span><span class="ss"> | </span><span class="sc">{</span>record[<span class="st">'median_s'</span>]<span class="sc">:.4e}</span><span class="ss"> "</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>        <span class="ss">f"| </span><span class="sc">{</span>record[<span class="st">'iqr_s'</span>]<span class="sc">:.3e}</span><span class="ss"> | </span><span class="sc">{</span>record[<span class="st">'mlups'</span>]<span class="sc">:.2f}</span><span class="ss"> "</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>        <span class="ss">f"| </span><span class="sc">{</span>record[<span class="st">'estimated_useful_gbps'</span>]<span class="sc">:.3f}</span><span class="ss"> "</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>        <span class="ss">f"| </span><span class="sc">{</span>record[<span class="st">'working_set_bytes'</span>] <span class="op">/</span> <span class="dv">2</span><span class="op">**</span><span class="dv">20</span><span class="sc">:.2f}</span><span class="ss"> | </span><span class="sc">{</span>record[<span class="st">'batch_count'</span>]<span class="sc">:,}</span><span class="ss"> |"</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>display(Markdown(<span class="st">"</span><span class="ch">\n</span><span class="st">"</span>.join(table_rows)))</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot 1: median time and the interquartile range. Log axes expose both the</span></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a><span class="co"># roughly linear scaling with N and any changes in per-cell efficiency.</span></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">5</span>))</span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> layout, marker <span class="kw">in</span> ((<span class="st">"AoS"</span>, <span class="st">"o"</span>), (<span class="st">"SoA"</span>, <span class="st">"s"</span>)):</span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>    subset <span class="op">=</span> <span class="bu">sorted</span>((r <span class="cf">for</span> r <span class="kw">in</span> records <span class="cf">if</span> r[<span class="st">"layout"</span>] <span class="op">==</span> layout), key<span class="op">=</span><span class="kw">lambda</span> r: r[<span class="st">"N"</span>])</span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>    sizes <span class="op">=</span> np.array([r[<span class="st">"N"</span>] <span class="cf">for</span> r <span class="kw">in</span> subset])</span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>    medians <span class="op">=</span> np.array([r[<span class="st">"median_s"</span>] <span class="cf">for</span> r <span class="kw">in</span> subset])</span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>    lower <span class="op">=</span> medians <span class="op">-</span> np.array([r[<span class="st">"q1_s"</span>] <span class="cf">for</span> r <span class="kw">in</span> subset])</span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>    upper <span class="op">=</span> np.array([r[<span class="st">"q3_s"</span>] <span class="cf">for</span> r <span class="kw">in</span> subset]) <span class="op">-</span> medians</span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>    ax.errorbar(sizes, medians, yerr<span class="op">=</span>np.vstack((lower, upper)),</span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>                marker<span class="op">=</span>marker, capsize<span class="op">=</span><span class="dv">4</span>, linewidth<span class="op">=</span><span class="fl">1.5</span>, label<span class="op">=</span>layout)</span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>ax.set_xscale(<span class="st">"log"</span>, base<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>ax.set_yscale(<span class="st">"log"</span>)</span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"number of cells, N"</span>)</span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"median residual-kernel time (seconds/call; IQR bars)"</span>)</span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"AoS and SoA kernel time"</span>)</span>
+<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a>ax.legend()</span>
+<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()</span>
+<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot 2: throughput against the input-plus-output working set for one</span></span>
+<span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a><span class="co"># configuration. Cache markers are omitted because cache sizes were not</span></span>
+<span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a><span class="co"># reliably discoverable on this machine, rather than guessed.</span></span>
+<span id="cb9-41"><a href="#cb9-41" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">5</span>))</span>
+<span id="cb9-42"><a href="#cb9-42" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> layout, marker <span class="kw">in</span> ((<span class="st">"AoS"</span>, <span class="st">"o"</span>), (<span class="st">"SoA"</span>, <span class="st">"s"</span>)):</span>
+<span id="cb9-43"><a href="#cb9-43" aria-hidden="true" tabindex="-1"></a>    subset <span class="op">=</span> <span class="bu">sorted</span>((r <span class="cf">for</span> r <span class="kw">in</span> records <span class="cf">if</span> r[<span class="st">"layout"</span>] <span class="op">==</span> layout), key<span class="op">=</span><span class="kw">lambda</span> r: r[<span class="st">"N"</span>])</span>
+<span id="cb9-44"><a href="#cb9-44" aria-hidden="true" tabindex="-1"></a>    working_mib <span class="op">=</span> [r[<span class="st">"working_set_bytes"</span>] <span class="op">/</span> <span class="dv">2</span><span class="op">**</span><span class="dv">20</span> <span class="cf">for</span> r <span class="kw">in</span> subset]</span>
+<span id="cb9-45"><a href="#cb9-45" aria-hidden="true" tabindex="-1"></a>    throughput <span class="op">=</span> [r[<span class="st">"mlups"</span>] <span class="cf">for</span> r <span class="kw">in</span> subset]</span>
+<span id="cb9-46"><a href="#cb9-46" aria-hidden="true" tabindex="-1"></a>    ax.plot(working_mib, throughput, marker<span class="op">=</span>marker, linewidth<span class="op">=</span><span class="fl">1.5</span>, label<span class="op">=</span>layout)</span>
+<span id="cb9-47"><a href="#cb9-47" aria-hidden="true" tabindex="-1"></a>ax.set_xscale(<span class="st">"log"</span>, base<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb9-48"><a href="#cb9-48" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"input + output working set (MiB per layout)"</span>)</span>
+<span id="cb9-49"><a href="#cb9-49" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"million cell updates per second (MLUPS)"</span>)</span>
+<span id="cb9-50"><a href="#cb9-50" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Throughput versus working-set size (no unverified cache markers)"</span>)</span>
+<span id="cb9-51"><a href="#cb9-51" aria-hidden="true" tabindex="-1"></a>ax.legend()</span>
+<span id="cb9-52"><a href="#cb9-52" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()</span>
+<span id="cb9-53"><a href="#cb9-53" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb9-54"><a href="#cb9-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-55"><a href="#cb9-55" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot 3: speedup is defined as AoS time / SoA time, so values above one</span></span>
+<span id="cb9-56"><a href="#cb9-56" aria-hidden="true" tabindex="-1"></a><span class="co"># favor SoA. The second axis shows the 48-byte lower-bound useful bandwidth,</span></span>
+<span id="cb9-57"><a href="#cb9-57" aria-hidden="true" tabindex="-1"></a><span class="co"># not physical DRAM traffic or measured hardware bandwidth.</span></span>
+<span id="cb9-58"><a href="#cb9-58" aria-hidden="true" tabindex="-1"></a>speedup_points <span class="op">=</span> []</span>
+<span id="cb9-59"><a href="#cb9-59" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> n <span class="kw">in</span> SIZES:</span>
+<span id="cb9-60"><a href="#cb9-60" aria-hidden="true" tabindex="-1"></a>    aos <span class="op">=</span> <span class="bu">next</span>(r <span class="cf">for</span> r <span class="kw">in</span> records <span class="cf">if</span> r[<span class="st">"N"</span>] <span class="op">==</span> n <span class="kw">and</span> r[<span class="st">"layout"</span>] <span class="op">==</span> <span class="st">"AoS"</span>)</span>
+<span id="cb9-61"><a href="#cb9-61" aria-hidden="true" tabindex="-1"></a>    soa <span class="op">=</span> <span class="bu">next</span>(r <span class="cf">for</span> r <span class="kw">in</span> records <span class="cf">if</span> r[<span class="st">"N"</span>] <span class="op">==</span> n <span class="kw">and</span> r[<span class="st">"layout"</span>] <span class="op">==</span> <span class="st">"SoA"</span>)</span>
+<span id="cb9-62"><a href="#cb9-62" aria-hidden="true" tabindex="-1"></a>    speedup_points.append((n, aos[<span class="st">"median_s"</span>] <span class="op">/</span> soa[<span class="st">"median_s"</span>]))</span>
+<span id="cb9-63"><a href="#cb9-63" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">5</span>))</span>
+<span id="cb9-64"><a href="#cb9-64" aria-hidden="true" tabindex="-1"></a>ax2 <span class="op">=</span> ax.twinx()</span>
+<span id="cb9-65"><a href="#cb9-65" aria-hidden="true" tabindex="-1"></a>ax.plot([x[<span class="dv">0</span>] <span class="cf">for</span> x <span class="kw">in</span> speedup_points], [x[<span class="dv">1</span>] <span class="cf">for</span> x <span class="kw">in</span> speedup_points],</span>
+<span id="cb9-66"><a href="#cb9-66" aria-hidden="true" tabindex="-1"></a>        color<span class="op">=</span><span class="st">"tab:purple"</span>, marker<span class="op">=</span><span class="st">"o"</span>, label<span class="op">=</span><span class="st">"SoA speedup (AoS time / SoA time)"</span>)</span>
+<span id="cb9-67"><a href="#cb9-67" aria-hidden="true" tabindex="-1"></a>ax.axhline(<span class="fl">1.0</span>, color<span class="op">=</span><span class="st">"black"</span>, linestyle<span class="op">=</span><span class="st">"--"</span>, linewidth<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb9-68"><a href="#cb9-68" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> layout, color, marker <span class="kw">in</span> ((<span class="st">"AoS"</span>, <span class="st">"tab:blue"</span>, <span class="st">"s"</span>), (<span class="st">"SoA"</span>, <span class="st">"tab:orange"</span>, <span class="st">"^"</span>) ):</span>
+<span id="cb9-69"><a href="#cb9-69" aria-hidden="true" tabindex="-1"></a>    subset <span class="op">=</span> <span class="bu">sorted</span>((r <span class="cf">for</span> r <span class="kw">in</span> records <span class="cf">if</span> r[<span class="st">"layout"</span>] <span class="op">==</span> layout), key<span class="op">=</span><span class="kw">lambda</span> r: r[<span class="st">"N"</span>])</span>
+<span id="cb9-70"><a href="#cb9-70" aria-hidden="true" tabindex="-1"></a>    ax2.plot([r[<span class="st">"N"</span>] <span class="cf">for</span> r <span class="kw">in</span> subset], [r[<span class="st">"estimated_useful_gbps"</span>] <span class="cf">for</span> r <span class="kw">in</span> subset],</span>
+<span id="cb9-71"><a href="#cb9-71" aria-hidden="true" tabindex="-1"></a>             color<span class="op">=</span>color, marker<span class="op">=</span>marker, linestyle<span class="op">=</span><span class="st">":"</span>, label<span class="op">=</span><span class="ss">f"</span><span class="sc">{</span>layout<span class="sc">}</span><span class="ss"> useful GB/s"</span>)</span>
+<span id="cb9-72"><a href="#cb9-72" aria-hidden="true" tabindex="-1"></a>ax.set_xscale(<span class="st">"log"</span>, base<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb9-73"><a href="#cb9-73" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"number of cells, N"</span>)</span>
+<span id="cb9-74"><a href="#cb9-74" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"SoA speedup (above 1 favors SoA)"</span>, color<span class="op">=</span><span class="st">"tab:purple"</span>)</span>
+<span id="cb9-75"><a href="#cb9-75" aria-hidden="true" tabindex="-1"></a>ax2.set_ylabel(<span class="st">"estimated useful bandwidth (GB/s; lower-bound model)"</span>)</span>
+<span id="cb9-76"><a href="#cb9-76" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Layout speedup and estimated useful bandwidth"</span>)</span>
+<span id="cb9-77"><a href="#cb9-77" aria-hidden="true" tabindex="-1"></a>lines1, labels1 <span class="op">=</span> ax.get_legend_handles_labels()</span>
+<span id="cb9-78"><a href="#cb9-78" aria-hidden="true" tabindex="-1"></a>lines2, labels2 <span class="op">=</span> ax2.get_legend_handles_labels()</span>
+<span id="cb9-79"><a href="#cb9-79" aria-hidden="true" tabindex="-1"></a>ax.legend(lines1 <span class="op">+</span> lines2, labels1 <span class="op">+</span> labels2, loc<span class="op">=</span><span class="st">"best"</span>, fontsize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb9-80"><a href="#cb9-80" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()</span>
+<span id="cb9-81"><a href="#cb9-81" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb9-82"><a href="#cb9-82" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-83"><a href="#cb9-83" aria-hidden="true" tabindex="-1"></a><span class="co"># Optional stretch plot: compare AoS time / SoA time before and after</span></span>
+<span id="cb9-84"><a href="#cb9-84" aria-hidden="true" tabindex="-1"></a><span class="co"># splitting the kernel. Values above one favor SoA; below one favor AoS.</span></span>
+<span id="cb9-85"><a href="#cb9-85" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">5</span>))</span>
+<span id="cb9-86"><a href="#cb9-86" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> kernel_form, source <span class="kw">in</span> ((<span class="st">"fused"</span>, records), (<span class="st">"split"</span>, split_records)):</span>
+<span id="cb9-87"><a href="#cb9-87" aria-hidden="true" tabindex="-1"></a>    ratios <span class="op">=</span> []</span>
+<span id="cb9-88"><a href="#cb9-88" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> n <span class="kw">in</span> SIZES[<span class="op">-</span><span class="dv">2</span>:]:</span>
+<span id="cb9-89"><a href="#cb9-89" aria-hidden="true" tabindex="-1"></a>        aos <span class="op">=</span> <span class="bu">next</span>(r <span class="cf">for</span> r <span class="kw">in</span> source <span class="cf">if</span> r[<span class="st">"N"</span>] <span class="op">==</span> n <span class="kw">and</span> r[<span class="st">"layout"</span>] <span class="op">==</span> <span class="st">"AoS"</span>)</span>
+<span id="cb9-90"><a href="#cb9-90" aria-hidden="true" tabindex="-1"></a>        soa <span class="op">=</span> <span class="bu">next</span>(r <span class="cf">for</span> r <span class="kw">in</span> source <span class="cf">if</span> r[<span class="st">"N"</span>] <span class="op">==</span> n <span class="kw">and</span> r[<span class="st">"layout"</span>] <span class="op">==</span> <span class="st">"SoA"</span>)</span>
+<span id="cb9-91"><a href="#cb9-91" aria-hidden="true" tabindex="-1"></a>        ratios.append(aos[<span class="st">"median_s"</span>] <span class="op">/</span> soa[<span class="st">"median_s"</span>])</span>
+<span id="cb9-92"><a href="#cb9-92" aria-hidden="true" tabindex="-1"></a>    ax.plot(SIZES[<span class="op">-</span><span class="dv">2</span>:], ratios, marker<span class="op">=</span><span class="st">"o"</span> <span class="cf">if</span> kernel_form <span class="op">==</span> <span class="st">"fused"</span> <span class="cf">else</span> <span class="st">"s"</span>,</span>
+<span id="cb9-93"><a href="#cb9-93" aria-hidden="true" tabindex="-1"></a>            linewidth<span class="op">=</span><span class="fl">1.5</span>, label<span class="op">=</span><span class="ss">f"</span><span class="sc">{</span>kernel_form<span class="sc">}</span><span class="ss">: AoS time / SoA time"</span>)</span>
+<span id="cb9-94"><a href="#cb9-94" aria-hidden="true" tabindex="-1"></a>ax.axhline(<span class="fl">1.0</span>, color<span class="op">=</span><span class="st">"black"</span>, linestyle<span class="op">=</span><span class="st">"--"</span>, linewidth<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb9-95"><a href="#cb9-95" aria-hidden="true" tabindex="-1"></a>ax.set_xscale(<span class="st">"log"</span>, base<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb9-96"><a href="#cb9-96" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"number of cells, N"</span>)</span>
+<span id="cb9-97"><a href="#cb9-97" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"AoS time / SoA time (above 1 favors SoA)"</span>)</span>
+<span id="cb9-98"><a href="#cb9-98" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Does the layout comparison change when the kernel is split?"</span>)</span>
+<span id="cb9-99"><a href="#cb9-99" aria-hidden="true" tabindex="-1"></a>ax.legend()</span>
+<span id="cb9-100"><a href="#cb9-100" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()</span>
+<span id="cb9-101"><a href="#cb9-101" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb9-102"><a href="#cb9-102" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-103"><a href="#cb9-103" aria-hidden="true" tabindex="-1"></a><span class="co"># Summarize the complete size range; do not declare a winner from only the</span></span>
+<span id="cb9-104"><a href="#cb9-104" aria-hidden="true" tabindex="-1"></a><span class="co"># largest case. These observed ratios are specific to this CPU/compiler run.</span></span>
+<span id="cb9-105"><a href="#cb9-105" aria-hidden="true" tabindex="-1"></a>speedups <span class="op">=</span> np.array([ratio <span class="cf">for</span> _, ratio <span class="kw">in</span> speedup_points])</span>
+<span id="cb9-106"><a href="#cb9-106" aria-hidden="true" tabindex="-1"></a>wins_soa <span class="op">=</span> <span class="bu">int</span>(np.<span class="bu">sum</span>(speedups <span class="op">&gt;</span> <span class="fl">1.0</span>))</span>
+<span id="cb9-107"><a href="#cb9-107" aria-hidden="true" tabindex="-1"></a>wins_aos <span class="op">=</span> <span class="bu">int</span>(np.<span class="bu">sum</span>(speedups <span class="op">&lt;</span> <span class="fl">1.0</span>))</span>
+<span id="cb9-108"><a href="#cb9-108" aria-hidden="true" tabindex="-1"></a>best_soa_size <span class="op">=</span> speedup_points[<span class="bu">int</span>(np.argmax(speedups))][<span class="dv">0</span>]</span>
+<span id="cb9-109"><a href="#cb9-109" aria-hidden="true" tabindex="-1"></a>worst_soa_size <span class="op">=</span> speedup_points[<span class="bu">int</span>(np.argmin(speedups))][<span class="dv">0</span>]</span>
+<span id="cb9-110"><a href="#cb9-110" aria-hidden="true" tabindex="-1"></a>throughput_transitions <span class="op">=</span> []</span>
+<span id="cb9-111"><a href="#cb9-111" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> layout <span class="kw">in</span> (<span class="st">"AoS"</span>, <span class="st">"SoA"</span>):</span>
+<span id="cb9-112"><a href="#cb9-112" aria-hidden="true" tabindex="-1"></a>    subset <span class="op">=</span> <span class="bu">sorted</span>((r <span class="cf">for</span> r <span class="kw">in</span> records <span class="cf">if</span> r[<span class="st">"layout"</span>] <span class="op">==</span> layout), key<span class="op">=</span><span class="kw">lambda</span> r: r[<span class="st">"N"</span>])</span>
+<span id="cb9-113"><a href="#cb9-113" aria-hidden="true" tabindex="-1"></a>    changes <span class="op">=</span> [subset[i <span class="op">+</span> <span class="dv">1</span>][<span class="st">"mlups"</span>] <span class="op">/</span> subset[i][<span class="st">"mlups"</span>]</span>
+<span id="cb9-114"><a href="#cb9-114" aria-hidden="true" tabindex="-1"></a>               <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(subset) <span class="op">-</span> <span class="dv">1</span>)]</span>
+<span id="cb9-115"><a href="#cb9-115" aria-hidden="true" tabindex="-1"></a>    throughput_transitions.append((layout, changes))</span>
+<span id="cb9-116"><a href="#cb9-116" aria-hidden="true" tabindex="-1"></a>split_layout_ratios <span class="op">=</span> []</span>
+<span id="cb9-117"><a href="#cb9-117" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> n <span class="kw">in</span> SIZES[<span class="op">-</span><span class="dv">2</span>:]:</span>
+<span id="cb9-118"><a href="#cb9-118" aria-hidden="true" tabindex="-1"></a>    fused_aos <span class="op">=</span> <span class="bu">next</span>(r <span class="cf">for</span> r <span class="kw">in</span> records <span class="cf">if</span> r[<span class="st">"N"</span>] <span class="op">==</span> n <span class="kw">and</span> r[<span class="st">"layout"</span>] <span class="op">==</span> <span class="st">"AoS"</span>)</span>
+<span id="cb9-119"><a href="#cb9-119" aria-hidden="true" tabindex="-1"></a>    fused_soa <span class="op">=</span> <span class="bu">next</span>(r <span class="cf">for</span> r <span class="kw">in</span> records <span class="cf">if</span> r[<span class="st">"N"</span>] <span class="op">==</span> n <span class="kw">and</span> r[<span class="st">"layout"</span>] <span class="op">==</span> <span class="st">"SoA"</span>)</span>
+<span id="cb9-120"><a href="#cb9-120" aria-hidden="true" tabindex="-1"></a>    split_aos <span class="op">=</span> <span class="bu">next</span>(r <span class="cf">for</span> r <span class="kw">in</span> split_records <span class="cf">if</span> r[<span class="st">"N"</span>] <span class="op">==</span> n <span class="kw">and</span> r[<span class="st">"layout"</span>] <span class="op">==</span> <span class="st">"AoS"</span>)</span>
+<span id="cb9-121"><a href="#cb9-121" aria-hidden="true" tabindex="-1"></a>    split_soa <span class="op">=</span> <span class="bu">next</span>(r <span class="cf">for</span> r <span class="kw">in</span> split_records <span class="cf">if</span> r[<span class="st">"N"</span>] <span class="op">==</span> n <span class="kw">and</span> r[<span class="st">"layout"</span>] <span class="op">==</span> <span class="st">"SoA"</span>)</span>
+<span id="cb9-122"><a href="#cb9-122" aria-hidden="true" tabindex="-1"></a>    split_layout_ratios.append((n, fused_aos[<span class="st">"median_s"</span>] <span class="op">/</span> fused_soa[<span class="st">"median_s"</span>],</span>
+<span id="cb9-123"><a href="#cb9-123" aria-hidden="true" tabindex="-1"></a>                               split_aos[<span class="st">"median_s"</span>] <span class="op">/</span> split_soa[<span class="st">"median_s"</span>]))</span>
+<span id="cb9-124"><a href="#cb9-124" aria-hidden="true" tabindex="-1"></a>layout_winner_changed <span class="op">=</span> <span class="bu">any</span>((fused_ratio <span class="op">-</span> <span class="fl">1.0</span>) <span class="op">*</span> (split_ratio <span class="op">-</span> <span class="fl">1.0</span>) <span class="op">&lt;</span> <span class="fl">0.0</span></span>
+<span id="cb9-125"><a href="#cb9-125" aria-hidden="true" tabindex="-1"></a>                             <span class="cf">for</span> _, fused_ratio, split_ratio <span class="kw">in</span> split_layout_ratios)</span>
+<span id="cb9-126"><a href="#cb9-126" aria-hidden="true" tabindex="-1"></a>display(Markdown(</span>
+<span id="cb9-127"><a href="#cb9-127" aria-hidden="true" tabindex="-1"></a>    <span class="st">"### Interpretation of this run</span><span class="ch">\n\n</span><span class="st">"</span></span>
+<span id="cb9-128"><a href="#cb9-128" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f"- SoA was faster at </span><span class="sc">{</span>wins_soa<span class="sc">}</span><span class="ss"> of </span><span class="sc">{</span><span class="bu">len</span>(speedups)<span class="sc">}</span><span class="ss"> sizes and AoS at </span><span class="sc">{</span>wins_aos<span class="sc">}</span><span class="ss">; "</span></span>
+<span id="cb9-129"><a href="#cb9-129" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f"the AoS-time/SoA-time ratios ranged from </span><span class="sc">{</span>speedups<span class="sc">.</span><span class="bu">min</span>()<span class="sc">:.3f}</span><span class="ss"> to </span><span class="sc">{</span>speedups<span class="sc">.</span><span class="bu">max</span>()<span class="sc">:.3f}</span><span class="ss">. "</span></span>
+<span id="cb9-130"><a href="#cb9-130" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f"The largest SoA advantage occurred at N=</span><span class="sc">{</span>best_soa_size<span class="sc">:,}</span><span class="ss">; its smallest ratio was at N=</span><span class="sc">{</span>worst_soa_size<span class="sc">:,}</span><span class="ss">.</span><span class="ch">\n</span><span class="ss">"</span></span>
+<span id="cb9-131"><a href="#cb9-131" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f"- Successive throughput ratios (larger size divided by preceding size) were "</span></span>
+<span id="cb9-132"><a href="#cb9-132" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f"</span><span class="sc">{</span>throughput_transitions<span class="sc">}</span><span class="ss">. Across this run, throughput ranged from "</span></span>
+<span id="cb9-133"><a href="#cb9-133" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f"</span><span class="sc">{</span><span class="bu">min</span>(r[<span class="st">'mlups'</span>] <span class="cf">for</span> r <span class="kw">in</span> records)<span class="sc">:.2f}</span><span class="ss"> to </span><span class="sc">{</span><span class="bu">max</span>(r[<span class="st">'mlups'</span>] <span class="cf">for</span> r <span class="kw">in</span> records)<span class="sc">:.2f}</span><span class="ss"> MLUPS, "</span></span>
+<span id="cb9-134"><a href="#cb9-134" aria-hidden="true" tabindex="-1"></a>    <span class="st">"so there is no clear cache-exit knee in the measured points. Exact L2/L3 sizes "</span></span>
+<span id="cb9-135"><a href="#cb9-135" aria-hidden="true" tabindex="-1"></a>    <span class="st">"were not reliably available, so do not assign a transition to a particular cache.</span><span class="ch">\n</span><span class="st">"</span></span>
+<span id="cb9-136"><a href="#cb9-136" aria-hidden="true" tabindex="-1"></a>    <span class="st">"- AoS has cell stride 24 bytes and field stride 8 bytes; SoA has cell stride 8 bytes "</span></span>
+<span id="cb9-137"><a href="#cb9-137" aria-hidden="true" tabindex="-1"></a>    <span class="st">"within each field. The former places the three values consumed together nearby; "</span></span>
+<span id="cb9-138"><a href="#cb9-138" aria-hidden="true" tabindex="-1"></a>    <span class="st">"the latter creates regular field streams that can help vectorization. The speedup "</span></span>
+<span id="cb9-139"><a href="#cb9-139" aria-hidden="true" tabindex="-1"></a>    <span class="st">"measurements show which effect won for this fused loop and compiler.</span><span class="ch">\n</span><span class="st">"</span></span>
+<span id="cb9-140"><a href="#cb9-140" aria-hidden="true" tabindex="-1"></a>    <span class="st">"- The useful-bandwidth estimate divides 48 required bytes per cell by time. It is "</span></span>
+<span id="cb9-141"><a href="#cb9-141" aria-hidden="true" tabindex="-1"></a>    <span class="st">"not a DRAM counter: adjacent fluxes reuse values, cache hits may satisfy reads, "</span></span>
+<span id="cb9-142"><a href="#cb9-142" aria-hidden="true" tabindex="-1"></a>    <span class="st">"stores can trigger write allocation, and prefetching/compiler transformations "</span></span>
+<span id="cb9-143"><a href="#cb9-143" aria-hidden="true" tabindex="-1"></a>    <span class="st">"change physical traffic. Without hardware counters and a reliable peak-bandwidth "</span></span>
+<span id="cb9-144"><a href="#cb9-144" aria-hidden="true" tabindex="-1"></a>    <span class="st">"measurement it cannot establish a fraction of peak DRAM bandwidth.</span><span class="ch">\n</span><span class="st">"</span></span>
+<span id="cb9-145"><a href="#cb9-145" aria-hidden="true" tabindex="-1"></a>    <span class="st">"- For this CPU kernel, prefer the layout that wins consistently across the sizes "</span></span>
+<span id="cb9-146"><a href="#cb9-146" aria-hidden="true" tabindex="-1"></a>    <span class="st">"and matters to the full application; if results are mixed, benchmark the production "</span></span>
+<span id="cb9-147"><a href="#cb9-147" aria-hidden="true" tabindex="-1"></a>    <span class="st">"loop and surrounding reconstruction/update stages before committing. For a GPU, "</span></span>
+<span id="cb9-148"><a href="#cb9-148" aria-hidden="true" tabindex="-1"></a>    <span class="st">"add device measurements of coalesced access, occupancy, register pressure, achieved "</span></span>
+<span id="cb9-149"><a href="#cb9-149" aria-hidden="true" tabindex="-1"></a>    <span class="st">"memory bandwidth, launch overhead, and end-to-end solver performance before deciding.</span><span class="ch">\n</span><span class="st">"</span></span>
+<span id="cb9-150"><a href="#cb9-150" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f"- In the two largest cases, the fused and split AoS/SoA time ratios were </span><span class="sc">{</span>split_layout_ratios<span class="sc">}</span><span class="ss">; "</span></span>
+<span id="cb9-151"><a href="#cb9-151" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f"the measured winner </span><span class="sc">{</span><span class="st">'changed'</span> <span class="cf">if</span> layout_winner_changed <span class="cf">else</span> <span class="st">'did not change'</span><span class="sc">}</span><span class="ss"> between fused and split forms. "</span></span>
+<span id="cb9-152"><a href="#cb9-152" aria-hidden="true" tabindex="-1"></a>    <span class="st">"The split version also pays to write and reread four temporary fields, so any reduction in "</span></span>
+<span id="cb9-153"><a href="#cb9-153" aria-hidden="true" tabindex="-1"></a>    <span class="st">"repeated flux arithmetic must outweigh both that traffic and the extra pass overhead."</span></span>
+<span id="cb9-154"><a href="#cb9-154" aria-hidden="true" tabindex="-1"></a>))</span>
+<span id="cb9-155"><a href="#cb9-155" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-156"><a href="#cb9-156" aria-hidden="true" tabindex="-1"></a><span class="co"># This fused implementation evaluates two face fluxes per cell. A transparent</span></span>
+<span id="cb9-157"><a href="#cb9-157" aria-hidden="true" tabindex="-1"></a><span class="co"># nominal count is about 85 basic +,-,*,/ operations per cell: roughly 13 for</span></span>
+<span id="cb9-158"><a href="#cb9-158" aria-hidden="true" tabindex="-1"></a><span class="co"># each of four primitive/physical-flux evaluations, 15 per face, and 3 final</span></span>
+<span id="cb9-159"><a href="#cb9-159" aria-hidden="true" tabindex="-1"></a><span class="co"># residual subtractions. That gives 85/48 ~= 1.77 nominal FLOP/byte. This is</span></span>
+<span id="cb9-160"><a href="#cb9-160" aria-hidden="true" tabindex="-1"></a><span class="co"># only a rough model: division and sqrt differ in cost from add/multiply, and</span></span>
+<span id="cb9-161"><a href="#cb9-161" aria-hidden="true" tabindex="-1"></a><span class="co"># abs/max comparisons are not FLOPs. It must not be confused with measured intensity.</span></span>
+<span id="cb9-162"><a href="#cb9-162" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Arithmetic-intensity estimate: about 85 basic arithmetic ops / 48 useful bytes "</span></span>
+<span id="cb9-163"><a href="#cb9-163" aria-hidden="true" tabindex="-1"></a>      <span class="st">"= 1.77 nominal ops/byte; divisions, square roots, and comparisons have different costs."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Measured environment: {'cpu_model': 'AMD64 Family 26 Model 68 Stepping 0, AuthenticAMD', 'platform': 'Windows-11-10.0.26200-SP0', 'python': '3.13.14', 'numpy': '2.5.3', 'numba': '0.68.0', 'logical_cpu_count': 8, 'numba_thread_pool_size': 8, 'kernel_execution': 'serial; no parallel=True'}</code></pre>
+</div>
+<div class="cell-output cell-output-display cell-output-markdown">
+<table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: right;">N</th>
+<th style="text-align: left;">layout</th>
+<th style="text-align: right;">median (s/call)</th>
+<th style="text-align: right;">IQR (s)</th>
+<th style="text-align: right;">MLUPS</th>
+<th style="text-align: right;">estimated useful GB/s</th>
+<th style="text-align: right;">working set (MiB)</th>
+<th style="text-align: right;">batch</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">4,096</td>
+<td style="text-align: left;">AoS</td>
+<td style="text-align: right;">4.4814e-05</td>
+<td style="text-align: right;">8.425e-07</td>
+<td style="text-align: right;">91.40</td>
+<td style="text-align: right;">4.387</td>
+<td style="text-align: right;">0.19</td>
+<td style="text-align: right;">4,619</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4,096</td>
+<td style="text-align: left;">SoA</td>
+<td style="text-align: right;">4.5012e-05</td>
+<td style="text-align: right;">5.089e-07</td>
+<td style="text-align: right;">91.00</td>
+<td style="text-align: right;">4.368</td>
+<td style="text-align: right;">0.19</td>
+<td style="text-align: right;">4,673</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">32,768</td>
+<td style="text-align: left;">SoA</td>
+<td style="text-align: right;">3.6026e-04</td>
+<td style="text-align: right;">6.736e-06</td>
+<td style="text-align: right;">90.96</td>
+<td style="text-align: right;">4.366</td>
+<td style="text-align: right;">1.50</td>
+<td style="text-align: right;">568</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">32,768</td>
+<td style="text-align: left;">AoS</td>
+<td style="text-align: right;">3.5842e-04</td>
+<td style="text-align: right;">1.751e-06</td>
+<td style="text-align: right;">91.42</td>
+<td style="text-align: right;">4.388</td>
+<td style="text-align: right;">1.50</td>
+<td style="text-align: right;">578</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">262,144</td>
+<td style="text-align: left;">AoS</td>
+<td style="text-align: right;">2.8613e-03</td>
+<td style="text-align: right;">2.625e-05</td>
+<td style="text-align: right;">91.62</td>
+<td style="text-align: right;">4.398</td>
+<td style="text-align: right;">12.00</td>
+<td style="text-align: right;">73</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">262,144</td>
+<td style="text-align: left;">SoA</td>
+<td style="text-align: right;">2.8461e-03</td>
+<td style="text-align: right;">1.789e-05</td>
+<td style="text-align: right;">92.11</td>
+<td style="text-align: right;">4.421</td>
+<td style="text-align: right;">12.00</td>
+<td style="text-align: right;">73</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">4,194,304</td>
+<td style="text-align: left;">SoA</td>
+<td style="text-align: right;">4.5640e-02</td>
+<td style="text-align: right;">2.060e-04</td>
+<td style="text-align: right;">91.90</td>
+<td style="text-align: right;">4.411</td>
+<td style="text-align: right;">192.00</td>
+<td style="text-align: right;">5</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4,194,304</td>
+<td style="text-align: left;">AoS</td>
+<td style="text-align: right;">4.5543e-02</td>
+<td style="text-align: right;">4.351e-04</td>
+<td style="text-align: right;">92.10</td>
+<td style="text-align: right;">4.421</td>
+<td style="text-align: right;">192.00</td>
+<td style="text-align: right;">5</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="20261008-aos-vs-soa-flux-kernel_files/figure-html/cell-6-output-3.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="20261008-aos-vs-soa-flux-kernel_files/figure-html/cell-6-output-4.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="20261008-aos-vs-soa-flux-kernel_files/figure-html/cell-6-output-5.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="20261008-aos-vs-soa-flux-kernel_files/figure-html/cell-6-output-6.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<section id="interpretation-of-this-run" class="level3 cell-output cell-output-display cell-output-markdown">
+<h3 class="anchored" data-anchor-id="interpretation-of-this-run">Interpretation of this run</h3>
+<ul>
+<li>SoA was faster at 1 of 4 sizes and AoS at 3; the AoS-time/SoA-time ratios ranged from 0.995 to 1.005. The largest SoA advantage occurred at N=262,144; its smallest ratio was at N=32,768.</li>
+<li>Successive throughput ratios (larger size divided by preceding size) were [(‘AoS’, [1.0002431278229644, 1.0021148010309058, 1.0052266099634712]), (‘SoA’, [0.9995440755526598, 1.0126401447175601, 0.9977673564226107])]. Across this run, throughput ranged from 90.96 to 92.11 MLUPS, so there is no clear cache-exit knee in the measured points. Exact L2/L3 sizes were not reliably available, so do not assign a transition to a particular cache.</li>
+<li>AoS has cell stride 24 bytes and field stride 8 bytes; SoA has cell stride 8 bytes within each field. The former places the three values consumed together nearby; the latter creates regular field streams that can help vectorization. The speedup measurements show which effect won for this fused loop and compiler.</li>
+<li>The useful-bandwidth estimate divides 48 required bytes per cell by time. It is not a DRAM counter: adjacent fluxes reuse values, cache hits may satisfy reads, stores can trigger write allocation, and prefetching/compiler transformations change physical traffic. Without hardware counters and a reliable peak-bandwidth measurement it cannot establish a fraction of peak DRAM bandwidth.</li>
+<li>For this CPU kernel, prefer the layout that wins consistently across the sizes and matters to the full application; if results are mixed, benchmark the production loop and surrounding reconstruction/update stages before committing. For a GPU, add device measurements of coalesced access, occupancy, register pressure, achieved memory bandwidth, launch overhead, and end-to-end solver performance before deciding.</li>
+<li>In the two largest cases, the fused and split AoS/SoA time ratios were [(262144, 1.0053391411072472, 1.216131383726964), (4194304, 0.9978790525324507, 1.092629996964861)]; the measured winner changed between fused and split forms. The split version also pays to write and reread four temporary fields, so any reduction in repeated flux arithmetic must outweigh both that traffic and the extra pass overhead.</li>
+</ul>
+</section>
+<div class="cell-output cell-output-stdout">
+<pre><code>Arithmetic-intensity estimate: about 85 basic arithmetic ops / 48 useful bytes = 1.77 nominal ops/byte; divisions, square roots, and comparisons have different costs.</code></pre>
+</div>
+</div>
+</section>
+<section id="automatic-success-checks" class="level2">
+<h2 class="anchored" data-anchor-id="automatic-success-checks">6. Automatic success checks</h2>
+<p>Assert all of the following:</p>
+<ul>
+<li>Input states have positive density and pressure and all arrays are float64, 1D/2D as specified, and C-contiguous.</li>
+<li>AoS and SoA residuals meet the relative and absolute equivalence tolerances.</li>
+<li>Each conserved residual sums to roundoff-scaled zero under the periodic boundary.</li>
+<li>No input changes across a kernel call; output is overwritten on repeat.</li>
+<li>Every timed sample is positive and finite; every configuration has nine samples; compilation signatures exist before timing.</li>
+<li>Reported rates recompute from N and median time; estimated bandwidth uses exactly the documented 48-byte lower bound.</li>
+<li>At least one case is larger than 100 MiB for combined input and output, so the experiment is not entirely cache-resident on typical workstations.</li>
+</ul>
+<p>Do <strong>not</strong> assert that SoA must be faster. Layout performance is hardware-, compiler-, and kernel-dependent; a forced expected winner would invalidate the experiment.</p>
+<div id="80e4f4dc" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-08T21:18:13.075156Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-08T21:18:13.075017Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-08T21:18:13.080214Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-08T21:18:13.079709Z&quot;}}" data-execution_count="21">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Assert state admissibility and storage layout for the checked instance.</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>rho_values <span class="op">=</span> U_check[:, <span class="dv">0</span>]</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>velocity_values <span class="op">=</span> U_check[:, <span class="dv">1</span>] <span class="op">/</span> rho_values</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>pressure_values <span class="op">=</span> (GAMMA <span class="op">-</span> <span class="fl">1.0</span>) <span class="op">*</span> (U_check[:, <span class="dv">2</span>] <span class="op">-</span> <span class="fl">0.5</span> <span class="op">*</span> U_check[:, <span class="dv">1</span>] <span class="op">*</span> velocity_values)</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> np.<span class="bu">all</span>(rho_values <span class="op">&gt;</span> <span class="fl">0.0</span>) <span class="kw">and</span> np.<span class="bu">all</span>(pressure_values <span class="op">&gt;</span> <span class="fl">0.0</span>)</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> U_check.dtype <span class="op">==</span> np.float64 <span class="kw">and</span> U_check.ndim <span class="op">==</span> <span class="dv">2</span> <span class="kw">and</span> U_check.flags.c_contiguous</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="bu">all</span>(a.dtype <span class="op">==</span> np.float64 <span class="kw">and</span> a.ndim <span class="op">==</span> <span class="dv">1</span> <span class="kw">and</span> a.flags.c_contiguous</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>           <span class="cf">for</span> a <span class="kw">in</span> (rho_check, mom_check, energy_check))</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Correctness-cell comparisons already assert equivalence, conservation,</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="co"># overwrite behavior, and input immutability. Confirm kernels were compiled.</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> residual_aos.signatures <span class="kw">and</span> residual_soa.signatures</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Every record must carry nine finite positive samples and metrics derived</span></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a><span class="co"># from its median time and documented 48-byte useful-traffic assumption.</span></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="bu">len</span>(records) <span class="op">==</span> <span class="bu">len</span>(SIZES) <span class="op">*</span> <span class="dv">2</span></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> record <span class="kw">in</span> records:</span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>    samples <span class="op">=</span> record[<span class="st">"samples_s"</span>]</span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="bu">len</span>(samples) <span class="op">==</span> REPEATS</span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> np.isfinite(samples).<span class="bu">all</span>() <span class="kw">and</span> np.<span class="bu">all</span>(samples <span class="op">&gt;</span> <span class="fl">0.0</span>)</span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> record[<span class="st">"signatures_present"</span>]</span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> np.isclose(record[<span class="st">"mlups"</span>], record[<span class="st">"N"</span>] <span class="op">/</span> record[<span class="st">"median_s"</span>] <span class="op">/</span> <span class="fl">1e6</span>)</span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> record[<span class="st">"useful_bytes"</span>] <span class="op">==</span> <span class="dv">48</span> <span class="op">*</span> record[<span class="st">"N"</span>]</span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> np.isclose(record[<span class="st">"estimated_useful_gbps"</span>],</span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>                      <span class="dv">48</span> <span class="op">*</span> record[<span class="st">"N"</span>] <span class="op">/</span> record[<span class="st">"median_s"</span>] <span class="op">/</span> <span class="fl">1e9</span>)</span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> record[<span class="st">"working_set_bytes"</span>] <span class="op">==</span> <span class="dv">6</span> <span class="op">*</span> <span class="dv">8</span> <span class="op">*</span> record[<span class="st">"N"</span>]</span>
+<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a><span class="co"># Verify the largest input/output footprint exceeds 100 MiB as required.</span></span>
+<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a>largest_working_set <span class="op">=</span> <span class="bu">max</span>(record[<span class="st">"working_set_bytes"</span>] <span class="cf">for</span> record <span class="kw">in</span> records)</span>
+<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> largest_working_set <span class="op">&gt;</span> <span class="dv">100</span> <span class="op">*</span> <span class="dv">2</span><span class="op">**</span><span class="dv">20</span></span>
+<span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="bu">all</span>(record[<span class="st">"repeats"</span>] <span class="op">==</span> <span class="dv">9</span> <span class="cf">for</span> record <span class="kw">in</span> records)</span>
+<span id="cb12-32"><a href="#cb12-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-33"><a href="#cb12-33" aria-hidden="true" tabindex="-1"></a><span class="co"># The optional two-pass kernels must preserve the fused numerical result and</span></span>
+<span id="cb12-34"><a href="#cb12-34" aria-hidden="true" tabindex="-1"></a><span class="co"># report their larger scratch footprint/traffic without enforcing a winner.</span></span>
+<span id="cb12-35"><a href="#cb12-35" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="bu">len</span>(split_records) <span class="op">==</span> <span class="dv">2</span> <span class="op">*</span> <span class="bu">len</span>(SIZES[<span class="op">-</span><span class="dv">2</span>:])</span>
+<span id="cb12-36"><a href="#cb12-36" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> record <span class="kw">in</span> split_records:</span>
+<span id="cb12-37"><a href="#cb12-37" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="bu">len</span>(record[<span class="st">"samples_s"</span>]) <span class="op">==</span> REPEATS</span>
+<span id="cb12-38"><a href="#cb12-38" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> np.isfinite(record[<span class="st">"samples_s"</span>]).<span class="bu">all</span>() <span class="kw">and</span> np.<span class="bu">all</span>(record[<span class="st">"samples_s"</span>] <span class="op">&gt;</span> <span class="fl">0.0</span>)</span>
+<span id="cb12-39"><a href="#cb12-39" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> record[<span class="st">"signatures_present"</span>]</span>
+<span id="cb12-40"><a href="#cb12-40" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> record[<span class="st">"max_fused_difference"</span>] <span class="op">&lt;=</span> <span class="fl">5e-13</span></span>
+<span id="cb12-41"><a href="#cb12-41" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> record[<span class="st">"working_set_bytes"</span>] <span class="op">==</span> <span class="dv">80</span> <span class="op">*</span> record[<span class="st">"N"</span>]</span>
+<span id="cb12-42"><a href="#cb12-42" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> record[<span class="st">"traffic_bytes"</span>] <span class="op">==</span> <span class="dv">136</span> <span class="op">*</span> record[<span class="st">"N"</span>]</span>
+<span id="cb12-43"><a href="#cb12-43" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> np.isclose(record[<span class="st">"estimated_useful_gbps"</span>],</span>
+<span id="cb12-44"><a href="#cb12-44" aria-hidden="true" tabindex="-1"></a>                      record[<span class="st">"traffic_bytes"</span>] <span class="op">/</span> record[<span class="st">"median_s"</span>] <span class="op">/</span> <span class="fl">1e9</span>)</span>
+<span id="cb12-45"><a href="#cb12-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-46"><a href="#cb12-46" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"All input, output, compiled-signature, fused/split correctness, timing-protocol, and traffic-model checks passed."</span>)</span>
+<span id="cb12-47"><a href="#cb12-47" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Largest single-layout fused working set: </span><span class="sc">{</span>largest_working_set <span class="op">/</span> <span class="dv">2</span><span class="op">**</span><span class="dv">20</span><span class="sc">:.1f}</span><span class="ss"> MiB"</span>)</span>
+<span id="cb12-48"><a href="#cb12-48" aria-hidden="true" tabindex="-1"></a><span class="co"># No assertion chooses a faster layout: a slower result remains a valid measurement.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>All input, output, compiled-signature, fused/split correctness, timing-protocol, and traffic-model checks passed.
+Largest single-layout fused working set: 192.0 MiB</code></pre>
+</div>
+</div>
+</section>
+<section id="discussion-stretch-goal-and-references" class="level2">
+<h2 class="anchored" data-anchor-id="discussion-stretch-goal-and-references">7. Discussion, stretch goal, and references</h2>
+<p><strong>Stretch goal:</strong> Split each layout into two passes: (1) primitive variables and spectral radii, then (2) face flux/residual. Rebenchmark at the two largest sizes. Account for every new temporary in the working set and useful-traffic model. Determine whether the layout conclusion changes when field-wise arrays are reused across kernels. Do not enable parallel execution until the single-thread comparison is complete.</p>
+<section id="scope-and-limitations" class="level3">
+<h3 class="anchored" data-anchor-id="scope-and-limitations">Scope and limitations</h3>
+<p>This microbenchmark isolates one periodic CPU kernel. It does not include reconstruction, limiters, viscous terms, MPI halos, memory allocation, or GPU execution. Numba/LLVM choices may differ from C++/Kokkos. Useful-bandwidth estimates are analytical lower bounds, not performance-counter measurements. Frequency scaling and background load can affect results; retain raw timing samples.</p>
+</section>
+<section id="references" class="level3">
+<h3 class="anchored" data-anchor-id="references">References</h3>
+<ul>
+<li><strong>Dedicated project reference:</strong> Samuel Williams, Andrew Waterman, and David Patterson, “Roofline: An Insightful Visual Performance Model for Multicore Architectures,” <em>Communications of the ACM</em> 52(4), 65-76, 2009. <a href="https://escholarship.org/uc/item/78h8v7mr">Open record and PDF</a>. Use it to distinguish arithmetic intensity, attainable ceilings, and measured performance.</li>
+<li><strong>Layout reference:</strong> <a href="https://kokkos.org/kokkos-core-wiki/ProgrammingGuide/View.html">Kokkos View programming guide</a> for layout-aware multidimensional arrays and memory spaces.</li>
+<li><strong>Implementation reference:</strong> <a href="https://numba.readthedocs.io/en/stable/user/performance-tips.html">Numba performance tips</a> for nopython compilation and benchmarking-relevant behavior.</li>
+<li><strong>Research paper:</strong> Benjamin Wilfong et al., “Simulating many-engine spacecraft: Exceeding 1 quadrillion degrees of freedom via information geometric regularization,” <em>Proceedings of SC ’25</em>, pp.&nbsp;14-24, 2025. DOI: 10.1145/3712285.3771783. <a href="https://benwilfong.com/papers/wilfong-GB.pdf">Author PDF</a>. Read for the interaction among memory footprint, precision, unified memory, and energy-to-solution at extreme-scale CFD.</li>
+</ul>
+
+
+</section>
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const cellDetails = window.document.querySelectorAll(".cell details.code-fold");
+        for (let i=0; i<cellDetails.length; i++) {
+          const details = cellDetails[i];
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell div.sourceCode.cell-code");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/josh-fowler-hub\.github\.io\/daily-learning\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>Josh Fowler · Computational Engineering</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    </div>
+    <div class="nav-footer-right">
+      <ul class="footer-items list-unstyled">
+    <li class="nav-item">
+    <a class="nav-link" href="https://josh-fowler-hub.github.io/">
+<p>Portfolio</p>
+</a>
+  </li>  
+</ul>
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>
