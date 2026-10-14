@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="dcterms.date" content="2026-10-09">
+<meta name="description" content="Build and interrogate a nonlinear buoyancy-driven loop model with thermal feedback.">
+
+<title>Transient Natural-Circulation Loop – Daily Learning &amp; Refreshers</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-6c0ad46e1861a38265c10768182fb462.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-0a289de8f5facb2eb205fb6a6c1f6796.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top quarto-banner">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">Daily Learning &amp; Refreshers</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./index.html"> 
+<span class="menu-text">Practice Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="https://josh-fowler-hub.github.io/"> 
+<span class="menu-text">Portfolio</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/josh-fowler-hub/daily-learning"> <i class="bi bi-github" role="img" aria-label="GitHub repository">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <div class="quarto-title-block"><div><h1 class="title">Transient Natural-Circulation Loop</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li></ul></div></div>
+                  <div>
+        <div class="description">
+          Build and interrogate a nonlinear buoyancy-driven loop model with thermal feedback.
+        </div>
+      </div>
+                          <div class="quarto-categories">
+                <div class="quarto-category">thermal fluids</div>
+                <div class="quarto-category">reduced-order modeling</div>
+                <div class="quarto-category">nuclear engineering</div>
+              </div>
+                  </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">October 9, 2026</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#transient-natural-circulation-loop" id="toc-transient-natural-circulation-loop" class="nav-link active" data-scroll-target="#transient-natural-circulation-loop">Transient Natural-Circulation Loop</a>
+  <ul class="collapse">
+  <li><a href="#coupled-momentum-and-thermal-storage-in-passive-cooling" id="toc-coupled-momentum-and-thermal-storage-in-passive-cooling" class="nav-link" data-scroll-target="#coupled-momentum-and-thermal-storage-in-passive-cooling">Coupled momentum and thermal storage in passive cooling</a></li>
+  <li><a href="#model-assumptions-and-sign-convention" id="toc-model-assumptions-and-sign-convention" class="nav-link" data-scroll-target="#model-assumptions-and-sign-convention">1. Model, assumptions, and sign convention</a></li>
+  <li><a href="#implement-the-dynamic-and-quasi-steady-models" id="toc-implement-the-dynamic-and-quasi-steady-models" class="nav-link" data-scroll-target="#implement-the-dynamic-and-quasi-steady-models">2. Implement the dynamic and quasi-steady models</a></li>
+  <li><a href="#analytical-steady-state" id="toc-analytical-steady-state" class="nav-link" data-scroll-target="#analytical-steady-state">3. Analytical steady state</a></li>
+  <li><a href="#startup-transient-and-diagnostics" id="toc-startup-transient-and-diagnostics" class="nav-link" data-scroll-target="#startup-transient-and-diagnostics">4. Startup transient and diagnostics</a></li>
+  <li><a href="#heat-load-sweep-and-nonlinear-scaling" id="toc-heat-load-sweep-and-nonlinear-scaling" class="nav-link" data-scroll-target="#heat-load-sweep-and-nonlinear-scaling">5. Heat-load sweep and nonlinear scaling</a></li>
+  <li><a href="#automatic-verification-and-validity-checks" id="toc-automatic-verification-and-validity-checks" class="nav-link" data-scroll-target="#automatic-verification-and-validity-checks">6. Automatic verification and validity checks</a></li>
+  <li><a href="#interpretation-stretch-goal-and-references" id="toc-interpretation-stretch-goal-and-references" class="nav-link" data-scroll-target="#interpretation-stretch-goal-and-references">7. Interpretation, stretch goal, and references</a>
+  <ul class="collapse">
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
+  <li><a href="#topic-ledger" id="toc-topic-ledger" class="nav-link" data-scroll-target="#topic-ledger">Topic ledger</a></li>
+  </ul></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+
+<section id="transient-natural-circulation-loop" class="level1">
+<h1>Transient Natural-Circulation Loop</h1>
+<section id="coupled-momentum-and-thermal-storage-in-passive-cooling" class="level3">
+<h3 class="anchored" data-anchor-id="coupled-momentum-and-thermal-storage-in-passive-cooling">Coupled momentum and thermal storage in passive cooling</h3>
+<p><strong>Learning goal:</strong> Build a reduced-order natural-circulation model from control-volume balances, simulate startup after a heat-input step, verify global energy conservation and the steady state, and explain the nonlinear scaling between heat load, temperature rise, and circulation rate.</p>
+<p><strong>Time:</strong> 60-90 minutes. Python, NumPy, SciPy, Matplotlib. No spatial mesh or grid-refinement study is used.</p>
+<p><strong>Physical intuition:</strong> Heating makes one vertical leg lighter than the cooled leg. The resulting buoyancy head accelerates the loop, while form/friction losses grow approximately as velocity squared. Flow then transports heat from the hot control volume to the cold one, reducing the temperature difference that created the flow. This feedback can overshoot or oscillate before settling.</p>
+<p><strong>Success targets:</strong> Reproduce the analytical steady state to 1%; close the integrated external energy balance to 0.1%; recover the predicted mass-flow power-law exponent within 0.03; and distinguish the full inertial model from a quasi-steady momentum closure.</p>
+<p>The notebook is an assignment. Implementation cells contain TODOs and no completed model.</p>
+</section>
+<section id="model-assumptions-and-sign-convention" class="level2">
+<h2 class="anchored" data-anchor-id="model-assumptions-and-sign-convention">1. Model, assumptions, and sign convention</h2>
+<p>Represent a single-phase rectangular loop using three states: signed mean loop velocity <span class="math inline">\(v\)</span>, hot-leg mean temperature <span class="math inline">\(T_h\)</span>, and cold-leg mean temperature <span class="math inline">\(T_c\)</span>. Assume constant properties, incompressible Boussinesq buoyancy, two well-mixed thermal control volumes, a single quadratic loss coefficient, and one heat sink. Positive <span class="math inline">\(v\)</span> is the buoyancy-preferred direction.</p>
+<p><span class="math display">\[\frac{dv}{dt}=\frac{g\beta H}{L}(T_h-T_c)-\frac{K}{2L}v|v|,\]</span> <span class="math display">\[C_h\frac{dT_h}{dt}=Q(t)-|\dot m|c_p(T_h-T_c),\]</span> <span class="math display">\[C_c\frac{dT_c}{dt}=|\dot m|c_p(T_h-T_c)-UA(T_c-T_s),\]</span> with <span class="math inline">\(\dot m=\rho A v\)</span>, <span class="math inline">\(C_h=M_hc_p\)</span>, and <span class="math inline">\(C_c=M_cc_p\)</span>.</p>
+<p>The absolute value in the advective heat-transfer magnitude is a deliberate two-node closure: either circulation direction transports energy between the heated and cooled regions. It is not a general substitute for signed advection in a spatial system code. Use the signed <span class="math inline">\(v\)</span> in the momentum equation and report any reversal.</p>
+<p>Base case: water-like constant properties, <span class="math inline">\(\rho=997\)</span> kg/m3, <span class="math inline">\(c_p=4180\)</span> J/(kg K), <span class="math inline">\(\beta=2.1\times10^{-4}\)</span> 1/K, <span class="math inline">\(A=2.0\times10^{-3}\)</span> m2, <span class="math inline">\(L=8\)</span> m, <span class="math inline">\(H=2.5\)</span> m, <span class="math inline">\(K=20\)</span>, <span class="math inline">\(M_h=M_c=10\)</span> kg, <span class="math inline">\(UA=120\)</span> W/K, <span class="math inline">\(T_s=300\)</span> K, and a 5 kW heat step at <span class="math inline">\(t=0\)</span>. Integrate to 3600 s from <span class="math inline">\((v,T_h,T_c)=(0,300,300)\)</span>.</p>
+<div id="4927389e" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.integrate <span class="im">import</span> solve_ivp</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.optimize <span class="im">import</span> root_scalar</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>PARAMS <span class="op">=</span> {</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"rho"</span>: <span class="fl">997.0</span>, <span class="st">"cp"</span>: <span class="fl">4180.0</span>, <span class="st">"beta"</span>: <span class="fl">2.1e-4</span>,</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"g"</span>: <span class="fl">9.81</span>, <span class="st">"A"</span>: <span class="fl">2.0e-3</span>, <span class="st">"L"</span>: <span class="fl">8.0</span>, <span class="st">"H"</span>: <span class="fl">2.5</span>,</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">"K"</span>: <span class="fl">20.0</span>, <span class="st">"M_h"</span>: <span class="fl">10.0</span>, <span class="st">"M_c"</span>: <span class="fl">10.0</span>,</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"UA"</span>: <span class="fl">120.0</span>, <span class="st">"T_sink"</span>: <span class="fl">300.0</span>,</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>Q_BASE <span class="op">=</span> <span class="fl">5_000.0</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>T_SPAN <span class="op">=</span> (<span class="fl">0.0</span>, <span class="fl">3600.0</span>)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>T_EVAL <span class="op">=</span> np.linspace(<span class="op">*</span>T_SPAN, <span class="dv">1801</span>)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>Y0 <span class="op">=</span> np.array([<span class="fl">0.0</span>, <span class="fl">300.0</span>, <span class="fl">300.0</span>])</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: Check units, record assumptions, and configure plotting defaults.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+</section>
+<section id="implement-the-dynamic-and-quasi-steady-models" class="level2">
+<h2 class="anchored" data-anchor-id="implement-the-dynamic-and-quasi-steady-models">2. Implement the dynamic and quasi-steady models</h2>
+<p>Write <code>rhs_full(t, y, p, qfun, uafun)</code> for the three-state model. Compute every heat rate explicitly and return derivatives in SI units. Keep <span class="math inline">\(v|v|\)</span> rather than <span class="math inline">\(v^2\)</span> so the drag always opposes motion.</p>
+<p>For comparison, eliminate momentum inertia using <span class="math display">\[v_{qs}=\operatorname{sign}(\Delta T)\sqrt{\frac{2g\beta H|\Delta T|}{K}},\qquad \Delta T=T_h-T_c,\]</span> with <span class="math inline">\(v_{qs}=0\)</span> at <span class="math inline">\(\Delta T=0\)</span>. Integrate only the two energy equations with this algebraic velocity. Use <code>solve_ivp</code> with <code>method="Radau"</code>, <code>rtol=1e-8</code>, and <code>atol=[1e-10,1e-8,1e-8]</code> for the full model; use compatible temperature tolerances for the quasi-steady model.</p>
+<p>Do not clip temperatures, velocity, or derivatives. A nonphysical result should fail a diagnostic rather than be hidden.</p>
+<div id="f8be136e" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> heat_input(t, q<span class="op">=</span>Q_BASE):</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># </span><span class="al">TODO</span><span class="co">: Return the prescribed step heat input.</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">raise</span> <span class="pp">NotImplementedError</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> ua_base(t, ua<span class="op">=</span>PARAMS[<span class="st">"UA"</span>]):</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># </span><span class="al">TODO</span><span class="co">: Return the base heat-sink conductance.</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">raise</span> <span class="pp">NotImplementedError</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> rhs_full(t, y, p, qfun<span class="op">=</span>heat_input, uafun<span class="op">=</span>ua_base):</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Return [dv/dt, dTh/dt, dTc/dt]."""</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># </span><span class="al">TODO</span><span class="co">: Implement momentum and two energy balances.</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">raise</span> <span class="pp">NotImplementedError</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> quasi_steady_velocity(delta_t, p):</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="co"># </span><span class="al">TODO</span><span class="co">: Implement the signed algebraic momentum closure.</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">raise</span> <span class="pp">NotImplementedError</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> rhs_quasi(t, y, p, qfun<span class="op">=</span>heat_input, uafun<span class="op">=</span>ua_base):</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Return [dTh/dt, dTc/dt] using the algebraic velocity."""</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    <span class="co"># </span><span class="al">TODO</span><span class="co">: Implement using the same heat-rate definitions.</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">raise</span> <span class="pp">NotImplementedError</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+</section>
+<section id="analytical-steady-state" class="level2">
+<h2 class="anchored" data-anchor-id="analytical-steady-state">3. Analytical steady state</h2>
+<p>For constant positive <span class="math inline">\(Q\)</span> and <span class="math inline">\(T_h&gt;T_c\)</span>, set all derivatives to zero. Show that <span class="math display">\[T_c^*=T_s+\frac{Q}{UA},\]</span> <span class="math display">\[\Delta T^*=\left[\frac{Q}{\rho A c_p\sqrt{2g\beta H/K}}\right]^{2/3},\]</span> <span class="math display">\[v^*=\sqrt{\frac{2g\beta H\Delta T^*}{K}},\qquad \dot m^*=\rho A v^*,\]</span> and <span class="math inline">\(T_h^*=T_c^*+\Delta T^*\)</span>.</p>
+<p>Derive the relations before coding them. Evaluate the residual of all three steady equations at the analytical state. The result should be roundoff-small relative to the characteristic acceleration and heat rates.</p>
+<p>Predict the power laws <span class="math inline">\(\Delta T^*\propto Q^{2/3}\)</span> and <span class="math inline">\(\dot m^*\propto Q^{1/3}\)</span>. These are model scalings, not numerical convergence orders.</p>
+<div id="7be5a207" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> analytical_steady(q, p):</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># </span><span class="al">TODO</span><span class="co">: Return v_star, Th_star, Tc_star, mdot_star.</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">raise</span> <span class="pp">NotImplementedError</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: Compute the base analytical state and evaluate rhs_full there.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+</section>
+<section id="startup-transient-and-diagnostics" class="level2">
+<h2 class="anchored" data-anchor-id="startup-transient-and-diagnostics">4. Startup transient and diagnostics</h2>
+<p>Integrate the full and quasi-steady models on the same output times. Plot:</p>
+<ol type="1">
+<li><span class="math inline">\(T_h\)</span>, <span class="math inline">\(T_c\)</span>, and the analytical steady temperatures.</li>
+<li>Signed mass flow <span class="math inline">\(\dot m(t)\)</span> with its analytical steady value.</li>
+<li>Buoyancy acceleration <span class="math inline">\(a_b=g\beta H(T_h-T_c)/L\)</span> and drag acceleration <span class="math inline">\(a_d=Kv|v|/(2L)\)</span>.</li>
+<li>Full-model minus quasi-steady <span class="math inline">\(T_h\)</span>, <span class="math inline">\(T_c\)</span>, and mass flow.</li>
+</ol>
+<p>Report 10-90% rise time, maximum hot-leg overshoot relative to <span class="math inline">\(T_h^*\)</span>, time to enter and remain within 1% of each steady state, and whether <span class="math inline">\(v\)</span> reverses. Define each metric carefully. Do not claim that a two-node model predicts real plant stability.</p>
+<p>The model-wide energy identity is <span class="math display">\[\frac{d}{dt}[C_h(T_h-T_s)+C_c(T_c-T_s)]=Q-UA(T_c-T_s).\]</span> Numerically integrate the right side with the trapezoidal rule and compare it with stored-energy change. Normalize by the larger of total input energy and 1 J.</p>
+<div id="3e8fa8ff" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: Solve both models, compute time histories and transient metrics,</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co"># and evaluate the integrated external energy-balance closure.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+</section>
+<section id="heat-load-sweep-and-nonlinear-scaling" class="level2">
+<h2 class="anchored" data-anchor-id="heat-load-sweep-and-nonlinear-scaling">5. Heat-load sweep and nonlinear scaling</h2>
+<p>Repeat the full transient for <span class="math inline">\(Q\in\{1,2.5,5,10\}\)</span> kW with all physical parameters and final time unchanged. For each case, tabulate final and analytical values of <span class="math inline">\(\dot m\)</span>, <span class="math inline">\(T_h\)</span>, <span class="math inline">\(T_c\)</span>, plus relative steady-state errors.</p>
+<p>Fit straight lines to <span class="math inline">\((\log Q,\log \dot m^*)\)</span> and <span class="math inline">\((\log Q,\log \Delta T^*)\)</span>. Compare fitted slopes with <span class="math inline">\(1/3\)</span> and <span class="math inline">\(2/3\)</span>. Use analytical steady values for the primary scaling fit and the final transient values only as an independent check that 3600 s is sufficient.</p>
+<p>Plot mass flow and hot-minus-cold temperature versus heat load on log-log axes with the predicted slopes. Explain why <span class="math inline">\(T_c-T_s=Q/UA\)</span> scales linearly even though <span class="math inline">\(T_h-T_c\)</span> does not.</p>
+<div id="9ad7e1ac" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: Run the four-load sweep, create the table, fit the two exponents,</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co"># and produce the required log-log plot with labeled reference slopes.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+</section>
+<section id="automatic-verification-and-validity-checks" class="level2">
+<h2 class="anchored" data-anchor-id="automatic-verification-and-validity-checks">6. Automatic verification and validity checks</h2>
+<p>Assert:</p>
+<ul>
+<li>Every solve succeeds and returns finite states on the complete requested interval.</li>
+<li>Density, heat capacity, geometry, loss coefficient, conductance, and thermal masses are positive.</li>
+<li>Base-case final <span class="math inline">\(v\)</span>, <span class="math inline">\(T_h\)</span>, and <span class="math inline">\(T_c\)</span> are each within 1% of the analytical steady state.</li>
+<li>The maximum normalized integrated external energy imbalance is below <span class="math inline">\(10^{-3}\)</span>.</li>
+<li>The analytical steady state makes each governing-equation residual negligible: heat-rate residuals below <span class="math inline">\(10^{-9}\max(Q,1)\)</span> and acceleration residual below <span class="math inline">\(10^{-12}\)</span> m/s2.</li>
+<li>The fitted analytical exponents differ from <span class="math inline">\(1/3\)</span> and <span class="math inline">\(2/3\)</span> by less than 0.03.</li>
+<li>The Boussinesq indicator <span class="math inline">\(\beta\max|T_h-T_c|\)</span> is reported and below 0.05 for every base/sweep case.</li>
+<li>No temperature falls below 250 K or exceeds 450 K in this synthetic study.</li>
+</ul>
+<p>Do not assert that the full model must overshoot, oscillate, or reverse; those are outcomes. Do not loosen tolerances to conceal a bookkeeping or sign error.</p>
+<div id="7ef23bd1" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: Implement all assertions and print a compact pass/fail summary.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+</section>
+<section id="interpretation-stretch-goal-and-references" class="level2">
+<h2 class="anchored" data-anchor-id="interpretation-stretch-goal-and-references">7. Interpretation, stretch goal, and references</h2>
+<p>Answer briefly:</p>
+<ol type="1">
+<li>Which feedback closes the loop between buoyancy and heat transport?</li>
+<li>When is the quasi-steady momentum closure adequate, and what transient information does it remove?</li>
+<li>Why does quadratic drag produce the <span class="math inline">\(Q^{1/3}\)</span> flow scaling in this closure?</li>
+<li>Which assumptions would break first in a real decay-heat removal loop: constant properties, two thermal nodes, fixed <span class="math inline">\(K\)</span>, single-phase flow, or instantaneous mixing?</li>
+<li>What additional states and closure laws would a GOTHIC/TRACE-style system model need?</li>
+</ol>
+<p><strong>Stretch goal (15-25 minutes):</strong> At <span class="math inline">\(t=1800\)</span> s, reduce <span class="math inline">\(UA\)</span> from 120 to 40 W/K while holding <span class="math inline">\(Q=5\)</span> kW. Simulate the heat-sink-degradation transient, plot the new equilibrium approach, and verify the same global energy balance with time-dependent <span class="math inline">\(UA(t)\)</span>. Predict which steady quantities change before running.</p>
+<section id="references" class="level3">
+<h3 class="anchored" data-anchor-id="references">References</h3>
+<ul>
+<li><strong>Dedicated project reference:</strong> International Atomic Energy Agency, <em>Natural Circulation in Water Cooled Nuclear Power Plants</em>, IAEA-TECDOC-1474, Vienna, 2005. <a href="https://www-pub.iaea.org/MTCD/Publications/PDF/TE_1474_web.pdf">Open PDF</a>. Focus on Section 4.2 and the single-phase hot-/cold-region balance model; compare its assumptions with today’s three-state closure.</li>
+<li><strong>Solver reference:</strong> <a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.integrate.solve_ivp.html">SciPy <code>solve_ivp</code> documentation</a>. Record SciPy version, method, tolerances, and solver status.</li>
+<li><strong>Paper to read:</strong> Dean Wilson, Hector Iacovides, and Timothy J. Craft, “Numerical insights into the transient behaviour of single-phase Natural Circulation Loops for nuclear passive cooling applications,” <em>Annals of Nuclear Energy</em>, 208, 110730, 2024. DOI: 10.1016/j.anucene.2024.110730. <a href="https://doi.org/10.1016/j.anucene.2024.110730">Open-access article</a>; <a href="https://papers.ssrn.com/sol3/Delivery.cfm/49d50cad-eaf4-4b2a-8ef7-e4bee84683d5-MECA.pdf?abstractid=4646390&amp;mirid=1">author manuscript</a>. Read for how Rayleigh number, Prandtl number, aspect ratio, oscillation, and reversal emerge in 2D URANS beyond a lumped model.</li>
+</ul>
+</section>
+<section id="topic-ledger" class="level3">
+<h3 class="anchored" data-anchor-id="topic-ledger">Topic ledger</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Date / record</th>
+<th>Primary objective</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Older assignments, dates unavailable</td>
+<td>Grid convergence and errors</td>
+<td>User reported five repetitive assignments; individual records unavailable</td>
+</tr>
+<tr class="even">
+<td>2026-10-05</td>
+<td>Grid convergence and discretization uncertainty</td>
+<td>Inspected</td>
+</tr>
+<tr class="odd">
+<td>2026-10-06 corrected</td>
+<td>Fixed-mesh advection, CFL, conservation, positivity, TV</td>
+<td>Inspected</td>
+</tr>
+<tr class="even">
+<td>2026-10-07</td>
+<td>Krylov methods and line-block preconditioning</td>
+<td>Inspected</td>
+</tr>
+<tr class="odd">
+<td>2026-10-08</td>
+<td>Data layout, cache behavior, and kernel throughput</td>
+<td>Inspected</td>
+</tr>
+<tr class="even">
+<td>2026-10-09</td>
+<td>Nonlinear natural-circulation thermal-fluid modeling</td>
+<td>This assignment</td>
+</tr>
+</tbody>
+</table>
+<p>Only four preceding distinct projects are recoverable, so a complete seven-project audit remains unavailable. The reported older repetitions remain excluded. This is assignment 3 of the ten-assignment exclusion established October 6; seven remain after today. Planned next primary objectives: optimization, multiphysics coupling, high-order reconstruction, then parallel algorithms. No grid-refinement, observed-order, Richardson, or GCI task appears here.</p>
+
+
+</section>
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const cellDetails = window.document.querySelectorAll(".cell details.code-fold");
+        for (let i=0; i<cellDetails.length; i++) {
+          const details = cellDetails[i];
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell div.sourceCode.cell-code");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/josh-fowler-hub\.github\.io\/daily-learning\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>Josh Fowler · Computational Engineering</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    </div>
+    <div class="nav-footer-right">
+      <ul class="footer-items list-unstyled">
+    <li class="nav-item">
+    <a class="nav-link" href="https://josh-fowler-hub.github.io/">
+<p>Portfolio</p>
+</a>
+  </li>  
+</ul>
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

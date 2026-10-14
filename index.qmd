@@ -26,6 +26,8 @@ Each entry explores a specific question or method through a combination of mathe
 
 The goal is to make the reasoning clear enough that you can follow it, reproduce the results, and extend the example yourself.
 
+**It is important to note that some of these exercises may not be finished, as this is a work in progress.**
+
 ## Who these notebooks are for
 
 These are refreshers and deeper explorations rather than introductory lessons. They generally assume familiarity with calculus, differential equations, basic numerical methods, and Python. Each notebook identifies any additional prerequisites.

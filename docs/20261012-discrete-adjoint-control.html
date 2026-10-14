@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="dcterms.date" content="2026-10-12">
+<meta name="description" content="Control a fixed-grid convection-diffusion state with one adjoint solve per gradient.">
+
+<title>Discrete-Adjoint PDE Control – Daily Learning &amp; Refreshers</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-6c0ad46e1861a38265c10768182fb462.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-0a289de8f5facb2eb205fb6a6c1f6796.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top quarto-banner">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">Daily Learning &amp; Refreshers</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./index.html"> 
+<span class="menu-text">Practice Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="https://josh-fowler-hub.github.io/"> 
+<span class="menu-text">Portfolio</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/josh-fowler-hub/daily-learning"> <i class="bi bi-github" role="img" aria-label="GitHub repository">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <div class="quarto-title-block"><div><h1 class="title">Discrete-Adjoint PDE Control</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li></ul></div></div>
+                  <div>
+        <div class="description">
+          Control a fixed-grid convection-diffusion state with one adjoint solve per gradient.
+        </div>
+      </div>
+                          <div class="quarto-categories">
+                <div class="quarto-category">optimization</div>
+                <div class="quarto-category">discrete adjoints</div>
+                <div class="quarto-category">numerical PDEs</div>
+              </div>
+                  </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">October 12, 2026</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#discrete-adjoint-pde-control" id="toc-discrete-adjoint-pde-control" class="nav-link active" data-scroll-target="#discrete-adjoint-pde-control">Discrete-Adjoint PDE Control</a>
+  <ul class="collapse">
+  <li><a href="#one-gradient-independent-of-the-number-of-controls" id="toc-one-gradient-independent-of-the-number-of-controls" class="nav-link" data-scroll-target="#one-gradient-independent-of-the-number-of-controls">One gradient, independent of the number of controls</a></li>
+  <li><a href="#fixed-grid-state-equation-and-control-basis" id="toc-fixed-grid-state-equation-and-control-basis" class="nav-link" data-scroll-target="#fixed-grid-state-equation-and-control-basis">1. Fixed-grid state equation and control basis</a></li>
+  <li><a href="#objective-and-regularization" id="toc-objective-and-regularization" class="nav-link" data-scroll-target="#objective-and-regularization">2. Objective and regularization</a></li>
+  <li><a href="#derive-the-discrete-adjoint" id="toc-derive-the-discrete-adjoint" class="nav-link" data-scroll-target="#derive-the-discrete-adjoint">3. Derive the discrete adjoint</a></li>
+  <li><a href="#gradient-verification" id="toc-gradient-verification" class="nav-link" data-scroll-target="#gradient-verification">4. Gradient verification</a></li>
+  <li><a href="#bounded-optimization-experiment" id="toc-bounded-optimization-experiment" class="nav-link" data-scroll-target="#bounded-optimization-experiment">5. Bounded optimization experiment</a></li>
+  <li><a href="#automatic-success-checks" id="toc-automatic-success-checks" class="nav-link" data-scroll-target="#automatic-success-checks">6. Automatic success checks</a></li>
+  <li><a href="#interpretation-stretch-goal-and-references" id="toc-interpretation-stretch-goal-and-references" class="nav-link" data-scroll-target="#interpretation-stretch-goal-and-references">7. Interpretation, stretch goal, and references</a>
+  <ul class="collapse">
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
+  <li><a href="#topic-ledger" id="toc-topic-ledger" class="nav-link" data-scroll-target="#topic-ledger">Topic ledger</a></li>
+  </ul></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+
+<section id="discrete-adjoint-pde-control" class="level1">
+<h1>Discrete-Adjoint PDE Control</h1>
+<section id="one-gradient-independent-of-the-number-of-controls" class="level3">
+<h3 class="anchored" data-anchor-id="one-gradient-independent-of-the-number-of-controls">One gradient, independent of the number of controls</h3>
+<p><strong>Learning goal:</strong> Formulate a bounded PDE-constrained optimization problem, derive and implement its discrete adjoint, verify the gradient using directional derivatives, and use L-BFGS-B to control a fixed-grid convection-diffusion state.</p>
+<p><strong>Time:</strong> 60-90 minutes. Python, NumPy, SciPy, Matplotlib. The spatial grid is fixed at N = 200; this is not a grid-convergence exercise.</p>
+<p><strong>Core idea:</strong> A direct sensitivity method would solve one linearized state equation for every design variable. The adjoint reorganizes the chain rule so the full scalar-objective gradient requires one transpose solve, regardless of the number of controls.</p>
+<p><strong>Success targets:</strong> adjoint and direct-sensitivity gradients agree to relative norm error below 1e-10; a centered directional-derivative check reaches relative error below 1e-6; the optimizer reports success and reduces the objective by at least 90%; and all bounds and algebraic residual checks pass.</p>
+<p>Implementation cells intentionally remain TODOs. Derive the signs before coding; a plausible optimized plot does not validate an adjoint.</p>
+</section>
+<section id="fixed-grid-state-equation-and-control-basis" class="level2">
+<h2 class="anchored" data-anchor-id="fixed-grid-state-equation-and-control-basis">1. Fixed-grid state equation and control basis</h2>
+<p>Solve the steady one-dimensional convection-diffusion equation <span class="math display">\[-\nu u''(x)+a u'(x)=s(x;p),\qquad x\in(0,1),\qquad u(0)=u(1)=0,\]</span> with <span class="math inline">\(\nu=0.01\)</span>, <span class="math inline">\(a=1\)</span>, and N = 200 interior nodes. Use centered second diffusion and first-order upwind convection for positive a: <span class="math display">\[-\nu\frac{u_{i-1}-2u_i+u_{i+1}}{h^2}+a\frac{u_i-u_{i-1}}{h}=s_i.\]</span> This produces a nonsymmetric sparse system <span class="math display">\[Au=Bp,\]</span> where p contains M = 12 actuator amplitudes. Let column j of B be a Gaussian <span class="math display">\[B_{ij}=\exp\left[-\frac{(x_i-c_j)^2}{2\sigma^2}\right],\]</span> with equally spaced centers <span class="math inline">\(c_j\)</span> from 0.08 to 0.92 and <span class="math inline">\(\sigma=0.045\)</span>. Use bounds <span class="math inline">\(0\le p_j\le20\)</span>.</p>
+<p>Use a target that cannot be represented exactly by the coarse actuator basis: <span class="math display">\[u_d(x)=0.8\exp[-((x-0.68)/0.10)^2]+0.22\exp[-((x-0.30)/0.06)^2].\]</span></p>
+<p>Factor A and <span class="math inline">\(A^T\)</span> once. Do not form an inverse. Confirm A is nonsymmetric, has positive diagonal, and has at most 3N nonzeros.</p>
+<div id="49cea946" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.sparse <span class="im">import</span> diags</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.sparse.linalg <span class="im">import</span> splu</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.optimize <span class="im">import</span> minimize</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>N <span class="op">=</span> <span class="dv">200</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>M <span class="op">=</span> <span class="dv">12</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>NU <span class="op">=</span> <span class="fl">0.01</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>ADV <span class="op">=</span> <span class="fl">1.0</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>SIGMA <span class="op">=</span> <span class="fl">0.045</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>ALPHA <span class="op">=</span> <span class="fl">2.0e-5</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>BETA <span class="op">=</span> <span class="fl">5.0e-4</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>P_BOUNDS <span class="op">=</span> (<span class="fl">0.0</span>, <span class="fl">20.0</span>)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: Set a reproducible print/plot configuration and record SciPy version.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+</section>
+<section id="objective-and-regularization" class="level2">
+<h2 class="anchored" data-anchor-id="objective-and-regularization">2. Objective and regularization</h2>
+<p>Minimize <span class="math display">\[J(u,p)=\frac{h}{2}\|u-u_d\|_2^2+\frac{\alpha}{2}\|p\|_2^2+\frac{\beta}{2}\|Dp\|_2^2,\]</span> where D is the first-difference matrix on controls: <span class="math inline">\((Dp)_j=p_{j+1}-p_j\)</span>. The first term tracks the desired state, alpha limits control effort, and beta discourages actuator-to-actuator roughness.</p>
+<p>Implement a state solve and an objective decomposition returning tracking, effort, smoothness, and total terms. Use the same h weighting in the objective and adjoint. Omitting it changes the balance between tracking and regularization.</p>
+<p>Start from <span class="math inline">\(p_0=2\mathbf{1}\)</span>. Cache or reuse the factorizations, but do not cache states across different p values unless the key is exact and the implementation remains transparent.</p>
+<div id="762f2065" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> build_problem(n<span class="op">=</span>N, m<span class="op">=</span>M):</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Return x, h, sparse A, dense B, D, target, and LU factors."""</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># </span><span class="al">TODO</span><span class="co">: Assemble the prescribed fixed-grid problem and factor A/A.T.</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">raise</span> <span class="pp">NotImplementedError</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> solve_state(p, problem):</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># </span><span class="al">TODO</span><span class="co">: Solve A u = B p and return u.</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">raise</span> <span class="pp">NotImplementedError</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> objective_terms(u, p, problem):</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># </span><span class="al">TODO</span><span class="co">: Return tracking, effort, smoothness, total.</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">raise</span> <span class="pp">NotImplementedError</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+</section>
+<section id="derive-the-discrete-adjoint" class="level2">
+<h2 class="anchored" data-anchor-id="derive-the-discrete-adjoint">3. Derive the discrete adjoint</h2>
+<p>Use the residual <span class="math inline">\(R(u,p)=Bp-Au=0\)</span> and Lagrangian <span class="math display">\[\mathcal L(u,p)=J(u,p)+\lambda^T(Bp-Au).\]</span> Stationarity with respect to u gives <span class="math display">\[A^T\lambda=h(u-u_d).\]</span> The reduced gradient is <span class="math display">\[\nabla_p\hat J=B^T\lambda+\alpha p+\beta D^TDp.\]</span></p>
+<p>Derive these equations yourself and check the sign by differentiating <span class="math inline">\(u=A^{-1}Bp\)</span>. Implement one routine that returns objective and gradient for SciPy. Count state and adjoint solves explicitly. A scalar objective requires one state and one adjoint solve per new p, not M state solves.</p>
+<p>For an independent direct-sensitivity reference, solve <span class="math inline">\(AS=B\)</span> for all M columns and compute <span class="math display">\[\nabla_p\hat J=S^T h(u-u_d)+\alpha p+\beta D^TDp.\]</span> Use this only for verification at one p, not inside the optimizer.</p>
+<div id="569b1d53" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> objective_and_adjoint_gradient(p, problem, counters<span class="op">=</span><span class="va">None</span>):</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Return reduced objective and exact discrete-adjoint gradient."""</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># </span><span class="al">TODO</span><span class="co">: One state solve, one transpose solve, regularization, counters.</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">raise</span> <span class="pp">NotImplementedError</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> direct_sensitivity_gradient(p, problem):</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># </span><span class="al">TODO</span><span class="co">: Solve A S = B and form the independent reference gradient.</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">raise</span> <span class="pp">NotImplementedError</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+</section>
+<section id="gradient-verification" class="level2">
+<h2 class="anchored" data-anchor-id="gradient-verification">4. Gradient verification</h2>
+<p>At a seeded interior test point <span class="math inline">\(p_{test}\in[3,7]^M\)</span>, draw a seeded unit direction d.&nbsp;Compare:</p>
+<ol type="1">
+<li>The full adjoint gradient with the direct-sensitivity gradient.</li>
+<li>The scalar adjoint projection <span class="math inline">\(g^Td\)</span> with centered finite differences <span class="math display">\[\phi_\epsilon=\frac{\hat J(p+\epsilon d)-\hat J(p-\epsilon d)}{2\epsilon}\]</span> for <span class="math inline">\(\epsilon=10^{-1},10^{-2},\ldots,10^{-8}\)</span>.</li>
+</ol>
+<p>Plot relative directional error <span class="math display">\[e(\epsilon)=\frac{|\phi_\epsilon-g^Td|}{\max(1,|g^Td|)}.\]</span> Expect a truncation-to-roundoff curve, not monotonic decrease to the smallest epsilon. Report the best epsilon and error. Keep the test point away from active bounds so this verifies the unconstrained reduced gradient.</p>
+<p>Also verify the primal and adjoint relative residuals independently. Do not use a finite-difference gradient as the optimization gradient.</p>
+<div id="ee939580" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: Perform direct-versus-adjoint and directional-derivative checks.</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Save the epsilon/error arrays for a log-log diagnostic plot.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+</section>
+<section id="bounded-optimization-experiment" class="level2">
+<h2 class="anchored" data-anchor-id="bounded-optimization-experiment">5. Bounded optimization experiment</h2>
+<p>Run <code>scipy.optimize.minimize</code> with method <code>L-BFGS-B</code>, analytic <code>jac</code>, twelve bounds [0,20], <code>gtol=1e-8</code>, <code>ftol=1e-12</code>, and <code>maxiter=200</code>. Record objective components and projected-gradient information in a callback without recomputing a state solely for plotting.</p>
+<p>Required diagnostics:</p>
+<ol type="1">
+<li>Initial state, target, and optimized state versus x.</li>
+<li>Initial and optimized actuator amplitudes versus actuator center.</li>
+<li>Objective, tracking, effort, and smoothness versus accepted iteration on a semilog axis.</li>
+<li>Gradient-check error versus epsilon.</li>
+</ol>
+<p>Report optimizer status/message, iterations, function/gradient calls, counted state/adjoint solves, objective reduction, active lower/upper bounds, and final state/adjoint residuals. Distinguish the raw gradient from the projected gradient when bounds are active.</p>
+<div id="ad3a2d40" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: Run L-BFGS-B, collect history without redundant PDE solves,</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co"># print the summary table, and create the four required diagnostics.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+</section>
+<section id="automatic-success-checks" class="level2">
+<h2 class="anchored" data-anchor-id="automatic-success-checks">6. Automatic success checks</h2>
+<p>Assert:</p>
+<ul>
+<li>Shapes are A(N,N), B(N,M), D(M-1,M); A and B entries are finite; A has at most 3N nonzeros and is nonsymmetric.</li>
+<li>Every state and adjoint relative residual is below 1e-11.</li>
+<li>Adjoint and direct-sensitivity gradients agree to relative norm error below 1e-10 at the seeded interior test point.</li>
+<li>The best centered directional-derivative error is below 1e-6, and its epsilon is reported rather than assumed.</li>
+<li>The optimizer reports success; all p values satisfy bounds within 1e-10; the final objective is below 10% of the initial objective.</li>
+<li>Recomputed final objective components sum to the reported total within 1e-12 relative error.</li>
+<li>The analytic gradient uses exactly one adjoint solve per new objective/gradient evaluation; no loop over controls appears in the adjoint routine.</li>
+</ul>
+<p>Do not require a particular active-set pattern or iteration count. If the 90% reduction check fails, diagnose signs, h weighting, target construction, and optimizer bookkeeping before changing the problem.</p>
+<div id="70ddc94b" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: Implement assertions tied to the actual model and optimization result.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+</section>
+<section id="interpretation-stretch-goal-and-references" class="level2">
+<h2 class="anchored" data-anchor-id="interpretation-stretch-goal-and-references">7. Interpretation, stretch goal, and references</h2>
+<p>Answer briefly:</p>
+<ol type="1">
+<li>Why does the adjoint cost not grow linearly with the number of controls for one scalar objective?</li>
+<li>Why is the transpose system essential for this upwind, nonsymmetric operator?</li>
+<li>What does beta change in the control field and tracking error?</li>
+<li>How do active bounds alter the correct optimality condition?</li>
+<li>Which pieces generalize directly to a nonlinear CFD residual <span class="math inline">\(R(U,p)=0\)</span>, and which require linearization at every design iterate?</li>
+</ol>
+<p><strong>Stretch goal (15-25 minutes):</strong> Repeat with M = 48 actuators while keeping N fixed. Compare direct-sensitivity and adjoint solve counts and wall times for one gradient. Do not change the PDE grid. Alternatively, add one scalar equality constraint on total control and solve with SLSQP using its analytic gradient.</p>
+<section id="references" class="level3">
+<h3 class="anchored" data-anchor-id="references">References</h3>
+<ul>
+<li><strong>Dedicated project reference:</strong> Michael B. Giles and Niles A. Pierce, “An Introduction to the Adjoint Approach to Design,” <em>Flow, Turbulence and Combustion</em> 65, 393-415, 2000. DOI: 10.1023/A:1011430410075. <a href="https://people.maths.ox.ac.uk/gilesm/files/ftc00.pdf">Author PDF</a>. Focus on the Lagrangian derivation, cost scaling, and discrete-versus-continuous distinction.</li>
+<li><strong>Optimizer reference:</strong> <a href="https://docs.scipy.org/doc/scipy/reference/optimize.minimize-lbfgsb.html">SciPy L-BFGS-B documentation</a>. Record version, stopping tolerances, bounds, and final status.</li>
+<li><strong>Paper to read:</strong> Christian Psenica, Lean Fang, Seth Zoppelt, Mark Leader, and Ping He, “A Modular Conjugate Heat Transfer Optimization Framework for Thermal Management of Electric Aircraft,” <em>International Journal of Heat and Mass Transfer</em> 259, 128345, 2026. DOI: 10.1016/j.ijheatmasstransfer.2026.128345. <a href="https://ntrs.nasa.gov/citations/20260000381">NASA Glenn accepted manuscript and metadata</a>. Read for modular multiphysics coupling, discrete-adjoint gradients, interface consistency, constraints, and fine/unsteady confirmation of optimized designs.</li>
+</ul>
+</section>
+<section id="topic-ledger" class="level3">
+<h3 class="anchored" data-anchor-id="topic-ledger">Topic ledger</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Date / record</th>
+<th>Primary objective</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Older assignments, dates unavailable</td>
+<td>Grid convergence and errors</td>
+<td>User reported five repetitive assignments; individual records unavailable</td>
+</tr>
+<tr class="even">
+<td>2026-10-05</td>
+<td>Grid convergence and discretization uncertainty</td>
+<td>Inspected</td>
+</tr>
+<tr class="odd">
+<td>2026-10-06 corrected</td>
+<td>Fixed-mesh advection, CFL, conservation, positivity, TV</td>
+<td>Inspected</td>
+</tr>
+<tr class="even">
+<td>2026-10-07</td>
+<td>Krylov methods and line-block preconditioning</td>
+<td>Inspected</td>
+</tr>
+<tr class="odd">
+<td>2026-10-08</td>
+<td>Data layout, cache behavior, and kernel throughput</td>
+<td>Inspected</td>
+</tr>
+<tr class="even">
+<td>2026-10-09</td>
+<td>Nonlinear natural-circulation thermal-fluid modeling</td>
+<td>Inspected</td>
+</tr>
+<tr class="odd">
+<td>2026-10-12</td>
+<td>Discrete-adjoint PDE-constrained optimization</td>
+<td>This assignment</td>
+</tr>
+</tbody>
+</table>
+<p>Only five preceding distinct projects are recoverable, so a complete seven-project audit remains unavailable. The reported older repetitions remain excluded. This is assignment 4 of the ten-assignment exclusion established October 6; six remain after today. Planned next primary objectives: multiphysics coupling, high-order reconstruction, parallel algorithms, then time integration. No grid-refinement, observed-order, Richardson, or GCI task appears here.</p>
+
+
+</section>
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const cellDetails = window.document.querySelectorAll(".cell details.code-fold");
+        for (let i=0; i<cellDetails.length; i++) {
+          const details = cellDetails[i];
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell div.sourceCode.cell-code");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/josh-fowler-hub\.github\.io\/daily-learning\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>Josh Fowler · Computational Engineering</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    </div>
+    <div class="nav-footer-right">
+      <ul class="footer-items list-unstyled">
+    <li class="nav-item">
+    <a class="nav-link" href="https://josh-fowler-hub.github.io/">
+<p>Portfolio</p>
+</a>
+  </li>  
+</ul>
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

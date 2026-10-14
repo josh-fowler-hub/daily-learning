@@ -22,5 +22,17 @@
   },
   "20261006-advection-cfl-conservation.ipynb": {
     "20261006-advection-cfl-conservation.html": "bd27570e"
+  },
+  "20261012-discrete-adjoint-control.ipynb": {
+    "20261012-discrete-adjoint-control.html": "5270e3bb"
+  },
+  "20261014-characteristic-weno-z.ipynb": {
+    "20261014-characteristic-weno-z.html": "2f4382b6"
+  },
+  "20261013-partitioned-cht-coupling.ipynb": {
+    "20261013-partitioned-cht-coupling.html": "9f2ff151"
+  },
+  "20261009-natural-circulation-transient.ipynb": {
+    "20261009-natural-circulation-transient.html": "3eccd663"
   }
 }

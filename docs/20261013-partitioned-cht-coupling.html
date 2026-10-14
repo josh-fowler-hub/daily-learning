@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="dcterms.date" content="2026-10-13">
+<meta name="description" content="Compare fixed relaxation and Aitken acceleration in a distributed thermal interface iteration.">
+
+<title>Partitioned Conjugate-Heat-Transfer Coupling – Daily Learning &amp; Refreshers</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-6c0ad46e1861a38265c10768182fb462.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-0a289de8f5facb2eb205fb6a6c1f6796.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top quarto-banner">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">Daily Learning &amp; Refreshers</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./index.html"> 
+<span class="menu-text">Practice Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="https://josh-fowler-hub.github.io/"> 
+<span class="menu-text">Portfolio</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/josh-fowler-hub/daily-learning"> <i class="bi bi-github" role="img" aria-label="GitHub repository">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <div class="quarto-title-block"><div><h1 class="title">Partitioned Conjugate-Heat-Transfer Coupling</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li></ul></div></div>
+                  <div>
+        <div class="description">
+          Compare fixed relaxation and Aitken acceleration in a distributed thermal interface iteration.
+        </div>
+      </div>
+                          <div class="quarto-categories">
+                <div class="quarto-category">multiphysics</div>
+                <div class="quarto-category">conjugate heat transfer</div>
+                <div class="quarto-category">coupling algorithms</div>
+              </div>
+                  </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">October 13, 2026</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#partitioned-conjugate-heat-transfer-coupling" id="toc-partitioned-conjugate-heat-transfer-coupling" class="nav-link active" data-scroll-target="#partitioned-conjugate-heat-transfer-coupling">Partitioned Conjugate-Heat-Transfer Coupling</a>
+  <ul class="collapse">
+  <li><a href="#when-two-individually-stable-solvers-make-a-slow-coupled-solver" id="toc-when-two-individually-stable-solvers-make-a-slow-coupled-solver" class="nav-link" data-scroll-target="#when-two-individually-stable-solvers-make-a-slow-coupled-solver">When two individually stable solvers make a slow coupled solver</a></li>
+  <li><a href="#coupled-reduced-model" id="toc-coupled-reduced-model" class="nav-link" data-scroll-target="#coupled-reduced-model">1. Coupled reduced model</a></li>
+  <li><a href="#assemble-two-reusable-physics-solvers" id="toc-assemble-two-reusable-physics-solvers" class="nav-link" data-scroll-target="#assemble-two-reusable-physics-solvers">2. Assemble two reusable physics solvers</a></li>
+  <li><a href="#dirichlet-neumann-fixed-point-coupling" id="toc-dirichlet-neumann-fixed-point-coupling" class="nav-link" data-scroll-target="#dirichlet-neumann-fixed-point-coupling">3. Dirichlet-Neumann fixed-point coupling</a></li>
+  <li><a href="#fixed-relaxation-and-vector-aitken-acceleration" id="toc-fixed-relaxation-and-vector-aitken-acceleration" class="nav-link" data-scroll-target="#fixed-relaxation-and-vector-aitken-acceleration">4. Fixed relaxation and vector Aitken acceleration</a></li>
+  <li><a href="#coupling-strength-experiment" id="toc-coupling-strength-experiment" class="nav-link" data-scroll-target="#coupling-strength-experiment">5. Coupling-strength experiment</a></li>
+  <li><a href="#required-diagnostics-and-interpretation" id="toc-required-diagnostics-and-interpretation" class="nav-link" data-scroll-target="#required-diagnostics-and-interpretation">6. Required diagnostics and interpretation</a></li>
+  <li><a href="#verification-and-success-criteria" id="toc-verification-and-success-criteria" class="nav-link" data-scroll-target="#verification-and-success-criteria">7. Verification and success criteria</a></li>
+  <li><a href="#stretch-goal-and-references" id="toc-stretch-goal-and-references" class="nav-link" data-scroll-target="#stretch-goal-and-references">8. Stretch goal and references</a>
+  <ul class="collapse">
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
+  <li><a href="#topic-ledger" id="toc-topic-ledger" class="nav-link" data-scroll-target="#topic-ledger">Topic ledger</a></li>
+  </ul></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+
+<section id="partitioned-conjugate-heat-transfer-coupling" class="level1">
+<h1>Partitioned Conjugate-Heat-Transfer Coupling</h1>
+<section id="when-two-individually-stable-solvers-make-a-slow-coupled-solver" class="level3">
+<h3 class="anchored" data-anchor-id="when-two-individually-stable-solvers-make-a-slow-coupled-solver">When two individually stable solvers make a slow coupled solver</h3>
+<p><strong>Learning goal:</strong> Build a partitioned conjugate-heat-transfer solver, diagnose its interface fixed-point convergence, and compare unrelaxed, fixed-relaxation, and Aitken-accelerated coupling against a monolithic reference.</p>
+<p><strong>Time:</strong> 60-90 minutes. Python, NumPy, SciPy, Matplotlib. Use one fixed spatial grid with <code>N = 80</code>; this is not a grid-convergence exercise.</p>
+<p><strong>Engineering connection:</strong> This is the algorithmic core of coupling separate CFD and thermal/system solvers: define exchanged data, enforce interface consistency, monitor a coupling residual, and accelerate the outer iteration without hiding failed physics solves.</p>
+<p>Implementation cells intentionally contain TODOs only. Do not tune relaxation by looking only at the final temperature plot; convergence history and conservation must agree.</p>
+</section>
+<section id="coupled-reduced-model" class="level2">
+<h2 class="anchored" data-anchor-id="coupled-reduced-model">1. Coupled reduced model</h2>
+<p>Use a one-dimensional streamwise coordinate <span class="math inline">\(x\in[0,1]\)</span> with two fields on the same fixed nodes:</p>
+<p><span class="math display">\[C_f\frac{dT_f}{dx}=H(T_s-T_f),\qquad T_f(0)=T_{in},\]</span> <span class="math display">\[-K_s\frac{d^2T_s}{dx^2}+H(T_s-T_f)=q_v(x),\qquad T_s'(0)=T_s'(1)=0.\]</span></p>
+<p><span class="math inline">\(T_f\)</span> is a plug-flow coolant temperature and <span class="math inline">\(T_s\)</span> is the axial solid temperature. <span class="math inline">\(H(T_s-T_f)\)</span> is the distributed interfacial heat transfer. Use backward upwind differencing for the fluid equation and conservative second differences for the solid equation.</p>
+<p>Write the discrete block system as</p>
+<p><span class="math display">\[A_fT_f+C_{fs}T_s=b_f,\]</span> <span class="math display">\[C_{sf}T_f+A_sT_s=b_s.\]</span></p>
+<p>Set <code>N=80</code>, <span class="math inline">\(C_f=1\)</span>, <span class="math inline">\(K_s=0.02\)</span>, <span class="math inline">\(H=100\)</span>, <span class="math inline">\(T_{in}=0\)</span>, and <span class="math display">\[q_v(x)=8\exp[-((x-0.72)/0.12)^2]+1.\]</span></p>
+<p>Use second-order one-sided Neumann rows or a finite-volume boundary treatment. Document the choice and use it identically in the partitioned and monolithic systems.</p>
+<div id="3e0ed37d" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.sparse <span class="im">import</span> bmat, csc_matrix, diags</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.sparse.linalg <span class="im">import</span> splu, spsolve</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>N <span class="op">=</span> <span class="dv">80</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>CF <span class="op">=</span> <span class="fl">1.0</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>KS <span class="op">=</span> <span class="fl">0.02</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>H_VALUES <span class="op">=</span> [<span class="fl">5.0</span>, <span class="fl">25.0</span>, <span class="fl">100.0</span>, <span class="fl">500.0</span>]</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>T_IN <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>TOL <span class="op">=</span> <span class="fl">1.0e-10</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>MAXITER <span class="op">=</span> <span class="dv">500</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: Set deterministic plotting/printing options and record package versions.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+</section>
+<section id="assemble-two-reusable-physics-solvers" class="level2">
+<h2 class="anchored" data-anchor-id="assemble-two-reusable-physics-solvers">2. Assemble two reusable physics solvers</h2>
+<p>Implement <code>build_operators(H)</code> returning the four block matrices and right-hand sides. Factor <span class="math inline">\(A_f\)</span> and <span class="math inline">\(A_s\)</span> once for each value of <span class="math inline">\(H\)</span>.</p>
+<p>Implement:</p>
+<ul>
+<li><code>solve_fluid(Ts, problem)</code>: solve <span class="math inline">\(A_fT_f=b_f-C_{fs}T_s\)</span>.</li>
+<li><code>solve_solid(Tf, problem)</code>: solve <span class="math inline">\(A_sT_s=b_s-C_{sf}T_f\)</span>.</li>
+<li><code>solve_monolithic(problem)</code>: solve the <span class="math inline">\(2N\)</span>-by-<span class="math inline">\(2N\)</span> block system once as an independent coupled reference.</li>
+<li><code>block_residual(Tf, Ts, problem)</code>: return normalized fluid, solid, and combined residual norms.</li>
+</ul>
+<p>Do not form matrix inverses. Check matrix shapes, sparsity, finite entries, and boundary rows before iterating.</p>
+<div id="0e84be7f" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> build_operators(H, n<span class="op">=</span>N):</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Assemble and factor the fixed-grid fluid and solid blocks."""</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># </span><span class="al">TODO</span><span class="co">: Return x, dx, Af, Cfs, Csf, As, bf, bs, and LU factors.</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">raise</span> <span class="pp">NotImplementedError</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> solve_fluid(Ts, problem):</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># </span><span class="al">TODO</span><span class="co">: One fluid subsolve.</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">raise</span> <span class="pp">NotImplementedError</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> solve_solid(Tf, problem):</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># </span><span class="al">TODO</span><span class="co">: One solid subsolve.</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">raise</span> <span class="pp">NotImplementedError</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> solve_monolithic(problem):</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="co"># </span><span class="al">TODO</span><span class="co">: Solve the assembled 2N by 2N block system.</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">raise</span> <span class="pp">NotImplementedError</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> block_residual(Tf, Ts, problem):</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    <span class="co"># </span><span class="al">TODO</span><span class="co">: Return normalized fluid, solid, and combined residual norms.</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">raise</span> <span class="pp">NotImplementedError</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+</section>
+<section id="dirichlet-neumann-fixed-point-coupling" class="level2">
+<h2 class="anchored" data-anchor-id="dirichlet-neumann-fixed-point-coupling">3. Dirichlet-Neumann fixed-point coupling</h2>
+<p>Given a solid iterate <span class="math inline">\(T_s^k\)</span>, perform a block Gauss-Seidel sweep:</p>
+<p><span class="math display">\[T_f^{k+1}=A_f^{-1}(b_f-C_{fs}T_s^k),\]</span> <span class="math display">\[\widehat T_s^{k+1}=A_s^{-1}(b_s-C_{sf}T_f^{k+1}).\]</span></p>
+<p>Define the interface/coupling residual <span class="math display">\[r^k=\widehat T_s^{k+1}-T_s^k,\]</span> and update <span class="math display">\[T_s^{k+1}=T_s^k+\omega_k r^k.\]</span></p>
+<p>Implement one driver that accepts a relaxation policy and records iteration, <span class="math inline">\(\|r^k\|_2/\sqrt N\)</span>, combined block residual, <span class="math inline">\(\omega_k\)</span>, and subsolve counts. Stop only when both coupling and block residuals are below tolerance. Treat reaching <code>MAXITER</code> as a failure, not a converged result.</p>
+<div id="a776d372" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> partitioned_solve(problem, policy, omega0<span class="op">=</span><span class="fl">1.0</span>, tol<span class="op">=</span>TOL, maxiter<span class="op">=</span>MAXITER):</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Run strong partitioned coupling and return state plus full history."""</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># </span><span class="al">TODO</span><span class="co">: Implement the Gauss-Seidel exchange and robust stopping logic.</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">raise</span> <span class="pp">NotImplementedError</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+</section>
+<section id="fixed-relaxation-and-vector-aitken-acceleration" class="level2">
+<h2 class="anchored" data-anchor-id="fixed-relaxation-and-vector-aitken-acceleration">4. Fixed relaxation and vector Aitken acceleration</h2>
+<p>Compare three policies:</p>
+<ol type="1">
+<li>Unrelaxed: <span class="math inline">\(\omega_k=1\)</span>.</li>
+<li>Fixed: sweep <span class="math inline">\(\omega\in\{0.2,0.5,0.8,1.0,1.2,1.5\}\)</span>.</li>
+<li>Vector Aitken delta-squared, using consecutive residuals:</li>
+</ol>
+<p><span class="math display">\[\omega_k=-\omega_{k-1}\frac{(r^{k-1})^T(r^k-r^{k-1})}{\|r^k-r^{k-1}\|_2^2}.\]</span></p>
+<p>Use <span class="math inline">\(\omega_0=1\)</span> and clip the dynamic value to <code>[0.05, 1.5]</code>. If the denominator is too small or nonfinite, retain the previous valid value. Record every accepted relaxation factor.</p>
+<p>Important: form <span class="math inline">\(r^k\)</span> from the <strong>unrelaxed</strong> solid candidate. Applying Aitken to already relaxed residuals changes the method.</p>
+<div id="a305dd05" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> fixed_policy(omega):</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># </span><span class="al">TODO</span><span class="co">: Return a callable compatible with partitioned_solve.</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">raise</span> <span class="pp">NotImplementedError</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> aitken_policy(omega0<span class="op">=</span><span class="fl">1.0</span>, bounds<span class="op">=</span>(<span class="fl">0.05</span>, <span class="fl">1.5</span>)):</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># </span><span class="al">TODO</span><span class="co">: Return a stateful callable implementing vector Aitken relaxation.</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">raise</span> <span class="pp">NotImplementedError</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+</section>
+<section id="coupling-strength-experiment" class="level2">
+<h2 class="anchored" data-anchor-id="coupling-strength-experiment">5. Coupling-strength experiment</h2>
+<p>For each <span class="math inline">\(H\in\{5,25,100,500\}\)</span>:</p>
+<ul>
+<li>Compute the monolithic reference.</li>
+<li>Run unrelaxed coupling, every fixed relaxation value, and Aitken acceleration.</li>
+<li>Record convergence status, iterations, final coupling residual, final block residual, and relative error against the monolithic stacked state.</li>
+<li>Estimate the asymptotic contraction factor from a linear fit to <code>log(coupling residual)</code> over a clean late-iteration window. Reject windows that include zeros, stagnation, or fewer than five points.</li>
+</ul>
+<p>Do not change <code>N</code> between cases. The independent variable is coupling strength, not grid spacing.</p>
+<div id="dc52e125" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: Run the full method-by-H matrix and collect a tidy results table.</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Keep failed/nonconverged runs in the table rather than silently dropping them.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+</section>
+<section id="required-diagnostics-and-interpretation" class="level2">
+<h2 class="anchored" data-anchor-id="required-diagnostics-and-interpretation">6. Required diagnostics and interpretation</h2>
+<p>Create:</p>
+<ol type="1">
+<li><span class="math inline">\(T_f(x)\)</span> and <span class="math inline">\(T_s(x)\)</span> for the strongest converged case, overlaying the monolithic reference.</li>
+<li>Coupling residual versus iteration for all policies at <span class="math inline">\(H=100\)</span> on a semilog axis.</li>
+<li>Iteration count versus <span class="math inline">\(H\)</span> for each policy; mark failures distinctly.</li>
+<li>Aitken <span class="math inline">\(\omega_k\)</span> versus iteration for <span class="math inline">\(H=100\)</span>.</li>
+<li>A compact table of contraction estimates, subsolve counts, final block residuals, and monolithic errors.</li>
+</ol>
+<p>Answer: Why can both subsolvers be stable while the coupled iteration is slow or unstable? When does over-relaxation help? What does Aitken infer from residual history? Why is the monolithic solve a valuable algorithmic reference but not necessarily the preferred production architecture?</p>
+<div id="00fe0d63" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: Generate all plots, the summary table, and concise interpretation.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+</section>
+<section id="verification-and-success-criteria" class="level2">
+<h2 class="anchored" data-anchor-id="verification-and-success-criteria">7. Verification and success criteria</h2>
+<p>Assert all of the following:</p>
+<ul>
+<li>Every assembled block has the expected shape and finite entries; factorizations are reused.</li>
+<li>The monolithic combined residual is below <span class="math inline">\(10^{-11}\)</span> for every <span class="math inline">\(H\)</span>.</li>
+<li>Every run labeled converged has coupling and combined block residuals below <span class="math inline">\(10^{-10}\)</span>.</li>
+<li>Every converged partitioned state agrees with the monolithic state to relative 2-norm error below <span class="math inline">\(10^{-8}\)</span>.</li>
+<li>Subsolve accounting is exact: one fluid and one solid solve per coupling sweep.</li>
+<li>Aitken relaxation values are finite and remain inside the clip interval.</li>
+<li>At <span class="math inline">\(H=100\)</span>, Aitken uses fewer iterations than unrelaxed coupling. If it does not, diagnose residual definition, update order, and the first Aitken step before changing parameters.</li>
+<li>A discrete global heat balance is reported. With insulated solid ends, total generated heat must equal coolant enthalpy rise to the tolerance implied by your boundary discretization.</li>
+</ul>
+<p>Verification is performed on one fixed grid and checks algebra, coupling consistency, and conservation - not observed spatial order.</p>
+<div id="a01bac72" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: Implement automatic checks tied to the actual results.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+</section>
+<section id="stretch-goal-and-references" class="level2">
+<h2 class="anchored" data-anchor-id="stretch-goal-and-references">8. Stretch goal and references</h2>
+<p><strong>Stretch goal (15-25 minutes):</strong> Replace scalar Aitken relaxation with Anderson acceleration of depth 3 for the solid interface vector. Compare iteration count and stored-vector cost at <span class="math inline">\(H=500\)</span>. Keep the same physics matrices and grid. Alternatively, reverse the exchange order and explain the change in convergence.</p>
+<section id="references" class="level3">
+<h3 class="anchored" data-anchor-id="references">References</h3>
+<ul>
+<li><strong>Dedicated project reference:</strong> Victor Van Riet, Wim Beyne, Michel De Paepe, and Joris Degroote, “Convergence Behaviour of Partitioned Methods for Conjugate Heat Transfer Problems,” <em>ECCOMAS Congress 2024</em>, CIMNE, 2024. DOI: 10.23967/eccomas.2024.127. <a href="https://biblio.ugent.be/publication/01JDHA0A458RSWG0HVT42TH90J">Open paper and metadata</a>. Focus on interface variables, Biot/coupling-strength effects, fixed relaxation, Aitken acceleration, and residual histories.</li>
+<li><strong>Paper to read:</strong> Sarah Nataj, David C. Del Rey Fernandez, David Brown, et al., “A Finite-Difference Summation-by-Parts Conditionally Stable Partitioned Algorithm for Conjugate Heat Transfer Problems,” <em>Journal of Scientific Computing</em> 109, 53 (2026). DOI: 10.1007/s10915-026-03462-x. <a href="https://link.springer.com/article/10.1007/s10915-026-03462-x">Open-access article</a>.</li>
+</ul>
+</section>
+<section id="topic-ledger" class="level3">
+<h3 class="anchored" data-anchor-id="topic-ledger">Topic ledger</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Date / record</th>
+<th>Primary objective</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Older assignments, dates unavailable</td>
+<td>Grid convergence and errors</td>
+<td>User reported five repetitive assignments; individual records unavailable</td>
+</tr>
+<tr class="even">
+<td>2026-10-05</td>
+<td>Grid convergence and discretization uncertainty</td>
+<td>Inspected</td>
+</tr>
+<tr class="odd">
+<td>2026-10-06 corrected</td>
+<td>Fixed-mesh advection: CFL, conservation, positivity, TV</td>
+<td>Inspected</td>
+</tr>
+<tr class="even">
+<td>2026-10-07</td>
+<td>Krylov methods and line-block preconditioning</td>
+<td>Inspected</td>
+</tr>
+<tr class="odd">
+<td>2026-10-08</td>
+<td>Data layout, cache behavior, and flux-kernel throughput</td>
+<td>Inspected</td>
+</tr>
+<tr class="even">
+<td>2026-10-09</td>
+<td>Nonlinear natural-circulation thermal-fluid modeling</td>
+<td>Inspected</td>
+</tr>
+<tr class="odd">
+<td>2026-10-12</td>
+<td>Discrete-adjoint PDE-constrained optimization</td>
+<td>Inspected</td>
+</tr>
+<tr class="even">
+<td>2026-10-13</td>
+<td>Partitioned multiphysics coupling and relaxation</td>
+<td>This assignment</td>
+</tr>
+</tbody>
+</table>
+<p>The six immediately preceding distinct objectives are recoverable; the seventh older record is only available through the user’s report. This is assignment 5 of the ten-assignment exclusion established October 6; five excluded assignments remain after today. Planned next objectives: high-order reconstruction, parallel algorithms, time integration, uncertainty propagation, then turbulence modeling. No grid-refinement, observed-order, Richardson, or GCI task appears here.</p>
+
+
+</section>
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const cellDetails = window.document.querySelectorAll(".cell details.code-fold");
+        for (let i=0; i<cellDetails.length; i++) {
+          const details = cellDetails[i];
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell div.sourceCode.cell-code");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/josh-fowler-hub\.github\.io\/daily-learning\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>Josh Fowler · Computational Engineering</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    </div>
+    <div class="nav-footer-right">
+      <ul class="footer-items list-unstyled">
+    <li class="nav-item">
+    <a class="nav-link" href="https://josh-fowler-hub.github.io/">
+<p>Portfolio</p>
+</a>
+  </li>  
+</ul>
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

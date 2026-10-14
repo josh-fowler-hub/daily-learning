@@ -2,6 +2,10 @@
   {
     "listing": "/index.html",
     "items": [
+      "/20261014-characteristic-weno-z.html",
+      "/20261013-partitioned-cht-coupling.html",
+      "/20261012-discrete-adjoint-control.html",
+      "/20261009-natural-circulation-transient.html",
       "/20261006-advection-cfl-conservation.html",
       "/20261005-grid-convergence-and-discretization-uncertainty.html",
       "/20261002-heat-balance-uncertainty.html",
