@@ -1,0 +1,1452 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="dcterms.date" content="2026-10-07">
+<meta name="description" content="Compare diagonal scaling with a directional block preconditioner on a fixed sparse system.">
+
+<title>CG and Line Preconditioning for Anisotropic Diffusion – Daily Learning &amp; Refreshers</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-6c0ad46e1861a38265c10768182fb462.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-dad9a4322ad7fa4720762ae757f50ef1.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top quarto-banner">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">Daily Learning &amp; Refreshers</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./index.html"> 
+<span class="menu-text">Practice Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="https://josh-fowler-hub.github.io/"> 
+<span class="menu-text">Portfolio</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/josh-fowler-hub/daily-learning"> <i class="bi bi-github" role="img" aria-label="GitHub repository">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <div class="quarto-title-block"><div><h1 class="title">CG and Line Preconditioning for Anisotropic Diffusion</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li></ul></div></div>
+                  <div>
+        <div class="description">
+          Compare diagonal scaling with a directional block preconditioner on a fixed sparse system.
+        </div>
+      </div>
+                          <div class="quarto-categories">
+                <div class="quarto-category">numerical linear algebra</div>
+                <div class="quarto-category">preconditioning</div>
+                <div class="quarto-category">solver performance</div>
+              </div>
+                  </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">October 7, 2026</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#cg-and-line-preconditioning-for-anisotropic-diffusion" id="toc-cg-and-line-preconditioning-for-anisotropic-diffusion" class="nav-link active" data-scroll-target="#cg-and-line-preconditioning-for-anisotropic-diffusion">CG and Line Preconditioning for Anisotropic Diffusion</a>
+  <ul class="collapse">
+  <li><a href="#does-your-preconditioner-capture-the-difficult-coupling" id="toc-does-your-preconditioner-capture-the-difficult-coupling" class="nav-link" data-scroll-target="#does-your-preconditioner-capture-the-difficult-coupling">Does your preconditioner capture the difficult coupling?</a></li>
+  <li><a href="#governing-model-and-reference-solution" id="toc-governing-model-and-reference-solution" class="nav-link" data-scroll-target="#governing-model-and-reference-solution">1. Governing model and reference solution</a></li>
+  <li><a href="#discretization-and-conditions" id="toc-discretization-and-conditions" class="nav-link" data-scroll-target="#discretization-and-conditions">2. Discretization and conditions</a>
+  <ul class="collapse">
+  <li><a href="#what-cg-does" id="toc-what-cg-does" class="nav-link" data-scroll-target="#what-cg-does">What CG does</a></li>
+  <li><a href="#preconditioning-changing-the-scale-of-the-problem" id="toc-preconditioning-changing-the-scale-of-the-problem" class="nav-link" data-scroll-target="#preconditioning-changing-the-scale-of-the-problem">Preconditioning: changing the scale of the problem</a></li>
+  </ul></li>
+  <li><a href="#error-measures-and-expected-behavior" id="toc-error-measures-and-expected-behavior" class="nav-link" data-scroll-target="#error-measures-and-expected-behavior">3. Error measures and expected behavior</a></li>
+  <li><a href="#results-and-convergence" id="toc-results-and-convergence" class="nav-link" data-scroll-target="#results-and-convergence">4. Results and convergence</a></li>
+  <li><a href="#solution-and-diagnostic-plots" id="toc-solution-and-diagnostic-plots" class="nav-link" data-scroll-target="#solution-and-diagnostic-plots">5. Solution and diagnostic plots</a></li>
+  <li><a href="#automatic-checks" id="toc-automatic-checks" class="nav-link" data-scroll-target="#automatic-checks">6. Automatic checks</a></li>
+  <li><a href="#discussion-and-next-steps" id="toc-discussion-and-next-steps" class="nav-link" data-scroll-target="#discussion-and-next-steps">7. Discussion and next steps</a>
+  <ul class="collapse">
+  <li><a href="#discussion-answers" id="toc-discussion-answers" class="nav-link" data-scroll-target="#discussion-answers">Discussion answers</a></li>
+  <li><a href="#scope-and-limitations" id="toc-scope-and-limitations" class="nav-link" data-scroll-target="#scope-and-limitations">Scope and limitations</a></li>
+  <li><a href="#further-work" id="toc-further-work" class="nav-link" data-scroll-target="#further-work">Further work</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
+  </ul></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+
+<section id="cg-and-line-preconditioning-for-anisotropic-diffusion" class="level1">
+<h1>CG and Line Preconditioning for Anisotropic Diffusion</h1>
+<section id="does-your-preconditioner-capture-the-difficult-coupling" class="level3">
+<h3 class="anchored" data-anchor-id="does-your-preconditioner-capture-the-difficult-coupling">Does your preconditioner capture the difficult coupling?</h3>
+<p><strong>Learning goal:</strong> Compare unpreconditioned CG, Jacobi-preconditioned CG, and x-line block-preconditioned CG. Explain their behavior using spectrum and total solve cost, including setup and application.</p>
+<p><strong>Time:</strong> 60-90 minutes, plus optional paper reading. Python: NumPy, SciPy, Matplotlib. All data are synthetic, dimensionless, and reproducible. Keep n = 40 fixed throughout the main experiment.</p>
+<p><strong>Intuition:</strong> Heat conducts much more strongly in one direction. Treating each temperature independently may fail to capture that coupling. A line solve treats strongly connected temperatures together.</p>
+<p><strong>Targets:</strong> Every method reaches true relative residual &lt;= 2e-8; agrees with the sparse direct baseline to relative solution difference &lt;= 1e-5; the line preconditioner at alpha = 1e4 uses fewer than half the unpreconditioned iterations; and measured results distinguish iteration reduction from wall-time improvement.</p>
+<p>Before running the experiment, predict the effect of scalar diagonal scaling and directional blocking. The setup cell records these predictions; compare them with the computed results below. This is an algebraic solver experiment, not a grid-refinement project.</p>
+<p><strong>Notation:</strong> A is the SPD system matrix; P approximates A; the action passed to SciPy as M is P^{-1}. Do not form either A^{-1} or P^{-1} explicitly.</p>
+</section>
+<section id="governing-model-and-reference-solution" class="level2">
+<h2 class="anchored" data-anchor-id="governing-model-and-reference-solution">1. Governing model and reference solution</h2>
+<p>We model steady heat conduction on a square plate. The unknown <span class="math inline">\(u(x,y)\)</span> is the temperature (or a temperature-like quantity) at each point, and <span class="math inline">\(f(x,y)\)</span> is the heat source. The equation <span class="math display">\[-\alpha u_{xx}-u_{yy}=f,\quad (x,y)\in(0,1)^2,\qquad u=0\ \text{on the boundary}\]</span> says that heat spreading in the x direction is weighted by conductivity <span class="math inline">\(\alpha\)</span>, while spreading in y has weight 1. The zero boundary condition means the plate’s edge is held at the reference temperature. When <span class="math inline">\(\alpha\)</span> is large, neighboring points along x are more strongly coupled: changing temperature at one point has a stronger effect on the equation at its x-neighbors.</p>
+<p>We replace the continuous field <span class="math inline">\(u(x,y)\)</span> by its values at a grid of interior points. Here there are <span class="math inline">\(n=40\)</span> interior points in each direction, spacing <span class="math inline">\(h=1/(n+1)\)</span>, and therefore <span class="math inline">\(n^2=1600\)</span> unknown temperatures. The boundary values are prescribed as zero, so they are not unknowns. We store the grid values in an array of shape <span class="math inline">\((n_y,n_x)\)</span> and flatten it in C order: x varies fastest, so each row of the flattened vector corresponds to one y-level.</p>
+<p>After discretization, the differential equation becomes a sparse linear system <span class="math inline">\(Au=b\)</span>. The vector <span class="math inline">\(u\)</span> contains the unknown grid values, <span class="math inline">\(A\)</span> describes how each grid point is coupled to its neighbors, and <span class="math inline">\(b\)</span> contains the sampled source values (including the chosen scaling). Solving the model means finding a vector whose substitution into this system makes every equation hold. Section 2 constructs <span class="math inline">\(A\)</span> and explains why its structure is suitable for Conjugate Gradient (CG).</p>
+<p>CG is an iterative method: rather than factorizing a large matrix, it starts with a guess and improves it using matrix-vector products. For a symmetric positive-definite matrix, ordinary CG can be understood as minimizing the quadratic energy <span class="math inline">\(\frac12 u^T A u-b^T u\)</span>; its residual <span class="math inline">\(r=b-Au\)</span> measures how far the current guess is from satisfying the equations. The method chooses successive directions that are conjugate with respect to <span class="math inline">\(A\)</span> (orthogonal in the geometry defined by <span class="math inline">\(A\)</span>), so it avoids undoing progress made in earlier directions. The actual iteration formulas and the role of preconditioning appear in section 2.</p>
+<p>Use one seeded random load <span class="math inline">\(b=\texttt{default\_rng(7).standard\_normal(n*n)}\)</span>, shared across all cases. This synthetic source is not intended to represent a realistic heating profile. A random vector typically contains components in many eigen-directions, making it a useful reproducible way to compare solver behavior rather than testing only an unusually easy single mode.</p>
+<p>For each <span class="math inline">\(\alpha\)</span>, compute <span class="math inline">\(u_{\rm ref}\)</span> with a sparse direct solve as an independent algebraic reference. This direct solve checks the iterative answer; it is not a claim that direct factorization is the preferred approach for larger problems. Compare iterative solutions with this reference to measure algebraic agreement; the difference is not the physical or discretization error of the continuous model.</p>
+<div id="6c2d11fa" class="cell" data-execution_count="7">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.sparse <span class="im">import</span> diags, eye, kron</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.sparse.linalg <span class="im">import</span> cg, spsolve, splu, LinearOperator</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> time <span class="im">import</span> perf_counter</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> IPython.display <span class="im">import</span> Markdown, display</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Keep the grid size fixed so every solver comparison uses the same problem.</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>N <span class="op">=</span> <span class="dv">40</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>H <span class="op">=</span> <span class="fl">1.0</span> <span class="op">/</span> (N <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Conductivity ratios range from isotropic to strongly anisotropic.</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>ALPHAS <span class="op">=</span> (<span class="fl">1.0</span>, <span class="fl">100.0</span>, <span class="fl">10000.0</span>)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>SOLVER_KINDS <span class="op">=</span> (<span class="st">"none"</span>, <span class="st">"jacobi"</span>, <span class="st">"x-line"</span>)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>RTOL <span class="op">=</span> <span class="fl">1e-8</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>MAXITER <span class="op">=</span> <span class="dv">2000</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Reuse exactly the same right-hand side for every alpha and method.</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="co"># The fixed seed makes the experiment repeatable across notebook runs.</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>B <span class="op">=</span> np.random.default_rng(<span class="dv">7</span>).standard_normal(N <span class="op">*</span> N)</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Record predictions before inspecting results. Constant-diagonal Jacobi</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="co"># should only scale the equations, so it should not change the condition</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="co"># number or materially change CG's iteration count. Horizontal line solves</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="co"># should help most at alpha=1e4, where x-direction coupling is strongest.</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>PREDICTIONS <span class="op">=</span> {</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    <span class="st">"jacobi"</span>: <span class="st">"Constant diagonal means Jacobi is only scalar scaling."</span>,</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    <span class="st">"x_line"</span>: <span class="st">"Horizontal line solves should reduce iterations most at alpha=1e4."</span>,</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    <span class="st">"timing"</span>: <span class="st">"Fewer iterations may not mean less time because each line apply costs more."</span>,</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="co"># Consistent plot defaults make results easier to compare visually.</span></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>plt.rcParams.update({</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>    <span class="st">"figure.figsize"</span>: (<span class="dv">8</span>, <span class="dv">5</span>),</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>    <span class="st">"axes.grid"</span>: <span class="va">True</span>,</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>    <span class="st">"grid.alpha"</span>: <span class="fl">0.3</span>,</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>    <span class="st">"font.size"</span>: <span class="dv">10</span>,</span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Predictions recorded. Run all cells in order to execute the experiment."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Predictions recorded. Run all cells in order to execute the experiment.</code></pre>
+</div>
+</div>
+</section>
+<section id="discretization-and-conditions" class="level2">
+<h2 class="anchored" data-anchor-id="discretization-and-conditions">2. Discretization and conditions</h2>
+<p>Use the centered second-difference approximation in each coordinate. For example, <span class="math inline">\(-u_{xx}\)</span> at one interior point is approximated by <span class="math inline">\((2u_{i,j}-u_{i-1,j}-u_{i+1,j})/h^2\)</span>; it uses the point itself and its two horizontal neighbors. The y-direction term has the same pattern with vertical neighbors. With <span class="math inline">\(T=\operatorname{tridiag}(-1,2,-1)\)</span> and <span class="math inline">\(I\)</span> the <span class="math inline">\(n\)</span> by <span class="math inline">\(n\)</span> identity, the full two-dimensional matrix for x-fastest ordering is <span class="math display">\[A=h^{-2}[I\otimes(\alpha T)+T\otimes I].\]</span> The first Kronecker term applies the x-direction differences independently to each row, and the second applies y-direction differences between rows. Each one-dimensional matrix is symmetric; moreover, <span class="math inline">\(T\)</span> has positive eigenvalues, so both directional contributions are positive semidefinite and their sum is positive definite. Equivalently, for any nonzero grid vector <span class="math inline">\(v\)</span>, <span class="math inline">\(v^TAv\)</span> is a positive weighted sum of squared neighbor differences, including differences to the fixed zero boundary. Thus <span class="math inline">\(A\)</span> is symmetric positive definite (SPD), which is the key condition for CG.</p>
+<p>Only interior values are unknown. The zero boundary values are already accounted for in the diagonal entries of <span class="math inline">\(T\)</span>; no boundary unknowns or periodic connections are added. The Kronecker construction connects entries only to the immediate horizontal and vertical neighbors. At the end of a flattened row, there is no horizontal connection to the start of the next row: those entries belong to different y-lines, and the y-direction term supplies only the intended same-x vertical coupling. This is why the matrix has no accidental row wrapping.</p>
+<section id="what-cg-does" class="level3">
+<h3 class="anchored" data-anchor-id="what-cg-does">What CG does</h3>
+<p>For <span class="math inline">\(Au=b\)</span>, a current estimate <span class="math inline">\(u_k\)</span> has residual <span class="math inline">\(r_k=b-Au_k\)</span>. If <span class="math inline">\(r_k=0\)</span>, the equations are solved exactly; otherwise, the residual identifies the equation imbalance left by the current estimate. CG updates the estimate along a search direction <span class="math inline">\(p_k\)</span>. In exact arithmetic, these directions are mutually <span class="math inline">\(A\)</span>-conjugate, meaning <span class="math inline">\(p_i^T A p_j=0\)</span> for distinct directions. This is the appropriate analogue of perpendicular directions for this problem and lets each update make progress without undoing the earlier updates. After at most <span class="math inline">\(n^2\)</span> updates CG would solve an <span class="math inline">\(n^2\)</span>-unknown SPD system exactly in exact arithmetic; finite precision and the requested tolerance usually determine the practical stopping point.</p>
+<p>Starting from <span class="math inline">\(u_0=0\)</span>, the standard recurrence is <span class="math display">\[r_0=b-Au_0,\qquad p_0=r_0,\]</span> <span class="math display">\[\eta_k=\frac{r_k^T r_k}{p_k^T A p_k},\qquad u_{k+1}=u_k+\eta_kp_k,\qquad r_{k+1}=r_k-\eta_kAp_k,\]</span> <span class="math display">\[\beta_k=\frac{r_{k+1}^T r_{k+1}}{r_k^T r_k},\qquad p_{k+1}=r_{k+1}+\beta_kp_k.\]</span> Here <span class="math inline">\(\eta_k\)</span> is the step length along the current direction; <span class="math inline">\(\beta_k\)</span> mixes the new residual with the previous direction to keep later directions conjugate. The conductivity parameter is named <span class="math inline">\(\alpha\)</span> in the PDE, so <span class="math inline">\(\eta_k\)</span> is used here to avoid overloading that symbol. CG does not explicitly build a matrix inverse or store all previous directions; each iteration mainly needs sparse matrix-vector products and vector operations.</p>
+</section>
+<section id="preconditioning-changing-the-scale-of-the-problem" class="level3">
+<h3 class="anchored" data-anchor-id="preconditioning-changing-the-scale-of-the-problem">Preconditioning: changing the scale of the problem</h3>
+<p>A preconditioner is an easier-to-apply approximation <span class="math inline">\(P\)</span> to <span class="math inline">\(A\)</span> chosen so that the preconditioned problem is better conditioned and CG needs fewer iterations. The conceptual transformation is <span class="math inline">\(P^{-1/2}AP^{-1/2}\)</span>; in code we apply <span class="math inline">\(P^{-1}\)</span> through a solve, never form a matrix inverse. This transformation changes the geometry CG sees, not the original solution of <span class="math inline">\(Au=b\)</span>. For the standard PCG guarantee, both <span class="math inline">\(A\)</span> and <span class="math inline">\(P\)</span> must be SPD.</p>
+<p>Compare these three choices: 1. <strong>No preconditioner:</strong> CG works with the original system; there is no setup cost, but it may need many iterations when the system has poorly scaled directions. 2. <strong>Jacobi:</strong> <span class="math inline">\(P_J=\operatorname{diag}(A)\)</span> keeps only the diagonal and scales each unknown independently. Applying <span class="math inline">\(P_J^{-1}\)</span> is componentwise division. Here every diagonal entry is the same, so Jacobi only multiplies the system by a scalar; it cannot change the condition number or improve the exact-arithmetic CG iteration count. 3. <strong>x-line block Jacobi:</strong> solve along each whole horizontal line, retaining the strong x-direction coupling while ignoring coupling between different lines. Its block-diagonal matrix is <span class="math display">\[P_L=h^{-2}I\otimes B_L,\qquad B_L=\alpha T+2I.\]</span> This captures the direction that becomes difficult when <span class="math inline">\(\alpha\)</span> is large. Factor <span class="math inline">\(B_L\)</span> once per <span class="math inline">\(\alpha\)</span>, reshape each residual into rows, solve the independent line systems, and reuse the factor on every PCG application. Because <span class="math inline">\(P_L^{-1}=h^2(I\otimes B_L^{-1})\)</span>, the inverse action includes the factor <span class="math inline">\(h^2\)</span>. The exact line-block matrix is SPD; using a factorization to apply its inverse does not change that. An arbitrary nonsymmetric ILU preconditioner would not provide the same standard PCG guarantee.</p>
+<p>In SciPy’s <code>cg</code>, the argument <code>M</code> must apply the inverse action <span class="math inline">\(P^{-1}\)</span> (often represented by a <code>LinearOperator</code>), not multiply by <span class="math inline">\(P\)</span>. The function still solves the original <span class="math inline">\(Au=b\)</span>. Use <span class="math inline">\(x_0=0\)</span>, <code>rtol=1e-8</code>, <code>atol=0</code>, and <code>maxiter=2000</code> for every solve; the stopping tolerance controls the relative residual, not the error relative to the unknown exact solution.</p>
+<p><strong>Important deduction:</strong> For this square, constant-coefficient system, <span class="math inline">\(\operatorname{diag}(A)\)</span> is constant. Investigate what scalar rescaling can and cannot do to the spectral condition number. Also derive whether <span class="math inline">\(\kappa(A)\)</span> varies with <span class="math inline">\(\alpha\)</span> here; do not assume anisotropy always raises it at fixed equal dimensions.</p>
+<div id="185f6ec3" class="cell" data-execution_count="8">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> assemble_system(n, alpha):</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Assemble the SPD five-point operator for x-fastest vector ordering."""</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># T is the 1D negative-second-derivative stencil with zero Dirichlet</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># boundary values already incorporated for the interior unknowns.</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    T <span class="op">=</span> diags((<span class="op">-</span>np.ones(n <span class="op">-</span> <span class="dv">1</span>), <span class="fl">2.0</span> <span class="op">*</span> np.ones(n), <span class="op">-</span>np.ones(n <span class="op">-</span> <span class="dv">1</span>)),</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>              offsets<span class="op">=</span>(<span class="op">-</span><span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>), <span class="bu">format</span><span class="op">=</span><span class="st">"csr"</span>)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    I <span class="op">=</span> eye(n, <span class="bu">format</span><span class="op">=</span><span class="st">"csr"</span>)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    h <span class="op">=</span> <span class="fl">1.0</span> <span class="op">/</span> (n <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># C-order flattening means x changes fastest: alpha*T therefore acts</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># within each row, while the other Kronecker term couples y-rows.</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    A <span class="op">=</span> (kron(I, alpha <span class="op">*</span> T, <span class="bu">format</span><span class="op">=</span><span class="st">"csr"</span>) <span class="op">+</span> kron(T, I, <span class="bu">format</span><span class="op">=</span><span class="st">"csr"</span>)) <span class="op">/</span> h<span class="op">**</span><span class="dv">2</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> A.tocsr(), T, h</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> build_preconditioner(A, T, h, alpha, kind):</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Build an operator that applies P^{-1}, returning it and setup seconds.</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="co">    Supported kinds are 'none', 'jacobi', and 'x-line'. The line factor is</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="co">    computed once here and reused for every preconditioner application.</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>    started <span class="op">=</span> perf_counter()</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    n <span class="op">=</span> T.shape[<span class="dv">0</span>]</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> kind <span class="op">==</span> <span class="st">"none"</span>:</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>        <span class="co"># SciPy interprets M=None as the identity preconditioner.</span></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">None</span>, perf_counter() <span class="op">-</span> started</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> kind <span class="op">==</span> <span class="st">"jacobi"</span>:</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>        <span class="co"># The diagonal is positive; applying its inverse is simple scaling.</span></span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>        diagonal <span class="op">=</span> A.diagonal()</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> np.<span class="bu">any</span>(diagonal <span class="op">&lt;=</span> <span class="dv">0</span>):</span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>            <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">"Jacobi preconditioner requires a positive diagonal."</span>)</span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>        M <span class="op">=</span> LinearOperator(A.shape, matvec<span class="op">=</span><span class="kw">lambda</span> r: r <span class="op">/</span> diagonal, dtype<span class="op">=</span>A.dtype)</span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> M, perf_counter() <span class="op">-</span> started</span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> kind <span class="op">==</span> <span class="st">"x-line"</span>:</span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Keep all within-row (x-direction) couplings, but drop connections</span></span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>        <span class="co"># between rows. Each identical tridiagonal line block is factored once.</span></span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>        B_line <span class="op">=</span> (alpha <span class="op">*</span> T <span class="op">+</span> <span class="fl">2.0</span> <span class="op">*</span> eye(n, <span class="bu">format</span><span class="op">=</span><span class="st">"csr"</span>)).tocsc()</span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>        line_factor <span class="op">=</span> splu(B_line)</span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>        <span class="kw">def</span> apply_line_inverse(r):</span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>            <span class="co"># The Kronecker ordering stores each x-line contiguously. Transpose</span></span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>            <span class="co"># puts each line residual in a column for one batched LU solve.</span></span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>            rows <span class="op">=</span> np.asarray(r).reshape(n, n)</span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>            solved_rows <span class="op">=</span> line_factor.solve(rows.T).T</span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>            <span class="co"># P_line contains h^{-2}; its inverse action therefore has h^2.</span></span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> (h<span class="op">**</span><span class="dv">2</span> <span class="op">*</span> solved_rows).reshape(<span class="op">-</span><span class="dv">1</span>)</span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a>        M <span class="op">=</span> LinearOperator(A.shape, matvec<span class="op">=</span>apply_line_inverse, dtype<span class="op">=</span>A.dtype)</span>
+<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> M, perf_counter() <span class="op">-</span> started</span>
+<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Do not silently treat misspelled methods as the identity.</span></span>
+<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a>    <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="ss">f"Unknown preconditioner kind: </span><span class="sc">{</span>kind<span class="sc">!r}</span><span class="ss">"</span>)</span>
+<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> analytic_spectra(n, alpha, h):</span>
+<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Return exact eigenvalue arrays for A, Jacobi, and x-line PCG spectra."""</span></span>
+<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a>    <span class="co"># The 1D Dirichlet eigenvalues are separable across x and y directions.</span></span>
+<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a>    modes <span class="op">=</span> np.arange(<span class="dv">1</span>, n <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb3-60"><a href="#cb3-60" aria-hidden="true" tabindex="-1"></a>    tau <span class="op">=</span> <span class="fl">2.0</span> <span class="op">-</span> <span class="fl">2.0</span> <span class="op">*</span> np.cos(np.pi <span class="op">*</span> modes <span class="op">/</span> (n <span class="op">+</span> <span class="dv">1</span>))</span>
+<span id="cb3-61"><a href="#cb3-61" aria-hidden="true" tabindex="-1"></a>    tau_y, tau_x <span class="op">=</span> np.meshgrid(tau, tau, indexing<span class="op">=</span><span class="st">"ij"</span>)</span>
+<span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Eigenvalues of A are h^-2*(alpha*tau_x + tau_y). Jacobi divides</span></span>
+<span id="cb3-64"><a href="#cb3-64" aria-hidden="true" tabindex="-1"></a>    <span class="co"># by the constant diagonal 2*(alpha+1)/h^2, only a scalar rescaling.</span></span>
+<span id="cb3-65"><a href="#cb3-65" aria-hidden="true" tabindex="-1"></a>    eigenvalues_A <span class="op">=</span> (alpha <span class="op">*</span> tau_x <span class="op">+</span> tau_y) <span class="op">/</span> h<span class="op">**</span><span class="dv">2</span></span>
+<span id="cb3-66"><a href="#cb3-66" aria-hidden="true" tabindex="-1"></a>    jacobi_diagonal <span class="op">=</span> <span class="fl">2.0</span> <span class="op">*</span> (alpha <span class="op">+</span> <span class="fl">1.0</span>) <span class="op">/</span> h<span class="op">**</span><span class="dv">2</span></span>
+<span id="cb3-67"><a href="#cb3-67" aria-hidden="true" tabindex="-1"></a>    eigenvalues_jacobi <span class="op">=</span> eigenvalues_A <span class="op">/</span> jacobi_diagonal</span>
+<span id="cb3-68"><a href="#cb3-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-69"><a href="#cb3-69" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Generalized eigenvalues A v = lambda P_line v equal the quotient</span></span>
+<span id="cb3-70"><a href="#cb3-70" aria-hidden="true" tabindex="-1"></a>    <span class="co"># of corresponding separable-mode eigenvalues; these are the spectrum</span></span>
+<span id="cb3-71"><a href="#cb3-71" aria-hidden="true" tabindex="-1"></a>    <span class="co"># of the symmetrically preconditioned operator as well.</span></span>
+<span id="cb3-72"><a href="#cb3-72" aria-hidden="true" tabindex="-1"></a>    eigenvalues_x_line <span class="op">=</span> (alpha <span class="op">*</span> tau_x <span class="op">+</span> tau_y) <span class="op">/</span> (alpha <span class="op">*</span> tau_x <span class="op">+</span> <span class="fl">2.0</span>)</span>
+<span id="cb3-73"><a href="#cb3-73" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {</span>
+<span id="cb3-74"><a href="#cb3-74" aria-hidden="true" tabindex="-1"></a>        <span class="st">"none"</span>: eigenvalues_A.ravel(),</span>
+<span id="cb3-75"><a href="#cb3-75" aria-hidden="true" tabindex="-1"></a>        <span class="st">"jacobi"</span>: eigenvalues_jacobi.ravel(),</span>
+<span id="cb3-76"><a href="#cb3-76" aria-hidden="true" tabindex="-1"></a>        <span class="st">"x-line"</span>: eigenvalues_x_line.ravel(),</span>
+<span id="cb3-77"><a href="#cb3-77" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb3-78"><a href="#cb3-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-79"><a href="#cb3-79" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> solve_problem(parameters, resolution):</span>
+<span id="cb3-80"><a href="#cb3-80" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Solve one case and return diagnostics, reference error, spectra, and costs.</span></span>
+<span id="cb3-81"><a href="#cb3-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-82"><a href="#cb3-82" aria-hidden="true" tabindex="-1"></a><span class="co">    parameters requires 'alpha' and 'kind'. It may also contain a cached</span></span>
+<span id="cb3-83"><a href="#cb3-83" aria-hidden="true" tabindex="-1"></a><span class="co">    system ('A', 'T', 'h'), shared right-hand side ('b'), and direct reference</span></span>
+<span id="cb3-84"><a href="#cb3-84" aria-hidden="true" tabindex="-1"></a><span class="co">    ('reference') so each alpha's matrix and reference are built only once.</span></span>
+<span id="cb3-85"><a href="#cb3-85" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb3-86"><a href="#cb3-86" aria-hidden="true" tabindex="-1"></a>    alpha <span class="op">=</span> <span class="bu">float</span>(parameters[<span class="st">"alpha"</span>])</span>
+<span id="cb3-87"><a href="#cb3-87" aria-hidden="true" tabindex="-1"></a>    kind <span class="op">=</span> parameters[<span class="st">"kind"</span>]</span>
+<span id="cb3-88"><a href="#cb3-88" aria-hidden="true" tabindex="-1"></a>    A, T, h <span class="op">=</span> parameters.get(<span class="st">"A"</span>), parameters.get(<span class="st">"T"</span>), parameters.get(<span class="st">"h"</span>)</span>
+<span id="cb3-89"><a href="#cb3-89" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> A <span class="kw">is</span> <span class="va">None</span> <span class="kw">or</span> T <span class="kw">is</span> <span class="va">None</span> <span class="kw">or</span> h <span class="kw">is</span> <span class="va">None</span>:</span>
+<span id="cb3-90"><a href="#cb3-90" aria-hidden="true" tabindex="-1"></a>        <span class="co"># This fallback makes the helper usable for a single standalone case.</span></span>
+<span id="cb3-91"><a href="#cb3-91" aria-hidden="true" tabindex="-1"></a>        A, T, h <span class="op">=</span> assemble_system(resolution, alpha)</span>
+<span id="cb3-92"><a href="#cb3-92" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-93"><a href="#cb3-93" aria-hidden="true" tabindex="-1"></a>    default_b <span class="op">=</span> B <span class="cf">if</span> resolution <span class="op">==</span> N <span class="cf">else</span> np.random.default_rng(<span class="dv">7</span>).standard_normal(resolution <span class="op">*</span> resolution)</span>
+<span id="cb3-94"><a href="#cb3-94" aria-hidden="true" tabindex="-1"></a>    b <span class="op">=</span> np.asarray(parameters.get(<span class="st">"b"</span>, default_b), dtype<span class="op">=</span><span class="bu">float</span>)</span>
+<span id="cb3-95"><a href="#cb3-95" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> b.shape <span class="op">!=</span> (resolution <span class="op">*</span> resolution,):</span>
+<span id="cb3-96"><a href="#cb3-96" aria-hidden="true" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">"Right-hand side must have one entry per interior grid point."</span>)</span>
+<span id="cb3-97"><a href="#cb3-97" aria-hidden="true" tabindex="-1"></a>    reference <span class="op">=</span> parameters.get(<span class="st">"reference"</span>)</span>
+<span id="cb3-98"><a href="#cb3-98" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> reference <span class="kw">is</span> <span class="va">None</span>:</span>
+<span id="cb3-99"><a href="#cb3-99" aria-hidden="true" tabindex="-1"></a>        <span class="co"># The direct solve is a correctness reference, not part of solver timing.</span></span>
+<span id="cb3-100"><a href="#cb3-100" aria-hidden="true" tabindex="-1"></a>        reference <span class="op">=</span> spsolve(A, b)</span>
+<span id="cb3-101"><a href="#cb3-101" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-102"><a href="#cb3-102" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Include factorization/diagonal extraction in setup time, but not matrix</span></span>
+<span id="cb3-103"><a href="#cb3-103" aria-hidden="true" tabindex="-1"></a>    <span class="co"># assembly or direct-reference cost, which are shared across methods.</span></span>
+<span id="cb3-104"><a href="#cb3-104" aria-hidden="true" tabindex="-1"></a>    M, setup_s <span class="op">=</span> build_preconditioner(A, T, h, alpha, kind)</span>
+<span id="cb3-105"><a href="#cb3-105" aria-hidden="true" tabindex="-1"></a>    b_norm <span class="op">=</span> np.linalg.norm(b)</span>
+<span id="cb3-106"><a href="#cb3-106" aria-hidden="true" tabindex="-1"></a>    x0 <span class="op">=</span> np.zeros_like(b)</span>
+<span id="cb3-107"><a href="#cb3-107" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-108"><a href="#cb3-108" aria-hidden="true" tabindex="-1"></a>    <span class="co"># One diagnostic solve stores true residuals. SciPy's callback is given</span></span>
+<span id="cb3-109"><a href="#cb3-109" aria-hidden="true" tabindex="-1"></a>    <span class="co"># the current solution, so recomputing b-Ax costs one extra matvec/step.</span></span>
+<span id="cb3-110"><a href="#cb3-110" aria-hidden="true" tabindex="-1"></a>    residual_history <span class="op">=</span> [<span class="fl">1.0</span>]  <span class="co"># rho_0 for the zero initial guess.</span></span>
+<span id="cb3-111"><a href="#cb3-111" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> record_true_residual(x_k):</span>
+<span id="cb3-112"><a href="#cb3-112" aria-hidden="true" tabindex="-1"></a>        residual_history.append(np.linalg.norm(b <span class="op">-</span> A <span class="op">@</span> x_k) <span class="op">/</span> b_norm)</span>
+<span id="cb3-113"><a href="#cb3-113" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-114"><a href="#cb3-114" aria-hidden="true" tabindex="-1"></a>    diagnostic_solution, info <span class="op">=</span> cg(</span>
+<span id="cb3-115"><a href="#cb3-115" aria-hidden="true" tabindex="-1"></a>        A, b, x0<span class="op">=</span>x0, rtol<span class="op">=</span>RTOL, atol<span class="op">=</span><span class="fl">0.0</span>, maxiter<span class="op">=</span>MAXITER,</span>
+<span id="cb3-116"><a href="#cb3-116" aria-hidden="true" tabindex="-1"></a>        M<span class="op">=</span>M, callback<span class="op">=</span>record_true_residual,</span>
+<span id="cb3-117"><a href="#cb3-117" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb3-118"><a href="#cb3-118" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Recompute rather than relying on an internal recurrence or info status.</span></span>
+<span id="cb3-119"><a href="#cb3-119" aria-hidden="true" tabindex="-1"></a>    true_relative_residual <span class="op">=</span> np.linalg.norm(b <span class="op">-</span> A <span class="op">@</span> diagnostic_solution) <span class="op">/</span> b_norm</span>
+<span id="cb3-120"><a href="#cb3-120" aria-hidden="true" tabindex="-1"></a>    relative_reference_difference <span class="op">=</span> (</span>
+<span id="cb3-121"><a href="#cb3-121" aria-hidden="true" tabindex="-1"></a>        np.linalg.norm(diagnostic_solution <span class="op">-</span> reference) <span class="op">/</span> np.linalg.norm(reference)</span>
+<span id="cb3-122"><a href="#cb3-122" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb3-123"><a href="#cb3-123" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-124"><a href="#cb3-124" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Warm up solver dispatch/caches before collecting comparable unmonitored</span></span>
+<span id="cb3-125"><a href="#cb3-125" aria-hidden="true" tabindex="-1"></a>    <span class="co"># timings. The preconditioner is the same built object for every run.</span></span>
+<span id="cb3-126"><a href="#cb3-126" aria-hidden="true" tabindex="-1"></a>    cg(A, b, x0<span class="op">=</span>x0, rtol<span class="op">=</span>RTOL, atol<span class="op">=</span><span class="fl">0.0</span>, maxiter<span class="op">=</span>MAXITER, M<span class="op">=</span>M)</span>
+<span id="cb3-127"><a href="#cb3-127" aria-hidden="true" tabindex="-1"></a>    solve_times <span class="op">=</span> []</span>
+<span id="cb3-128"><a href="#cb3-128" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">3</span>):</span>
+<span id="cb3-129"><a href="#cb3-129" aria-hidden="true" tabindex="-1"></a>        started <span class="op">=</span> perf_counter()</span>
+<span id="cb3-130"><a href="#cb3-130" aria-hidden="true" tabindex="-1"></a>        _, timing_info <span class="op">=</span> cg(A, b, x0<span class="op">=</span>x0, rtol<span class="op">=</span>RTOL, atol<span class="op">=</span><span class="fl">0.0</span>, maxiter<span class="op">=</span>MAXITER, M<span class="op">=</span>M)</span>
+<span id="cb3-131"><a href="#cb3-131" aria-hidden="true" tabindex="-1"></a>        solve_times.append(perf_counter() <span class="op">-</span> started)</span>
+<span id="cb3-132"><a href="#cb3-132" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> timing_info <span class="op">!=</span> <span class="dv">0</span>:</span>
+<span id="cb3-133"><a href="#cb3-133" aria-hidden="true" tabindex="-1"></a>            <span class="cf">raise</span> <span class="pp">RuntimeError</span>(<span class="ss">f"Timed </span><span class="sc">{</span>kind<span class="sc">}</span><span class="ss"> CG solve did not converge (info=</span><span class="sc">{</span>timing_info<span class="sc">}</span><span class="ss">)."</span>)</span>
+<span id="cb3-134"><a href="#cb3-134" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-135"><a href="#cb3-135" aria-hidden="true" tabindex="-1"></a>    median_solve_s <span class="op">=</span> <span class="bu">float</span>(np.median(solve_times))</span>
+<span id="cb3-136"><a href="#cb3-136" aria-hidden="true" tabindex="-1"></a>    eigenvalues <span class="op">=</span> analytic_spectra(resolution, alpha, h)[kind]</span>
+<span id="cb3-137"><a href="#cb3-137" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {</span>
+<span id="cb3-138"><a href="#cb3-138" aria-hidden="true" tabindex="-1"></a>        <span class="st">"alpha"</span>: alpha,</span>
+<span id="cb3-139"><a href="#cb3-139" aria-hidden="true" tabindex="-1"></a>        <span class="st">"kind"</span>: kind,</span>
+<span id="cb3-140"><a href="#cb3-140" aria-hidden="true" tabindex="-1"></a>        <span class="st">"A"</span>: A,</span>
+<span id="cb3-141"><a href="#cb3-141" aria-hidden="true" tabindex="-1"></a>        <span class="st">"b"</span>: b,</span>
+<span id="cb3-142"><a href="#cb3-142" aria-hidden="true" tabindex="-1"></a>        <span class="st">"reference"</span>: reference,</span>
+<span id="cb3-143"><a href="#cb3-143" aria-hidden="true" tabindex="-1"></a>        <span class="st">"solution"</span>: diagnostic_solution,</span>
+<span id="cb3-144"><a href="#cb3-144" aria-hidden="true" tabindex="-1"></a>        <span class="st">"info"</span>: <span class="bu">int</span>(info),</span>
+<span id="cb3-145"><a href="#cb3-145" aria-hidden="true" tabindex="-1"></a>        <span class="st">"iterations"</span>: <span class="bu">len</span>(residual_history) <span class="op">-</span> <span class="dv">1</span>,</span>
+<span id="cb3-146"><a href="#cb3-146" aria-hidden="true" tabindex="-1"></a>        <span class="st">"residual_history"</span>: np.asarray(residual_history),</span>
+<span id="cb3-147"><a href="#cb3-147" aria-hidden="true" tabindex="-1"></a>        <span class="st">"true_relative_residual"</span>: <span class="bu">float</span>(true_relative_residual),</span>
+<span id="cb3-148"><a href="#cb3-148" aria-hidden="true" tabindex="-1"></a>        <span class="st">"relative_reference_difference"</span>: <span class="bu">float</span>(relative_reference_difference),</span>
+<span id="cb3-149"><a href="#cb3-149" aria-hidden="true" tabindex="-1"></a>        <span class="st">"setup_s"</span>: <span class="bu">float</span>(setup_s),</span>
+<span id="cb3-150"><a href="#cb3-150" aria-hidden="true" tabindex="-1"></a>        <span class="st">"median_solve_s"</span>: median_solve_s,</span>
+<span id="cb3-151"><a href="#cb3-151" aria-hidden="true" tabindex="-1"></a>        <span class="st">"single_rhs_total_s"</span>: <span class="bu">float</span>(setup_s <span class="op">+</span> median_solve_s),</span>
+<span id="cb3-152"><a href="#cb3-152" aria-hidden="true" tabindex="-1"></a>        <span class="st">"modeled_20_rhs_s"</span>: <span class="bu">float</span>(setup_s <span class="op">+</span> <span class="dv">20</span> <span class="op">*</span> median_solve_s),</span>
+<span id="cb3-153"><a href="#cb3-153" aria-hidden="true" tabindex="-1"></a>        <span class="st">"eigenvalues"</span>: eigenvalues,</span>
+<span id="cb3-154"><a href="#cb3-154" aria-hidden="true" tabindex="-1"></a>        <span class="st">"condition_number"</span>: <span class="bu">float</span>(np.<span class="bu">max</span>(eigenvalues) <span class="op">/</span> np.<span class="bu">min</span>(eigenvalues)),</span>
+<span id="cb3-155"><a href="#cb3-155" aria-hidden="true" tabindex="-1"></a>    }</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+</section>
+</section>
+<section id="error-measures-and-expected-behavior" class="level2">
+<h2 class="anchored" data-anchor-id="error-measures-and-expected-behavior">3. Error measures and expected behavior</h2>
+<p>Measure the independently recomputed residual and algebraic reference difference: <span class="math display">\[\rho_k=\frac{\|b-Au_k\|_2}{\|b\|_2},\qquad
+d=\frac{\|u-u_{\rm ref}\|_2}{\|u_{\rm ref}\|_2}.\]</span> Log rho_0 = 1 explicitly for x0 = 0. The SciPy callback receives u_k, not a residual norm. A true-residual callback performs an extra A matvec per iteration, so it must not be included in the production timing comparison.</p>
+<p><strong>Timing protocol:</strong> Assemble A once per alpha. Record preconditioner construction separately. Collect residual histories in one diagnostic solve. Warm up, then time three equivalent solves with the same built preconditioner and no callback; report the median solve time. Record setup + median solve for a single right-hand side, and setup + K times median solve for a modeled K = 20 identical-cost right-hand sides. Label the latter as a cost model, not a measured multi-RHS workload. Include no direct-solve baseline or plotting costs in these times.</p>
+<p>For the spectrum, the 1D eigenvalues are <span class="math display">\[\tau_j=2-2\cos(j\pi/(n+1)),\quad j=1,\ldots,n.\]</span> Derive the eigenvalues of A and the generalized problem A v = lambda P_L v using these separable modes. Plot normalized eigenvalues lambda/mean(lambda) so scalar scaling does not masquerade as improved clustering. Compare kappa(A), kappa(P_J^{-1/2} A P_J^{-1/2}), and kappa(P_L^{-1/2} A P_L^{-1/2}). Use the analytically derived eigenvalues; do not run symmetric eigensolvers on an arbitrary left-preconditioned matrix.</p>
+<p>Worst-case condition-number bounds do not fully predict actual CG histories; clustering and how b projects onto eigenvectors also matter. The Euclidean residual need not decrease every iteration.</p>
+<div id="1e427339" class="cell" data-execution_count="9">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Cache one assembled matrix and one direct reference per alpha. This</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co"># keeps shared setup out of the per-method solve timings and ensures all</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co"># three algorithms solve exactly the same algebraic system.</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>systems <span class="op">=</span> {}</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> alpha <span class="kw">in</span> ALPHAS:</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    A_alpha, T_alpha, h_alpha <span class="op">=</span> assemble_system(N, alpha)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    reference_alpha <span class="op">=</span> spsolve(A_alpha, B)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    systems[alpha] <span class="op">=</span> {</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>        <span class="st">"A"</span>: A_alpha,</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>        <span class="st">"T"</span>: T_alpha,</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>        <span class="st">"h"</span>: h_alpha,</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>        <span class="st">"b"</span>: B,</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>        <span class="st">"reference"</span>: reference_alpha,</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Run each alpha with all three methods; the solve helper uses x0=0 and the</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="co"># same tolerance and iteration limit for every diagnostic and timing solve.</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>results <span class="op">=</span> []</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> alpha <span class="kw">in</span> ALPHAS:</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>    shared <span class="op">=</span> systems[alpha]</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> kind <span class="kw">in</span> SOLVER_KINDS:</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>        case <span class="op">=</span> {<span class="st">"alpha"</span>: alpha, <span class="st">"kind"</span>: kind, <span class="op">**</span>shared}</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>        results.append(solve_problem(case, N))</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Completed </span><span class="sc">{</span><span class="bu">len</span>(results)<span class="sc">}</span><span class="ss"> solver configurations."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Completed 9 solver configurations.</code></pre>
+</div>
+</div>
+</section>
+<section id="results-and-convergence" class="level2">
+<h2 class="anchored" data-anchor-id="results-and-convergence">4. Results and convergence</h2>
+<p>The convergence here is iterative linear-solver convergence on one fixed mesh.</p>
+<p><strong>Deliverable:</strong> A nine-row table containing alpha, preconditioner, iteration count, final true relative residual, direct-reference difference, spectral condition number, setup time, median solve time, and single-RHS total time.</p>
+<p>State whether Jacobi changes the condition number or iteration count materially, and explain why. Quantify the x-line iteration reduction at alpha = 1e4. Do not assert wall-time speedup solely because iteration count falls. Explain any nonmonotone iteration trend as alpha increases.</p>
+<div id="90feac61" class="cell" data-execution_count="10">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Format a reproducible nine-row summary, retaining info so a capped or</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co"># otherwise unsuccessful iteration cannot appear to be a successful solve.</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>table_columns <span class="op">=</span> [</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"alpha"</span>, <span class="st">"alpha"</span>),</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"preconditioner"</span>, <span class="st">"kind"</span>),</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"iterations"</span>, <span class="st">"iterations"</span>),</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"exit info"</span>, <span class="st">"info"</span>),</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"true rel. residual"</span>, <span class="st">"true_relative_residual"</span>),</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"rel. ref. difference"</span>, <span class="st">"relative_reference_difference"</span>),</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"spectral kappa"</span>, <span class="st">"condition_number"</span>),</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"setup (s)"</span>, <span class="st">"setup_s"</span>),</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"median solve (s)"</span>, <span class="st">"median_solve_s"</span>),</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"single RHS total (s)"</span>, <span class="st">"single_rhs_total_s"</span>),</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"modeled 20 RHS (s)"</span>, <span class="st">"modeled_20_rhs_s"</span>),</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>header <span class="op">=</span> <span class="st">"| "</span> <span class="op">+</span> <span class="st">" | "</span>.join(title <span class="cf">for</span> title, _ <span class="kw">in</span> table_columns) <span class="op">+</span> <span class="st">" |"</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>separator <span class="op">=</span> <span class="st">"|"</span> <span class="op">+</span> <span class="st">"|"</span>.join(<span class="st">"---"</span> <span class="cf">for</span> _ <span class="kw">in</span> table_columns) <span class="op">+</span> <span class="st">"|"</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>table_lines <span class="op">=</span> [header, separator]</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> result <span class="kw">in</span> results:</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>    cells <span class="op">=</span> []</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> title, key <span class="kw">in</span> table_columns:</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>        value <span class="op">=</span> result[key]</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> key <span class="op">==</span> <span class="st">"alpha"</span>:</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>            cells.append(<span class="ss">f"</span><span class="sc">{</span>value<span class="sc">:g}</span><span class="ss">"</span>)</span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>        <span class="cf">elif</span> key <span class="op">==</span> <span class="st">"kind"</span>:</span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>            cells.append(<span class="bu">str</span>(value))</span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>        <span class="cf">elif</span> key <span class="op">==</span> <span class="st">"iterations"</span> <span class="kw">or</span> key <span class="op">==</span> <span class="st">"info"</span>:</span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>            cells.append(<span class="bu">str</span>(value))</span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>            cells.append(<span class="ss">f"</span><span class="sc">{</span>value<span class="sc">:.3e}</span><span class="ss">"</span>)</span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>    table_lines.append(<span class="st">"| "</span> <span class="op">+</span> <span class="st">" | "</span>.join(cells) <span class="op">+</span> <span class="st">" |"</span>)</span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>display(Markdown(<span class="st">"</span><span class="ch">\n</span><span class="st">"</span>.join(table_lines)))</span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a><span class="co"># Explain the measured iteration and cost trends with values from this run.</span></span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> find_result(alpha, kind):</span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">next</span>(item <span class="cf">for</span> item <span class="kw">in</span> results <span class="cf">if</span> item[<span class="st">"alpha"</span>] <span class="op">==</span> alpha <span class="kw">and</span> item[<span class="st">"kind"</span>] <span class="op">==</span> kind)</span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>plain_high <span class="op">=</span> find_result(<span class="fl">10000.0</span>, <span class="st">"none"</span>)</span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a>line_high <span class="op">=</span> find_result(<span class="fl">10000.0</span>, <span class="st">"x-line"</span>)</span>
+<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a>jacobi_pairs <span class="op">=</span> [(find_result(alpha, <span class="st">"none"</span>), find_result(alpha, <span class="st">"jacobi"</span>)) <span class="cf">for</span> alpha <span class="kw">in</span> ALPHAS]</span>
+<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a>iteration_reduction <span class="op">=</span> <span class="fl">100.0</span> <span class="op">*</span> (<span class="fl">1.0</span> <span class="op">-</span> line_high[<span class="st">"iterations"</span>] <span class="op">/</span> plain_high[<span class="st">"iterations"</span>])</span>
+<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a>explanation <span class="op">=</span> [</span>
+<span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a>    <span class="st">"### What the results show"</span>,</span>
+<span id="cb6-44"><a href="#cb6-44" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f"- At alpha=1e4, x-line CG used </span><span class="sc">{</span>line_high[<span class="st">'iterations'</span>]<span class="sc">}</span><span class="ss"> iterations versus </span><span class="sc">{</span>plain_high[<span class="st">'iterations'</span>]<span class="sc">}</span><span class="ss"> without preconditioning, a reduction of </span><span class="sc">{</span>iteration_reduction<span class="sc">:.1f}</span><span class="ss">%."</span>,</span>
+<span id="cb6-45"><a href="#cb6-45" aria-hidden="true" tabindex="-1"></a>    <span class="st">"- Jacobi and plain CG have the same spectrum up to division by one positive scalar. Their condition numbers are equal, and their measured iterations are equal here; scalar scaling cannot improve the conditioning."</span>,</span>
+<span id="cb6-46"><a href="#cb6-46" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f"- At alpha=1e4, measured x-line setup took </span><span class="sc">{</span>line_high[<span class="st">'setup_s'</span>]<span class="sc">:.3e}</span><span class="ss"> s and its median solve took </span><span class="sc">{</span>line_high[<span class="st">'median_solve_s'</span>]<span class="sc">:.3e}</span><span class="ss"> s; plain CG had no setup and took </span><span class="sc">{</span>plain_high[<span class="st">'median_solve_s'</span>]<span class="sc">:.3e}</span><span class="ss"> s. These measurements show whether the additional line work paid off on this machine; do not generalize small timings into a hardware-independent speedup."</span>,</span>
+<span id="cb6-47"><a href="#cb6-47" aria-hidden="true" tabindex="-1"></a>    <span class="st">"- The modeled 20-RHS total assumes the same setup can be reused and each right-hand side has the measured median solve cost; it is a cost model, not a measured batched workload. Reuse amortizes setup over more right-hand sides."</span>,</span>
+<span id="cb6-48"><a href="#cb6-48" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f"- Plain-CG iterations across increasing alpha were </span><span class="sc">{</span>[find_result(alpha, <span class="st">'none'</span>)[<span class="st">'iterations'</span>] <span class="cf">for</span> alpha <span class="kw">in</span> ALPHAS]<span class="sc">}</span><span class="ss">. Yet the condition number is exactly independent of alpha on this square grid: the smallest and largest eigenvalues are (alpha+1)*tau_1 and (alpha+1)*tau_n. Iterations can still change because CG responds to the full eigenvalue distribution and to how the initial residual projects onto its eigenvectors, not just the extreme ratio."</span>,</span>
+<span id="cb6-49"><a href="#cb6-49" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb6-50"><a href="#cb6-50" aria-hidden="true" tabindex="-1"></a>display(Markdown(<span class="st">"</span><span class="ch">\n</span><span class="st">"</span>.join(explanation)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display cell-output-markdown">
+<table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 9%">
+<col style="width: 9%">
+<col style="width: 9%">
+<col style="width: 9%">
+<col style="width: 9%">
+<col style="width: 9%">
+<col style="width: 9%">
+<col style="width: 9%">
+<col style="width: 9%">
+<col style="width: 9%">
+<col style="width: 9%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>alpha</th>
+<th>preconditioner</th>
+<th>iterations</th>
+<th>exit info</th>
+<th>true rel. residual</th>
+<th>rel. ref. difference</th>
+<th>spectral kappa</th>
+<th>setup (s)</th>
+<th>median solve (s)</th>
+<th>single RHS total (s)</th>
+<th>modeled 20 RHS (s)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>none</td>
+<td>124</td>
+<td>0</td>
+<td>9.979e-09</td>
+<td>7.168e-09</td>
+<td>6.806e+02</td>
+<td>6.000e-07</td>
+<td>1.628e-03</td>
+<td>1.628e-03</td>
+<td>3.255e-02</td>
+</tr>
+<tr class="even">
+<td>1</td>
+<td>jacobi</td>
+<td>124</td>
+<td>0</td>
+<td>9.979e-09</td>
+<td>7.168e-09</td>
+<td>6.806e+02</td>
+<td>2.480e-05</td>
+<td>1.736e-03</td>
+<td>1.761e-03</td>
+<td>3.475e-02</td>
+</tr>
+<tr class="odd">
+<td>1</td>
+<td>x-line</td>
+<td>98</td>
+<td>0</td>
+<td>9.275e-09</td>
+<td>8.116e-09</td>
+<td>3.408e+02</td>
+<td>1.665e-04</td>
+<td>2.251e-03</td>
+<td>2.418e-03</td>
+<td>4.519e-02</td>
+</tr>
+<tr class="even">
+<td>100</td>
+<td>none</td>
+<td>238</td>
+<td>0</td>
+<td>9.539e-09</td>
+<td>1.326e-08</td>
+<td>6.806e+02</td>
+<td>4.000e-07</td>
+<td>3.112e-03</td>
+<td>3.112e-03</td>
+<td>6.224e-02</td>
+</tr>
+<tr class="odd">
+<td>100</td>
+<td>jacobi</td>
+<td>238</td>
+<td>0</td>
+<td>9.539e-09</td>
+<td>1.326e-08</td>
+<td>6.806e+02</td>
+<td>2.000e-05</td>
+<td>3.298e-03</td>
+<td>3.318e-03</td>
+<td>6.598e-02</td>
+</tr>
+<tr class="even">
+<td>100</td>
+<td>x-line</td>
+<td>24</td>
+<td>0</td>
+<td>7.818e-09</td>
+<td>1.823e-08</td>
+<td>7.729e+00</td>
+<td>1.531e-04</td>
+<td>5.645e-04</td>
+<td>7.176e-04</td>
+<td>1.144e-02</td>
+</tr>
+<tr class="odd">
+<td>10000</td>
+<td>none</td>
+<td>122</td>
+<td>0</td>
+<td>8.915e-09</td>
+<td>1.357e-08</td>
+<td>6.806e+02</td>
+<td>3.000e-07</td>
+<td>1.610e-03</td>
+<td>1.610e-03</td>
+<td>3.220e-02</td>
+</tr>
+<tr class="even">
+<td>10000</td>
+<td>jacobi</td>
+<td>122</td>
+<td>0</td>
+<td>8.915e-09</td>
+<td>1.357e-08</td>
+<td>6.806e+02</td>
+<td>1.540e-05</td>
+<td>1.699e-03</td>
+<td>1.714e-03</td>
+<td>3.399e-02</td>
+</tr>
+<tr class="odd">
+<td>10000</td>
+<td>x-line</td>
+<td>5</td>
+<td>0</td>
+<td>6.091e-10</td>
+<td>1.535e-09</td>
+<td>1.068e+00</td>
+<td>1.353e-04</td>
+<td>1.258e-04</td>
+<td>2.611e-04</td>
+<td>2.651e-03</td>
+</tr>
+</tbody>
+</table>
+</div>
+<section id="what-the-results-show" class="level3 cell-output cell-output-display cell-output-markdown">
+<h3 class="anchored" data-anchor-id="what-the-results-show">What the results show</h3>
+<ul>
+<li>At alpha=1e4, x-line CG used 5 iterations versus 122 without preconditioning, a reduction of 95.9%.</li>
+<li>Jacobi and plain CG have the same spectrum up to division by one positive scalar. Their condition numbers are equal, and their measured iterations are equal here; scalar scaling cannot improve the conditioning.</li>
+<li>At alpha=1e4, measured x-line setup took 1.353e-04 s and its median solve took 1.258e-04 s; plain CG had no setup and took 1.610e-03 s. These measurements show whether the additional line work paid off on this machine; do not generalize small timings into a hardware-independent speedup.</li>
+<li>The modeled 20-RHS total assumes the same setup can be reused and each right-hand side has the measured median solve cost; it is a cost model, not a measured batched workload. Reuse amortizes setup over more right-hand sides.</li>
+<li>Plain-CG iterations across increasing alpha were [124, 238, 122]. Yet the condition number is exactly independent of alpha on this square grid: the smallest and largest eigenvalues are (alpha+1)<em>tau_1 and (alpha+1)</em>tau_n.&nbsp;Iterations can still change because CG responds to the full eigenvalue distribution and to how the initial residual projects onto its eigenvectors, not just the extreme ratio.</li>
+</ul>
+</section>
+</div>
+</section>
+<section id="solution-and-diagnostic-plots" class="level2">
+<h2 class="anchored" data-anchor-id="solution-and-diagnostic-plots">5. Solution and diagnostic plots</h2>
+<p>Create: 1. Semilog true-residual histories for the three configurations, one panel per alpha. 2. Normalized spectral distributions for A, Jacobi, and x-line preconditioning at alpha = 1e4. Use the same axes for comparable distributions. 3. Setup and solve time comparison, plus the modeled K = 20 reuse cost. Label the cost model distinctly from measured timings.</p>
+<p>An optional 2D solution plot can check array ordering. It is not a CFD validation plot. Distinguish residual histories (instrumented) from timing runs (uninstrumented).</p>
+<div id="45c849c5" class="cell" data-execution_count="11">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot one: compare instrumented, independently recomputed residuals.</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co"># These histories include an extra matrix-vector product per callback and</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co"># therefore are intentionally not the timing runs shown in plot three.</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="bu">len</span>(ALPHAS), figsize<span class="op">=</span>(<span class="dv">16</span>, <span class="fl">4.5</span>), sharey<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax, alpha <span class="kw">in</span> <span class="bu">zip</span>(axes, ALPHAS):</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> kind <span class="kw">in</span> SOLVER_KINDS:</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>        result <span class="op">=</span> find_result(alpha, kind)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>        safe_history <span class="op">=</span> np.maximum(result[<span class="st">"residual_history"</span>], np.finfo(<span class="bu">float</span>).tiny)</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>        ax.semilogy(np.arange(<span class="bu">len</span>(safe_history)), safe_history, label<span class="op">=</span>kind)</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    ax.set_title(<span class="ss">f"alpha = </span><span class="sc">{</span>alpha<span class="sc">:g}</span><span class="ss">"</span>)</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    ax.set_xlabel(<span class="st">"CG iteration"</span>)</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    ax.grid(<span class="va">True</span>, which<span class="op">=</span><span class="st">"both"</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_ylabel(<span class="st">"true relative residual"</span>)</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>axes[<span class="op">-</span><span class="dv">1</span>].legend()</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>fig.suptitle(<span class="st">"True-residual histories (diagnostic solves)"</span>)</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot two: show normalized analytic eigenvalue distributions at the most</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a><span class="co"># anisotropic setting. Shared logarithmic bins make the clustering visible.</span></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>high_alpha_spectra <span class="op">=</span> {</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>    kind: find_result(<span class="fl">10000.0</span>, kind)[<span class="st">"eigenvalues"</span>] <span class="cf">for</span> kind <span class="kw">in</span> SOLVER_KINDS</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>normalized_spectra <span class="op">=</span> {</span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>    kind: values <span class="op">/</span> np.mean(values) <span class="cf">for</span> kind, values <span class="kw">in</span> high_alpha_spectra.items()</span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>all_normalized <span class="op">=</span> np.concatenate(<span class="bu">list</span>(normalized_spectra.values()))</span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>spectrum_bins <span class="op">=</span> np.logspace(</span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>    np.log10(all_normalized.<span class="bu">min</span>()), np.log10(all_normalized.<span class="bu">max</span>()), <span class="dv">65</span></span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">5</span>))</span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> kind, values <span class="kw">in</span> normalized_spectra.items():</span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>    ax.hist(values, bins<span class="op">=</span>spectrum_bins, histtype<span class="op">=</span><span class="st">"step"</span>, linewidth<span class="op">=</span><span class="fl">1.8</span>,</span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>            density<span class="op">=</span><span class="va">True</span>, label<span class="op">=</span>kind)</span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a>ax.set_xscale(<span class="st">"log"</span>)</span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"eigenvalue / mean eigenvalue"</span>)</span>
+<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"density"</span>)</span>
+<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Analytic spectra at alpha = 1e4 (normalized)"</span>)</span>
+<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a>ax.legend()</span>
+<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot three: keep setup, per-solve time, and reuse totals distinct. The</span></span>
+<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a><span class="co"># second panel uses log scale because setup and solve costs can differ greatly.</span></span>
+<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a>labels <span class="op">=</span> [<span class="ss">f"</span><span class="sc">{</span>item[<span class="st">'alpha'</span>]<span class="sc">:g}</span><span class="ch">\n</span><span class="sc">{</span>item[<span class="st">'kind'</span>]<span class="sc">}</span><span class="ss">"</span> <span class="cf">for</span> item <span class="kw">in</span> results]</span>
+<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> np.arange(<span class="bu">len</span>(results))</span>
+<span id="cb7-46"><a href="#cb7-46" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">16</span>, <span class="dv">5</span>))</span>
+<span id="cb7-47"><a href="#cb7-47" aria-hidden="true" tabindex="-1"></a>width <span class="op">=</span> <span class="fl">0.38</span></span>
+<span id="cb7-48"><a href="#cb7-48" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].bar(x <span class="op">-</span> width <span class="op">/</span> <span class="dv">2</span>, [item[<span class="st">"setup_s"</span>] <span class="cf">for</span> item <span class="kw">in</span> results],</span>
+<span id="cb7-49"><a href="#cb7-49" aria-hidden="true" tabindex="-1"></a>            width, label<span class="op">=</span><span class="st">"setup"</span>)</span>
+<span id="cb7-50"><a href="#cb7-50" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].bar(x <span class="op">+</span> width <span class="op">/</span> <span class="dv">2</span>, [item[<span class="st">"median_solve_s"</span>] <span class="cf">for</span> item <span class="kw">in</span> results],</span>
+<span id="cb7-51"><a href="#cb7-51" aria-hidden="true" tabindex="-1"></a>            width, label<span class="op">=</span><span class="st">"median solve"</span>)</span>
+<span id="cb7-52"><a href="#cb7-52" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_title(<span class="st">"Measured setup and solve costs"</span>)</span>
+<span id="cb7-53"><a href="#cb7-53" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_ylabel(<span class="st">"seconds"</span>)</span>
+<span id="cb7-54"><a href="#cb7-54" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_xticks(x, labels, rotation<span class="op">=</span><span class="dv">45</span>, ha<span class="op">=</span><span class="st">"right"</span>)</span>
+<span id="cb7-55"><a href="#cb7-55" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].legend()</span>
+<span id="cb7-56"><a href="#cb7-56" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].bar(x <span class="op">-</span> width <span class="op">/</span> <span class="dv">2</span>, [item[<span class="st">"single_rhs_total_s"</span>] <span class="cf">for</span> item <span class="kw">in</span> results],</span>
+<span id="cb7-57"><a href="#cb7-57" aria-hidden="true" tabindex="-1"></a>            width, label<span class="op">=</span><span class="st">"setup + one solve"</span>)</span>
+<span id="cb7-58"><a href="#cb7-58" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].bar(x <span class="op">+</span> width <span class="op">/</span> <span class="dv">2</span>, [item[<span class="st">"modeled_20_rhs_s"</span>] <span class="cf">for</span> item <span class="kw">in</span> results],</span>
+<span id="cb7-59"><a href="#cb7-59" aria-hidden="true" tabindex="-1"></a>            width, label<span class="op">=</span><span class="st">"modeled setup + 20 solves"</span>)</span>
+<span id="cb7-60"><a href="#cb7-60" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].set_yscale(<span class="st">"log"</span>)</span>
+<span id="cb7-61"><a href="#cb7-61" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].set_title(<span class="st">"Measured single-RHS and modeled reuse costs"</span>)</span>
+<span id="cb7-62"><a href="#cb7-62" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].set_ylabel(<span class="st">"seconds (log scale)"</span>)</span>
+<span id="cb7-63"><a href="#cb7-63" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].set_xticks(x, labels, rotation<span class="op">=</span><span class="dv">45</span>, ha<span class="op">=</span><span class="st">"right"</span>)</span>
+<span id="cb7-64"><a href="#cb7-64" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].legend()</span>
+<span id="cb7-65"><a href="#cb7-65" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()</span>
+<span id="cb7-66"><a href="#cb7-66" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="20261007-cg-line-preconditioning_files/figure-html/cell-6-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="20261007-cg-line-preconditioning_files/figure-html/cell-6-output-2.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="20261007-cg-line-preconditioning_files/figure-html/cell-6-output-3.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="automatic-checks" class="level2">
+<h2 class="anchored" data-anchor-id="automatic-checks">6. Automatic checks</h2>
+<p>Assert A shape is (1600,1600), its entries are finite, it is symmetric, and its number of nonzeros is &lt;= 5<em>N</em>N. Test positive quadratic forms on seeded random vectors and support positive definiteness with an analytic argument, not random tests alone.</p>
+<p>For each preconditioner test vector r, check the inverse action against the intended P: norm(P M r-r)/norm(r) &lt; 1e-11. Build P only for this sparse check if convenient; never build its inverse.</p>
+<p>Require info = 0, true relative residual &lt;= 2e-8, and relative direct-reference difference &lt;= 1e-5 for every solve. Check that all diagonals of A are equal and that Jacobi preserves the spectral condition number to relative tolerance 1e-12. At alpha = 1e4 require x-line iteration count &lt; 0.5 times plain CG iterations. Do not demand exactly equal plain/Jacobi iteration counts across machines because finite-precision paths can differ.</p>
+<p>Do not assert a timing ratio: tiny cases can be dominated by overhead. If a line-action check fails, inspect reshape direction, transpose, and h-squared scaling before weakening tolerances.</p>
+<div id="f2420fe4" class="cell" data-execution_count="12">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Check matrix structure and the analytic SPD conditions for each alpha.</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> alpha <span class="kw">in</span> ALPHAS:</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    A_alpha <span class="op">=</span> systems[alpha][<span class="st">"A"</span>]</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> A_alpha.shape <span class="op">==</span> (N <span class="op">*</span> N, N <span class="op">*</span> N)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> np.isfinite(A_alpha.data).<span class="bu">all</span>()</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> (A_alpha <span class="op">-</span> A_alpha.T).nnz <span class="op">==</span> <span class="dv">0</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> A_alpha.nnz <span class="op">&lt;=</span> <span class="dv">5</span> <span class="op">*</span> N <span class="op">*</span> N</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> np.allclose(A_alpha.diagonal(), A_alpha.diagonal()[<span class="dv">0</span>])</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Random positive quadratic forms are a numerical smoke test; the</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># mathematical SPD argument is that T has strictly positive eigenvalues</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># and alpha&gt;0, so every separable eigenvalue is positive.</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> seed <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">3</span>):</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>        probe <span class="op">=</span> np.random.default_rng(seed).standard_normal(N <span class="op">*</span> N)</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>        <span class="cf">assert</span> probe <span class="op">@</span> (A_alpha <span class="op">@</span> probe) <span class="op">&gt;</span> <span class="fl">0.0</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Test every inverse action against the exact sparse matrix P it represents.</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a><span class="co"># P is constructed only for this verification; its inverse is never formed.</span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>probe <span class="op">=</span> np.random.default_rng(<span class="dv">123</span>).standard_normal(N <span class="op">*</span> N)</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> alpha <span class="kw">in</span> ALPHAS:</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>    system <span class="op">=</span> systems[alpha]</span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>    A_alpha, T_alpha, h_alpha <span class="op">=</span> system[<span class="st">"A"</span>], system[<span class="st">"T"</span>], system[<span class="st">"h"</span>]</span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>    I <span class="op">=</span> eye(N, <span class="bu">format</span><span class="op">=</span><span class="st">"csr"</span>)</span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> kind <span class="kw">in</span> SOLVER_KINDS:</span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>        M, _ <span class="op">=</span> build_preconditioner(A_alpha, T_alpha, h_alpha, alpha, kind)</span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> kind <span class="op">==</span> <span class="st">"none"</span>:</span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>            P <span class="op">=</span> eye(N <span class="op">*</span> N, <span class="bu">format</span><span class="op">=</span><span class="st">"csr"</span>)</span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>            applied <span class="op">=</span> probe</span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>        <span class="cf">elif</span> kind <span class="op">==</span> <span class="st">"jacobi"</span>:</span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>            P <span class="op">=</span> diags(A_alpha.diagonal(), <span class="bu">format</span><span class="op">=</span><span class="st">"csr"</span>)</span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>            applied <span class="op">=</span> M <span class="op">@</span> probe</span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>            B_line <span class="op">=</span> alpha <span class="op">*</span> T_alpha <span class="op">+</span> <span class="fl">2.0</span> <span class="op">*</span> I</span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>            P <span class="op">=</span> kron(I, B_line, <span class="bu">format</span><span class="op">=</span><span class="st">"csr"</span>) <span class="op">/</span> h_alpha<span class="op">**</span><span class="dv">2</span></span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a>            applied <span class="op">=</span> M <span class="op">@</span> probe</span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>        relative_action_error <span class="op">=</span> np.linalg.norm(P <span class="op">@</span> applied <span class="op">-</span> probe) <span class="op">/</span> np.linalg.norm(probe)</span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>        <span class="cf">assert</span> relative_action_error <span class="op">&lt;</span> <span class="fl">1e-11</span>, (alpha, kind, relative_action_error)</span>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a><span class="co"># Jacobi divides by one constant, so its condition number must match A's.</span></span>
+<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a>plain_condition_numbers <span class="op">=</span> []</span>
+<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> alpha <span class="kw">in</span> ALPHAS:</span>
+<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a>    plain_kappa <span class="op">=</span> find_result(alpha, <span class="st">"none"</span>)[<span class="st">"condition_number"</span>]</span>
+<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a>    jacobi_kappa <span class="op">=</span> find_result(alpha, <span class="st">"jacobi"</span>)[<span class="st">"condition_number"</span>]</span>
+<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a>    plain_condition_numbers.append(plain_kappa)</span>
+<span id="cb8-45"><a href="#cb8-45" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="bu">abs</span>(jacobi_kappa <span class="op">/</span> plain_kappa <span class="op">-</span> <span class="fl">1.0</span>) <span class="op">&lt;=</span> <span class="fl">1e-12</span></span>
+<span id="cb8-46"><a href="#cb8-46" aria-hidden="true" tabindex="-1"></a><span class="co"># Equal x/y resolution makes the alpha-dependent scale cancel exactly in</span></span>
+<span id="cb8-47"><a href="#cb8-47" aria-hidden="true" tabindex="-1"></a><span class="co"># lambda_max/lambda_min, so the unpreconditioned kappa is constant here.</span></span>
+<span id="cb8-48"><a href="#cb8-48" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> np.allclose(plain_condition_numbers, plain_condition_numbers[<span class="dv">0</span>], rtol<span class="op">=</span><span class="fl">1e-12</span>)</span>
+<span id="cb8-49"><a href="#cb8-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-50"><a href="#cb8-50" aria-hidden="true" tabindex="-1"></a><span class="co"># Independently recompute the solution checks instead of trusting info alone.</span></span>
+<span id="cb8-51"><a href="#cb8-51" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> result <span class="kw">in</span> results:</span>
+<span id="cb8-52"><a href="#cb8-52" aria-hidden="true" tabindex="-1"></a>    A_alpha, b <span class="op">=</span> result[<span class="st">"A"</span>], result[<span class="st">"b"</span>]</span>
+<span id="cb8-53"><a href="#cb8-53" aria-hidden="true" tabindex="-1"></a>    independent_residual <span class="op">=</span> np.linalg.norm(b <span class="op">-</span> A_alpha <span class="op">@</span> result[<span class="st">"solution"</span>]) <span class="op">/</span> np.linalg.norm(b)</span>
+<span id="cb8-54"><a href="#cb8-54" aria-hidden="true" tabindex="-1"></a>    independent_difference <span class="op">=</span> (</span>
+<span id="cb8-55"><a href="#cb8-55" aria-hidden="true" tabindex="-1"></a>        np.linalg.norm(result[<span class="st">"solution"</span>] <span class="op">-</span> result[<span class="st">"reference"</span>])</span>
+<span id="cb8-56"><a href="#cb8-56" aria-hidden="true" tabindex="-1"></a>        <span class="op">/</span> np.linalg.norm(result[<span class="st">"reference"</span>])</span>
+<span id="cb8-57"><a href="#cb8-57" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb8-58"><a href="#cb8-58" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> result[<span class="st">"info"</span>] <span class="op">==</span> <span class="dv">0</span>, (result[<span class="st">"alpha"</span>], result[<span class="st">"kind"</span>], result[<span class="st">"info"</span>])</span>
+<span id="cb8-59"><a href="#cb8-59" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> independent_residual <span class="op">&lt;=</span> <span class="fl">2e-8</span>, (result[<span class="st">"alpha"</span>], result[<span class="st">"kind"</span>], independent_residual)</span>
+<span id="cb8-60"><a href="#cb8-60" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> independent_difference <span class="op">&lt;=</span> <span class="fl">1e-5</span>, (result[<span class="st">"alpha"</span>], result[<span class="st">"kind"</span>], independent_difference)</span>
+<span id="cb8-61"><a href="#cb8-61" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> np.isclose(independent_residual, result[<span class="st">"true_relative_residual"</span>], rtol<span class="op">=</span><span class="fl">1e-12</span>)</span>
+<span id="cb8-62"><a href="#cb8-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-63"><a href="#cb8-63" aria-hidden="true" tabindex="-1"></a><span class="co"># This requested performance target verifies the intended directional block.</span></span>
+<span id="cb8-64"><a href="#cb8-64" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> find_result(<span class="fl">10000.0</span>, <span class="st">"x-line"</span>)[<span class="st">"iterations"</span>] <span class="op">&lt;</span> <span class="fl">0.5</span> <span class="op">*</span> find_result(<span class="fl">10000.0</span>, <span class="st">"none"</span>)[<span class="st">"iterations"</span>]</span>
+<span id="cb8-65"><a href="#cb8-65" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"All structural, inverse-action, convergence, reference, and iteration checks passed."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>All structural, inverse-action, convergence, reference, and iteration checks passed.</code></pre>
+</div>
+</div>
+</section>
+<section id="discussion-and-next-steps" class="level2">
+<h2 class="anchored" data-anchor-id="discussion-and-next-steps">7. Discussion and next steps</h2>
+<p>Explain briefly: 1. Why does constant-diagonal Jacobi fail to remove the difficult coupling? Give a spectral argument. 2. Why can systems with the same condition number produce different CG iteration counts? 3. What cost can erase the advantage of fewer iterations? How does preconditioner reuse change the comparison? 4. When would CG be inappropriate for Titan’s nonsymmetric compressible-flow Jacobian? What requirements on A and P mattered today? 5. Which x-line work is parallel, and what happens if a line crosses MPI partitions? How would you separate preconditioner setup, apply, and monitoring interfaces?</p>
+<section id="discussion-answers" class="level3">
+<h3 class="anchored" data-anchor-id="discussion-answers">Discussion answers</h3>
+<ol type="1">
+<li><strong>Jacobi only changes scale here.</strong> Every diagonal of <span class="math inline">\(A\)</span> is <span class="math inline">\(2(\alpha+1)/h^2\)</span>, so <span class="math inline">\(P_J=cI\)</span> for a positive scalar <span class="math inline">\(c\)</span>. The symmetrically preconditioned matrix is <span class="math inline">\(P_J^{-1/2}AP_J^{-1/2}=A/c\)</span>: all eigenvalues receive the same scaling, leaving their largest-to-smallest ratio unchanged. It cannot capture or remove the horizontal off-diagonal couplings.</li>
+<li><strong>Condition number is not the whole spectrum.</strong> CG convergence also depends on where eigenvalues cluster and on the initial residual’s components in the eigenvectors. Two matrices can share the same extreme eigenvalue ratio but have different clusters or different right-hand-side projections, and so converge in different numbers of iterations. Here the unpreconditioned condition number stays constant across <span class="math inline">\(\alpha\)</span>, while the measured iteration counts vary.</li>
+<li><strong>Setup and application have costs.</strong> A preconditioner can reduce matrix-vector products yet lose wall time if each preconditioner application is expensive or its factorization setup is large. The line factorization is a one-time setup for this fixed <span class="math inline">\(\alpha\)</span>; reusing it for multiple right-hand sides spreads that cost over solves. The reported 20-right-hand-side figure is the explicitly labeled cost model, not a batch benchmark.</li>
+<li><strong>Ordinary CG is not appropriate for a general nonsymmetric Jacobian.</strong> This method relies on <span class="math inline">\(A\)</span> being symmetric positive definite, and standard PCG additionally needs an SPD preconditioner applied consistently as an inverse action. A nonsymmetric, indefinite, or changing Jacobian violates those assumptions; a nonsymmetric Krylov method such as GMRES is often a better starting point, with the actual choice depending on memory and preconditioner properties.</li>
+<li><strong>Lines are independent in this block-Jacobi approximation.</strong> Each horizontal line solve can be performed independently (and the same line factor is reused), while the solve within a line is coupled. If a line crosses MPI partitions, the full line solve needs data from multiple ranks and communication; using only each rank’s local segment changes the preconditioner and may weaken it. A clean implementation separates one-time setup/factorization, repeated inverse application, and optional monitoring (such as residual recomputation), so monitoring overhead is not confused with solve cost.</li>
+</ol>
+</section>
+<section id="scope-and-limitations" class="level3">
+<h3 class="anchored" data-anchor-id="scope-and-limitations">Scope and limitations</h3>
+<p>This is a fixed, structured SPD algebraic problem, not a physical accuracy or mesh-error study. The ideal line preconditioner depends on alignment between strong coupling and block direction. Small CPU timings cannot establish GPU or distributed scalability. Do not interpret a left-preconditioned matrix’s Euclidean condition number as the SPD spectral quantity without checking the appropriate inner product.</p>
+</section>
+<section id="further-work" class="level3">
+<h3 class="anchored" data-anchor-id="further-work">Further work</h3>
+<p><strong>Optional stretch:</strong> Build the y-line preconditioner P_Y = h^-2 [T tensor I + 2 alpha I tensor I]. At alpha = 1e4, predict and measure what happens when blocks are aligned with the weak direction. Keep n, b, and stopping criteria unchanged. Alternatively, implement the PCG recurrence yourself and compare true-residual histories with SciPy.</p>
+</section>
+<section id="references" class="level3">
+<h3 class="anchored" data-anchor-id="references">References</h3>
+<ul>
+<li><strong>Dedicated project reference:</strong> Jonathan Richard Shewchuk, <em>An Introduction to the Conjugate Gradient Method Without the Agonizing Pain</em>, August 4, 1994, Carnegie Mellon University. <a href="https://www.cs.cmu.edu/~quake-papers/painless-conjugate-gradient.pdf">Author-hosted PDF</a>. Focus on sections 9, 11, and 12, particularly preconditioning and stopping.</li>
+<li><strong>API support:</strong> <a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.linalg.cg.html">SciPy cg documentation</a>, including SPD requirements, M as an inverse action, callback signature, and stopping rule. Use a SciPy version supporting rtol/atol and record its version.</li>
+<li><strong>One research paper to read:</strong> Tianyu Liang, Chao Chen, Yotam Yaniv, Hengrui Luo, David Tench, Xiaoye S. Li, Aydin Buluc, James Demmel, and Jie Chen. <em>Tackling Parallelization Challenges of Randomized Preconditioners With Dependency Tracking</em>. arXiv:2505.02977v3, revised September 7, 2026. <a href="https://arxiv.org/abs/2505.02977v3">Paper</a>. Read the motivation and CPU/GPU performance tables, focusing on setup versus iterative solve cost. You are not implementing ParAC in this notebook.</li>
+</ul>
+
+
+</section>
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const cellDetails = window.document.querySelectorAll(".cell details.code-fold");
+        for (let i=0; i<cellDetails.length; i++) {
+          const details = cellDetails[i];
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell div.sourceCode.cell-code");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/josh-fowler-hub\.github\.io\/daily-learning\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>Josh Fowler · Computational Engineering</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    </div>
+    <div class="nav-footer-right">
+      <ul class="footer-items list-unstyled">
+    <li class="nav-item">
+    <a class="nav-link" href="https://josh-fowler-hub.github.io/">
+<p>Portfolio</p>
+</a>
+  </li>  
+</ul>
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

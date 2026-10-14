@@ -23,6 +23,7 @@
   "20261006-advection-cfl-conservation.ipynb": {
     "20261006-advection-cfl-conservation.html": "bd27570e"
   },
+<<<<<<< HEAD
   "20261012-discrete-adjoint-control.ipynb": {
     "20261012-discrete-adjoint-control.html": "5270e3bb"
   },
@@ -34,5 +35,12 @@
   },
   "20261009-natural-circulation-transient.ipynb": {
     "20261009-natural-circulation-transient.html": "3eccd663"
+=======
+  "20261007-cg-line-preconditioning.ipynb": {
+    "20261007-cg-line-preconditioning.html": "c36dbd6e"
+  },
+  "20261008-aos-vs-soa-flux-kernel.ipynb": {
+    "20261008-aos-vs-soa-flux-kernel.html": "9d7baf5d"
+>>>>>>> 9db5e18d585fbb37b9e9f41052b2a77abb0291fc
   }
 }
