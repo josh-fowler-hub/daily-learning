@@ -1,7 +1,6 @@
 project:
   type: website
   output-dir: docs
-  resources:
 
 website:
   title: "Daily Learning & Refreshers"

@@ -37,5 +37,92 @@
   },
   "20261015-halo-overlap-scaling.ipynb": {
     "20261015-halo-overlap-scaling.html": "a9064e8a"
+  },
+  "20260929-notebook-workflow.ipynb": {
+    "20260929-notebook-workflow.html": "eef9aae4"
+  },
+  "20261015-function-plot-consolidation.ipynb": {
+    "20261015-function-plot-consolidation.html": "7bf3fcef"
+  },
+  "20261009-calculation-review.ipynb": {
+    "20261009-calculation-review.html": "230e1e8d"
+  },
+  "archive/20261002-heat-balance-uncertainty.ipynb": {
+    "20261002-heat-balance-uncertainty.html": "0bfb94b4"
+  },
+  "archive/20261012-discrete-adjoint-control.ipynb": {
+    "20261012-discrete-adjoint-control.html": "e7d47794"
+  },
+  "archive/20261006-advection-cfl-conservation.ipynb": {
+    "20261006-advection-cfl-conservation.html": "4ccf8388"
+  },
+  "archive/20261014-characteristic-weno-z.ipynb": {
+    "20261014-characteristic-weno-z.html": "bed2b633"
+  },
+  "archive/20261013-partitioned-cht-coupling.ipynb": {
+    "20261013-partitioned-cht-coupling.html": "c815bd3e"
+  },
+  "archive/20260930-solver-error.ipynb": {
+    "20260930-solver-error.html": "2f43c201"
+  },
+  "archive/20261009-natural-circulation-transient.ipynb": {
+    "20261009-natural-circulation-transient.html": "ff5a0986"
+  },
+  "archive/20261005-grid-convergence-and-discretization-uncertainty.ipynb": {
+    "20261005-grid-convergence-and-discretization-uncertainty.html": "024fac3a"
+  },
+  "archive/20261008-aos-vs-soa-flux-kernel.ipynb": {
+    "20261008-aos-vs-soa-flux-kernel.html": "3ff7d76f"
+  },
+  "archive/20260929-verify-heat-conduction.ipynb": {
+    "20260929-verify-heat-conduction.html": "71c7f223"
+  },
+  "archive/20261007-cg-line-preconditioning.ipynb": {
+    "20261007-cg-line-preconditioning.html": "ab8a638e"
+  },
+  "archive/20261001-estimate-mesh-error.ipynb": {
+    "20261001-estimate-mesh-error.html": "36483455"
+  },
+  "archive/20261015-halo-overlap-scaling.ipynb": {
+    "20261015-halo-overlap-scaling.html": "58280164"
+  },
+  "20261008-distance-consolidation.ipynb": {
+    "20261008-distance-consolidation.html": "d52f232b"
+  },
+  "20260930-mathematical-statements.ipynb": {
+    "20260930-mathematical-statements.html": "e501f7e0"
+  },
+  "index.qmd": {
+    "index.html": "8ead7c7a"
+  },
+  "20261013-function-value-tables.ipynb": {
+    "20261013-function-value-tables.html": "d43c121d"
+  },
+  "20261001-quantities-symbols-units.ipynb": {
+    "20261001-quantities-symbols-units.html": "874b3746"
+  },
+  "20261014-graphs-axes-slope.ipynb": {
+    "20261014-graphs-axes-slope.html": "5f437479"
+  },
+  "CSE-Aerospace-Course-Plan.md": {
+    "CSE-Aerospace-Course-Plan.html": "0ebd5205"
+  },
+  "20261005-expressions-and-operations.ipynb": {
+    "20261005-expressions-and-operations.html": "ef1bf1b0"
+  },
+  "20261006-units-and-dimensions.ipynb": {
+    "20261006-units-and-dimensions.html": "b9ee5a8b"
+  },
+  "20261002-computational-question-review.ipynb": {
+    "20261002-computational-question-review.html": "315a3035"
+  },
+  "20261007-variables-and-quantities.ipynb": {
+    "20261007-variables-and-quantities.html": "d3bde2b4"
+  },
+  "problem-template.ipynb": {
+    "problem-template.html": "cee5bd63"
+  },
+  "20261012-functions-input-output.ipynb": {
+    "20261012-functions-input-output.html": "3b3d931e"
   }
 }

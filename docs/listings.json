@@ -2,21 +2,19 @@
   {
     "listing": "/index.html",
     "items": [
-<<<<<<< HEAD
-      "/20261014-characteristic-weno-z.html",
-      "/20261013-partitioned-cht-coupling.html",
-      "/20261012-discrete-adjoint-control.html",
-      "/20261009-natural-circulation-transient.html",
-=======
-      "/20261008-aos-vs-soa-flux-kernel.html",
-      "/20261007-cg-line-preconditioning.html",
->>>>>>> 9db5e18d585fbb37b9e9f41052b2a77abb0291fc
-      "/20261006-advection-cfl-conservation.html",
-      "/20261005-grid-convergence-and-discretization-uncertainty.html",
-      "/20261002-heat-balance-uncertainty.html",
-      "/20261001-estimate-mesh-error.html",
-      "/20260930-solver-error.html",
-      "/20260929-verify-heat-conduction.html"
+      "/20261015-function-plot-consolidation.html",
+      "/20261014-graphs-axes-slope.html",
+      "/20261013-function-value-tables.html",
+      "/20261012-functions-input-output.html",
+      "/20261009-calculation-review.html",
+      "/20261008-distance-consolidation.html",
+      "/20261007-variables-and-quantities.html",
+      "/20261006-units-and-dimensions.html",
+      "/20261005-expressions-and-operations.html",
+      "/20261002-computational-question-review.html",
+      "/20261001-quantities-symbols-units.html",
+      "/20260930-mathematical-statements.html",
+      "/20260929-notebook-workflow.html"
     ]
   }
 ]
