@@ -82,7 +82,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-6c0ad46e1861a38265c10768182fb462.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-dad9a4322ad7fa4720762ae757f50ef1.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="dark">
+<link href="site_libs/bootstrap/bootstrap-0a289de8f5facb2eb205fb6a6c1f6796.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="dark">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -255,7 +255,7 @@ window.Quarto = {
 <p><strong>Learning goal:</strong> Demonstrate second-order grid convergence of a 1D Poisson solver, estimate uncertainty in a scalar output without using the exact answer, and then audit that estimate against the known solution.</p>
 <p>This is a synthetic, dimensionless verification problem. A converged algebraic residual can coexist with substantial discretization error.</p>
 <p><strong>Targets:</strong> Last two error-based orders in [1.9, 2.1]; decreasing field errors; finest-grid relative residual below <span class="math inline">\(10^{-10}\)</span>; fine-grid GCI below 0.1%; and comparison of the GCI estimate with the actual scalar error.</p>
-<p>Use a Python kernel with NumPy, SciPy, and Matplotlib. The notebook is an assignment: implementation cells intentionally contain TODOs and are not a completed solver. Complete them before running the whole notebook.</p>
+<p>Use a Python kernel with NumPy, SciPy, and Matplotlib.</p>
 <p><strong>Notation:</strong> <span class="math inline">\(N\)</span> is the number of intervals, <span class="math inline">\(h=1/N\)</span>, <span class="math inline">\(u_i\)</span> the numerical nodal solution, <span class="math inline">\(u_*(x)\)</span> the reference, and <span class="math inline">\(e_i=u_i-u_*(x_i)\)</span>. For three-grid estimates, subscripts 1, 2, 3 always mean fine, medium, coarse.</p>
 </section>
 <section id="governing-model-and-reference-solution" class="level2">
@@ -263,7 +263,7 @@ window.Quarto = {
 <p>Solve the steady, dimensionless diffusion problem <span class="math display">\[-u''(x)=f(x),\quad 0&lt;x&lt;1,\qquad u(0)=u(1)=0.\]</span> The diffusion coefficient is one. Choose the manufactured solution <span class="math display">\[u_*(x)=\sin(\pi x).\]</span></p>
 <p><strong>Task:</strong> Differentiate <span class="math inline">\(u_*\)</span> analytically and derive <span class="math inline">\(f\)</span> before assembling any discrete equations. Record your derivation here. Do not construct <span class="math inline">\(f\)</span> by applying the discrete operator to sampled <span class="math inline">\(u_*\)</span>: that would hide truncation error.</p>
 <p>Interpret <span class="math inline">\(u\)</span> as a scaled temperature or potential. All quantities in this notebook are dimensionless. The scalar engineering output is <span class="math inline">\(Q_h=u_h(0.5)\)</span>; all specified meshes contain that node. Derive <span class="math inline">\(Q_*=u_*(0.5)\)</span> independently.</p>
-<div id="3a442b3e" class="cell" data-execution_count="29">
+<div id="3a442b3e" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-15T18:49:01.240427Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-15T18:49:01.240350Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-15T18:49:01.456556Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-15T18:49:01.456268Z&quot;}}" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
@@ -294,7 +294,7 @@ window.Quarto = {
 <p><strong>Tasks:</strong> Assemble a sparse tridiagonal interior matrix, account for Dirichlet boundary values, solve with <code>spsolve</code>, and reconstruct the full nodal vector. Return the interior matrix and right-hand side for residual diagnostics. Avoid dense matrices.</p>
 <p>Explain why this interior matrix is symmetric positive definite and why its condition number grows under refinement. This is a steady elliptic solve: no explicit time-step CFL restriction applies.</p>
 <p>The API should separate assembly, solve, and diagnostics sufficiently to replace the linear solver later. A helper function for assembly is encouraged. Time assembly and solve separately if practical; one short timing is descriptive, not a scaling benchmark.</p>
-<div id="9152a3dd" class="cell" data-execution_count="30">
+<div id="9152a3dd" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-15T18:49:01.460704Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-15T18:49:01.460598Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-15T18:49:01.464118Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-15T18:49:01.463980Z&quot;}}" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> u_star(x):</span>
@@ -302,10 +302,10 @@ window.Quarto = {
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.sin(np.pi <span class="op">*</span> x)</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> solve_problem(parameters):</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Return a dict with x, u, A, b, assembly_s, and solve_s.</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Return a dict keyed by N with x, u, A, b, assembly_s, solve_s, and Q.</span></span>
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co">    resolution is the number of intervals N; A and b contain interior DOFs.</span></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co">    parameters may hold boundary values and the source callable.</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co">    N is the number of intervals; A and b contain the N-1 interior DOFs.</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co">    parameters holds boundary values and the source callable.</span></span>
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
 <span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    L <span class="op">=</span> parameters[<span class="st">'L'</span>]</span>
 <span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    k <span class="op">=</span> parameters[<span class="st">'k'</span>]</span>
@@ -313,19 +313,40 @@ window.Quarto = {
 <span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> N <span class="kw">in</span> parameters[<span class="st">'N_values'</span>]:</span>
 <span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>        h <span class="op">=</span> L <span class="op">/</span> N</span>
 <span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>        x <span class="op">=</span> np.linspace(<span class="dv">0</span>, L, N <span class="op">+</span> <span class="dv">1</span>)</span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>        A <span class="op">=</span> (k <span class="op">/</span> h<span class="op">**</span><span class="dv">2</span>) <span class="op">*</span> (<span class="dv">2</span> <span class="op">*</span> np.eye(N <span class="op">-</span> <span class="dv">1</span>)</span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>                                         <span class="op">-</span> np.eye(N <span class="op">-</span> <span class="dv">1</span>, k<span class="op">=</span><span class="dv">1</span>) <span class="op">-</span> np.eye(N <span class="op">-</span> <span class="dv">1</span>, k<span class="op">=-</span><span class="dv">1</span>))</span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>        b <span class="op">=</span> h<span class="op">**</span><span class="dv">2</span> <span class="op">*</span> parameters[<span class="st">'source'</span>](x[<span class="dv">1</span>:<span class="op">-</span><span class="dv">1</span>])</span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>        u <span class="op">=</span> np.linalg.solve(A, b)</span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>        results[N] <span class="op">=</span> {</span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>            <span class="st">'x'</span>: x,</span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>            <span class="st">'u'</span>: np.concatenate(([parameters[<span class="st">'u0'</span>]], u, [parameters[<span class="st">'uL'</span>]])),</span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>            <span class="st">'A'</span>: A,</span>
-<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>            <span class="st">'b'</span>: b,</span>
-<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>        }</span>
-<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> results</span>
-<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>results <span class="op">=</span> solve_problem(parameters)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>        t0 <span class="op">=</span> perf_counter()</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>        n_int <span class="op">=</span> N <span class="op">-</span> <span class="dv">1</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>        main_diag <span class="op">=</span> np.full(n_int, <span class="fl">2.0</span> <span class="op">*</span> k <span class="op">/</span> h<span class="op">**</span><span class="dv">2</span>)</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>        off_diag <span class="op">=</span> np.full(n_int <span class="op">-</span> <span class="dv">1</span>, <span class="op">-</span>k <span class="op">/</span> h<span class="op">**</span><span class="dv">2</span>)</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>        A <span class="op">=</span> diags([off_diag, main_diag, off_diag], offsets<span class="op">=</span>[<span class="op">-</span><span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>], <span class="bu">format</span><span class="op">=</span><span class="st">'csr'</span>)</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>        b <span class="op">=</span> parameters[<span class="st">'source'</span>](x[<span class="dv">1</span>:<span class="op">-</span><span class="dv">1</span>])</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>        assembly_s <span class="op">=</span> perf_counter() <span class="op">-</span> t0</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>        t0 <span class="op">=</span> perf_counter()</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>        u_interior <span class="op">=</span> spsolve(A, b)</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>        solve_s <span class="op">=</span> perf_counter() <span class="op">-</span> t0</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>        u <span class="op">=</span> np.concatenate(([parameters[<span class="st">'u0'</span>]], u_interior, [parameters[<span class="st">'uL'</span>]]))</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>        residual <span class="op">=</span> A <span class="op">@</span> u_interior <span class="op">-</span> b</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>        R <span class="op">=</span> np.linalg.norm(residual) <span class="op">/</span> np.linalg.norm(b)</span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>        i_mid <span class="op">=</span> N <span class="op">//</span> <span class="dv">2</span>  <span class="co"># N is a power of two, so x=0.5 is always a node</span></span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>        <span class="cf">assert</span> np.isclose(x[i_mid], <span class="fl">0.5</span>)</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>        results[N] <span class="op">=</span> {</span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>            <span class="st">'x'</span>: x,</span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>            <span class="st">'u'</span>: u,</span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>            <span class="st">'A'</span>: A,</span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>            <span class="st">'b'</span>: b,</span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>            <span class="st">'assembly_s'</span>: assembly_s,</span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>            <span class="st">'solve_s'</span>: solve_s,</span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>            <span class="st">'R'</span>: R,</span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>            <span class="st">'Q'</span>: u[i_mid],</span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> results</span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>results <span class="op">=</span> solve_problem(parameters)</span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>Q_star <span class="op">=</span> u_star(<span class="fl">0.5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 </section>
@@ -337,44 +358,67 @@ window.Quarto = {
 Q_{\rm ext}=Q_1+\frac{Q_1-Q_2}{r^{p_Q}-1}.\]</span> Estimate the fine-grid fractional GCI as <span class="math display">\[g_{12}=\frac{F_s |(Q_1-Q_2)/Q_1|}{r^{p_Q}-1},\qquad F_s=1.25.\]</span> Report <span class="math inline">\(100g_{12}\)</span> in percent and <span class="math inline">\(\delta Q_{\rm GCI}=g_{12}|Q_1|\)</span> in output units. Compare it with <span class="math inline">\(|Q_1-Q_*|\)</span> only after the estimate is formed. Do not substitute the known theoretical order into your primary GCI calculation.</p>
 <p>For an asymptotic diagnostic compute <span class="math inline">\(g_{23}\)</span> with the same <span class="math inline">\(p_Q\)</span> and <span class="math inline">\(F_s\)</span>, normalized by <span class="math inline">\(Q_2\)</span>, then inspect <span class="math inline">\(g_{23}/(r^{p_Q}g_{12})\)</span>. It should be near one, but this is only a consistency check: fitted three-grid ratios are not independent proof of asymptotic convergence. Compare both triplets and the exact-error trend.</p>
 <p>Reject or flag zero differences, oscillatory convergence, <span class="math inline">\(p_Q\leq0\)</span>, or tiny <span class="math inline">\(Q_1\)</span> instead of producing a misleading GCI. Residuals measure algebraic consistency; solution error also depends on conditioning and discretization. GCI is an estimate, not a guaranteed bound or a statistical confidence interval.</p>
-<div id="5832709d" class="cell" data-execution_count="31">
+<div id="5832709d" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-15T18:49:01.465681Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-15T18:49:01.465417Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-15T18:49:01.469038Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-15T18:49:01.468692Z&quot;}}" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> compute_errors(results):</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Compute errors and convergence rates for each mesh."""</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Compute field error norms and observed order for each mesh."""</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> N <span class="kw">in</span> results:</span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>        x <span class="op">=</span> results[N][<span class="st">'x'</span>]</span>
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>        u <span class="op">=</span> results[N][<span class="st">'u'</span>]</span>
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>        u_exact <span class="op">=</span> u_star(x)</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>        E2 <span class="op">=</span> np.sqrt(np.<span class="bu">sum</span>((u <span class="op">-</span> u_exact)<span class="op">**</span><span class="dv">2</span>) <span class="op">/</span> <span class="bu">len</span>(u))</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>        Einf <span class="op">=</span> np.<span class="bu">max</span>(np.<span class="bu">abs</span>(u <span class="op">-</span> u_exact))</span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>        results[N][<span class="st">'E2'</span>] <span class="op">=</span> E2</span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>        results[N][<span class="st">'Einf'</span>] <span class="op">=</span> Einf</span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Compute convergence rates p_E for adjacent pairs.</span></span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    N_sorted <span class="op">=</span> <span class="bu">sorted</span>(results.keys())</span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="bu">len</span>(N_sorted)):</span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>        N_coarse <span class="op">=</span> N_sorted[i <span class="op">-</span> <span class="dv">1</span>]</span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>        N_fine <span class="op">=</span> N_sorted[i]</span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>        E2_coarse <span class="op">=</span> results[N_coarse][<span class="st">'Einf'</span>]</span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>        E2_fine <span class="op">=</span> results[N_fine][<span class="st">'E2'</span>]</span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>        p_E2 <span class="op">=</span> np.log(E2_coarse <span class="op">/</span> E2_fine) <span class="op">/</span> np.log(<span class="dv">2</span>)</span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>        results[N_fine][<span class="st">'p_E2'</span>] <span class="op">=</span> p_E2</span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> results</span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>results <span class="op">=</span> compute_errors(results)</span>
-<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> three_grid_diagnostic(results, N_coarse, N_medium, N_fine):</span>
-<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Compute three-grid diagnostic for given N values."""</span></span>
-<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>    E2_coarse <span class="op">=</span> results[N_coarse][<span class="st">'E2'</span>]</span>
-<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    E2_medium <span class="op">=</span> results[N_medium][<span class="st">'E2'</span>]</span>
-<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>    E2_fine <span class="op">=</span> results[N_fine][<span class="st">'E2'</span>]</span>
-<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>    Q <span class="op">=</span> (E2_coarse <span class="op">-</span> E2_medium) <span class="op">/</span> (E2_medium <span class="op">-</span> E2_fine)</span>
-<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> Q</span>
-<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>gci_results <span class="op">=</span> {</span>
-<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>    (<span class="dv">16</span>, <span class="dv">32</span>, <span class="dv">64</span>): three_grid_diagnostic(results, <span class="dv">16</span>, <span class="dv">32</span>, <span class="dv">64</span>),</span>
-<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>    (<span class="dv">32</span>, <span class="dv">64</span>, <span class="dv">128</span>): three_grid_diagnostic(results, <span class="dv">32</span>, <span class="dv">64</span>, <span class="dv">128</span>),</span>
-<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>        h <span class="op">=</span> L <span class="op">/</span> N</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>        e <span class="op">=</span> u <span class="op">-</span> u_exact</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>        E2 <span class="op">=</span> np.sqrt(h <span class="op">*</span> np.<span class="bu">sum</span>(e[<span class="dv">1</span>:<span class="op">-</span><span class="dv">1</span>]<span class="op">**</span><span class="dv">2</span>))</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>        Einf <span class="op">=</span> np.<span class="bu">max</span>(np.<span class="bu">abs</span>(e))</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>        results[N][<span class="st">'E2'</span>] <span class="op">=</span> E2</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>        results[N][<span class="st">'Einf'</span>] <span class="op">=</span> Einf</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Observed order from adjacent meshes with refinement ratio r=2.</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    N_sorted <span class="op">=</span> <span class="bu">sorted</span>(results.keys())</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="bu">len</span>(N_sorted)):</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>        N_coarse <span class="op">=</span> N_sorted[i <span class="op">-</span> <span class="dv">1</span>]</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>        N_fine <span class="op">=</span> N_sorted[i]</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>        E2_coarse <span class="op">=</span> results[N_coarse][<span class="st">'E2'</span>]</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>        E2_fine <span class="op">=</span> results[N_fine][<span class="st">'E2'</span>]</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>        results[N_fine][<span class="st">'p_E2'</span>] <span class="op">=</span> np.log(E2_coarse <span class="op">/</span> E2_fine) <span class="op">/</span> np.log(<span class="dv">2</span>)</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> results</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>results <span class="op">=</span> compute_errors(results)</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> three_grid_diagnostic(results, N_coarse, N_medium, N_fine, r<span class="op">=</span><span class="dv">2</span>, Fs<span class="op">=</span><span class="fl">1.25</span>):</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Richardson extrapolation and GCI for one fine/medium/coarse triplet.</span></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a><span class="co">    Subscripts 1, 2, 3 denote fine, medium, coarse, matching the write-up.</span></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>    Q1, Q2, Q3 <span class="op">=</span> results[N_fine][<span class="st">'Q'</span>], results[N_medium][<span class="st">'Q'</span>], results[N_coarse][<span class="st">'Q'</span>]</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>    d21 <span class="op">=</span> Q2 <span class="op">-</span> Q1</span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>    d32 <span class="op">=</span> Q3 <span class="op">-</span> Q2</span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>    monotone <span class="op">=</span> (d21 <span class="op">!=</span> <span class="dv">0</span>) <span class="kw">and</span> (np.sign(d21) <span class="op">==</span> np.sign(d32))</span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="kw">not</span> monotone:</span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> {<span class="st">'monotone'</span>: <span class="va">False</span>, <span class="st">'d21'</span>: d21, <span class="st">'d32'</span>: d32}</span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>    p_Q <span class="op">=</span> np.log(np.<span class="bu">abs</span>(d32 <span class="op">/</span> d21)) <span class="op">/</span> np.log(r)</span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>    Q_ext <span class="op">=</span> Q1 <span class="op">+</span> (Q1 <span class="op">-</span> Q2) <span class="op">/</span> (r<span class="op">**</span>p_Q <span class="op">-</span> <span class="dv">1</span>)</span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>    g12 <span class="op">=</span> Fs <span class="op">*</span> np.<span class="bu">abs</span>((Q1 <span class="op">-</span> Q2) <span class="op">/</span> Q1) <span class="op">/</span> (r<span class="op">**</span>p_Q <span class="op">-</span> <span class="dv">1</span>)</span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>    g23 <span class="op">=</span> Fs <span class="op">*</span> np.<span class="bu">abs</span>((Q2 <span class="op">-</span> Q3) <span class="op">/</span> Q2) <span class="op">/</span> (r<span class="op">**</span>p_Q <span class="op">-</span> <span class="dv">1</span>)</span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>    delta_Q_gci <span class="op">=</span> g12 <span class="op">*</span> np.<span class="bu">abs</span>(Q1)</span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>    actual_error <span class="op">=</span> np.<span class="bu">abs</span>(Q1 <span class="op">-</span> Q_star)</span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>    asymptotic_ratio <span class="op">=</span> g23 <span class="op">/</span> (r<span class="op">**</span>p_Q <span class="op">*</span> g12)</span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {</span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>        <span class="st">'monotone'</span>: <span class="va">True</span>,</span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>        <span class="st">'p_Q'</span>: p_Q,</span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a>        <span class="st">'Q_ext'</span>: Q_ext,</span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a>        <span class="st">'g12_pct'</span>: <span class="dv">100</span> <span class="op">*</span> g12,</span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a>        <span class="st">'delta_Q_gci'</span>: delta_Q_gci,</span>
+<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a>        <span class="st">'actual_error'</span>: actual_error,</span>
+<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a>        <span class="st">'asymptotic_ratio'</span>: asymptotic_ratio,</span>
+<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a>gci_results <span class="op">=</span> {</span>
+<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a>    (<span class="dv">16</span>, <span class="dv">32</span>, <span class="dv">64</span>): three_grid_diagnostic(results, <span class="dv">16</span>, <span class="dv">32</span>, <span class="dv">64</span>),</span>
+<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a>    (<span class="dv">32</span>, <span class="dv">64</span>, <span class="dv">128</span>): three_grid_diagnostic(results, <span class="dv">32</span>, <span class="dv">64</span>, <span class="dv">128</span>),</span>
+<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 </section>
@@ -383,25 +427,42 @@ Q_{\rm ext}=Q_1+\frac{Q_1-Q_2}{r^{p_Q}-1}.\]</span> Estimate the fine-grid fract
 <p><strong>Deliverable 1:</strong> A mesh table with N, h, E2, Einf, observed E2 order, residual, Q, matrix nnz, assembly time, and solve time (seconds).</p>
 <p><strong>Deliverable 2:</strong> A three-grid table with fine/medium/coarse N, p_Q, Q_ext, fine GCI (%), absolute GCI estimate, actual fine-grid scalar error, and asymptotic ratio.</p>
 <p>Explain whether the uncertainty estimate covers the actual error in this particular example. Do not generalize that result into a universal guarantee. Distinguish mesh intervals, nodal values, and interior degrees of freedom.</p>
-<div id="34e335fe" class="cell" data-execution_count="32">
+<div id="34e335fe" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-15T18:49:01.469884Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-15T18:49:01.469640Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-15T18:49:01.474357Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-15T18:49:01.474002Z&quot;}}" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>table <span class="op">=</span> [<span class="st">'| N | h | E2 | Einf | p_E2 |'</span>, <span class="st">'|---|---|---|---|---|'</span>]</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> N <span class="kw">in</span> <span class="bu">sorted</span>(results.keys()):</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    h <span class="op">=</span> L <span class="op">/</span> N</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    E2 <span class="op">=</span> results[N][<span class="st">'E2'</span>]</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    Einf <span class="op">=</span> results[N][<span class="st">'Einf'</span>]</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    p_E2 <span class="op">=</span> results[N].get(<span class="st">'p_E2'</span>, <span class="st">'-'</span>)</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    table.append(<span class="ss">f'| </span><span class="sc">{</span>N<span class="sc">}</span><span class="ss"> | </span><span class="sc">{</span>h<span class="sc">:.5f}</span><span class="ss"> | </span><span class="sc">{</span>E2<span class="sc">:.5e}</span><span class="ss"> | </span><span class="sc">{</span>Einf<span class="sc">:.5e}</span><span class="ss"> | </span><span class="sc">{</span>p_E2<span class="sc">}</span><span class="ss"> |'</span>)</span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>display(Markdown(<span class="st">'</span><span class="ch">\n</span><span class="st">'</span>.join(table)))</span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>table_gci <span class="op">=</span> [<span class="st">'| Coarse | Medium | Fine | Q |'</span>, <span class="st">'|---|---|---|---|'</span>]</span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (N_coarse, N_medium, N_fine), Q <span class="kw">in</span> gci_results.items():</span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    table_gci.append(<span class="ss">f'| </span><span class="sc">{</span>N_coarse<span class="sc">}</span><span class="ss"> | </span><span class="sc">{</span>N_medium<span class="sc">}</span><span class="ss"> | </span><span class="sc">{</span>N_fine<span class="sc">}</span><span class="ss"> | </span><span class="sc">{</span>Q<span class="sc">:.5f}</span><span class="ss"> |'</span>)</span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>display(Markdown(<span class="st">'</span><span class="ch">\n</span><span class="st">'</span>.join(table_gci)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>table <span class="op">=</span> [<span class="st">'| N | h | E2 | Einf | p_E2 | Residual R | nnz(A) | assembly (s) | solve (s) |'</span>,</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>         <span class="st">'|---|---|---|---|---|---|---|---|---|'</span>]</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> N <span class="kw">in</span> <span class="bu">sorted</span>(results.keys()):</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    h <span class="op">=</span> L <span class="op">/</span> N</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    r <span class="op">=</span> results[N]</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    p_E2 <span class="op">=</span> r.get(<span class="st">'p_E2'</span>, <span class="st">'-'</span>)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    p_E2_str <span class="op">=</span> <span class="ss">f'</span><span class="sc">{</span>p_E2<span class="sc">:.4f}</span><span class="ss">'</span> <span class="cf">if</span> <span class="bu">isinstance</span>(p_E2, <span class="bu">float</span>) <span class="cf">else</span> p_E2</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    table.append(<span class="ss">f"| </span><span class="sc">{</span>N<span class="sc">}</span><span class="ss"> | </span><span class="sc">{</span>h<span class="sc">:.5f}</span><span class="ss"> | </span><span class="sc">{</span>r[<span class="st">'E2'</span>]<span class="sc">:.5e}</span><span class="ss"> | </span><span class="sc">{</span>r[<span class="st">'Einf'</span>]<span class="sc">:.5e}</span><span class="ss"> | </span><span class="sc">{</span>p_E2_str<span class="sc">}</span><span class="ss"> "</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>                 <span class="ss">f"| </span><span class="sc">{</span>r[<span class="st">'R'</span>]<span class="sc">:.3e}</span><span class="ss"> | </span><span class="sc">{</span>r[<span class="st">'A'</span>]<span class="sc">.</span>nnz<span class="sc">}</span><span class="ss"> | </span><span class="sc">{</span>r[<span class="st">'assembly_s'</span>]<span class="sc">:.2e}</span><span class="ss"> | </span><span class="sc">{</span>r[<span class="st">'solve_s'</span>]<span class="sc">:.2e}</span><span class="ss"> |"</span>)</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>display(Markdown(<span class="st">'</span><span class="ch">\n</span><span class="st">'</span>.join(table)))</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>table_gci <span class="op">=</span> [<span class="st">'| Coarse | Medium | Fine | p_Q | Q_ext | Fine GCI (%) | abs GCI | actual |Q1-Q*| | g23/(r^p g12) |'</span>,</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>             <span class="st">'|---|---|---|---|---|---|---|---|---|'</span>]</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (N_coarse, N_medium, N_fine), diag <span class="kw">in</span> gci_results.items():</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    table_gci.append(</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>        <span class="ss">f"| </span><span class="sc">{</span>N_coarse<span class="sc">}</span><span class="ss"> | </span><span class="sc">{</span>N_medium<span class="sc">}</span><span class="ss"> | </span><span class="sc">{</span>N_fine<span class="sc">}</span><span class="ss"> | </span><span class="sc">{</span>diag[<span class="st">'p_Q'</span>]<span class="sc">:.4f}</span><span class="ss"> | </span><span class="sc">{</span>diag[<span class="st">'Q_ext'</span>]<span class="sc">:.8f}</span><span class="ss"> "</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>        <span class="ss">f"| </span><span class="sc">{</span>diag[<span class="st">'g12_pct'</span>]<span class="sc">:.5f}</span><span class="ss"> | </span><span class="sc">{</span>diag[<span class="st">'delta_Q_gci'</span>]<span class="sc">:.3e}</span><span class="ss"> | </span><span class="sc">{</span>diag[<span class="st">'actual_error'</span>]<span class="sc">:.3e}</span><span class="ss"> "</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>        <span class="ss">f"| </span><span class="sc">{</span>diag[<span class="st">'asymptotic_ratio'</span>]<span class="sc">:.4f}</span><span class="ss"> |"</span>)</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>display(Markdown(<span class="st">'</span><span class="ch">\n</span><span class="st">'</span>.join(table_gci)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display cell-output-markdown">
 <table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 11%">
+<col style="width: 11%">
+<col style="width: 11%">
+<col style="width: 11%">
+<col style="width: 11%">
+<col style="width: 11%">
+<col style="width: 11%">
+<col style="width: 11%">
+<col style="width: 11%">
+</colgroup>
 <thead>
 <tr class="header">
 <th>N</th>
@@ -409,48 +470,84 @@ Q_{\rm ext}=Q_1+\frac{Q_1-Q_2}{r^{p_Q}-1}.\]</span> Estimate the fine-grid fract
 <th>E2</th>
 <th>Einf</th>
 <th>p_E2</th>
+<th>Residual R</th>
+<th>nnz(A)</th>
+<th>assembly (s)</th>
+<th>solve (s)</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td>16</td>
 <td>0.06250</td>
-<td>6.83306e-01</td>
-<td>9.96081e-01</td>
+<td>2.27615e-03</td>
+<td>3.21896e-03</td>
 <td>-</td>
+<td>3.832e-15</td>
+<td>43</td>
+<td>2.21e-04</td>
+<td>7.48e-05</td>
 </tr>
 <tr class="even">
 <td>32</td>
 <td>0.03125</td>
-<td>6.95630e-01</td>
-<td>9.99023e-01</td>
-<td>0.5179429882288777</td>
+<td>5.68215e-04</td>
+<td>8.03578e-04</td>
+<td>2.0021</td>
+<td>9.928e-15</td>
+<td>91</td>
+<td>9.08e-05</td>
+<td>3.85e-05</td>
 </tr>
 <tr class="odd">
 <td>64</td>
 <td>0.01562</td>
-<td>7.01475e-01</td>
-<td>9.99756e-01</td>
-<td>0.5101255372288461</td>
+<td>1.42002e-04</td>
+<td>2.00822e-04</td>
+<td>2.0005</td>
+<td>4.855e-14</td>
+<td>187</td>
+<td>6.68e-05</td>
+<td>4.29e-05</td>
 </tr>
 <tr class="even">
 <td>128</td>
 <td>0.00781</td>
-<td>7.04318e-01</td>
-<td>9.99939e-01</td>
-<td>0.5053493557144687</td>
+<td>3.54974e-05</td>
+<td>5.02009e-05</td>
+<td>2.0001</td>
+<td>2.114e-13</td>
+<td>379</td>
+<td>5.65e-05</td>
+<td>5.18e-05</td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="cell-output cell-output-display cell-output-markdown">
 <table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 11%">
+<col style="width: 11%">
+<col style="width: 11%">
+<col style="width: 11%">
+<col style="width: 11%">
+<col style="width: 11%">
+<col style="width: 11%">
+<col style="width: 11%">
+<col style="width: 11%">
+</colgroup>
 <thead>
 <tr class="header">
 <th>Coarse</th>
 <th>Medium</th>
 <th>Fine</th>
-<th>Q</th>
+<th>p_Q</th>
+<th>Q_ext</th>
+<th>Fine GCI (%)</th>
+<th>abs GCI</th>
+<th>actual</th>
+<th>Q1-Q*</th>
 </tr>
 </thead>
 <tbody>
@@ -458,13 +555,23 @@ Q_{\rm ext}=Q_1+\frac{Q_1-Q_2}{r^{p_Q}-1}.\]</span> Estimate the fine-grid fract
 <td>16</td>
 <td>32</td>
 <td>64</td>
-<td>2.10848</td>
+<td>2.0026</td>
+<td>1.00000039</td>
+<td>0.02505</td>
+<td>2.505e-04</td>
+<td>2.008e-04</td>
+<td>0.9994</td>
 </tr>
 <tr class="even">
 <td>32</td>
 <td>64</td>
 <td>128</td>
-<td>2.05618</td>
+<td>2.0007</td>
+<td>1.00000002</td>
+<td>0.00627</td>
+<td>6.272e-05</td>
+<td>5.020e-05</td>
+<td>0.9998</td>
 </tr>
 </tbody>
 </table>
@@ -475,33 +582,39 @@ Q_{\rm ext}=Q_1+\frac{Q_1-Q_2}{r^{p_Q}-1}.\]</span> Estimate the fine-grid fract
 <h2 class="anchored" data-anchor-id="solution-and-diagnostic-plots">5. Solution and diagnostic plots</h2>
 <p>Create three panels: (1) finest-grid solution and a densely sampled exact curve; (2) log-log E2 and Einf versus h, with a reference slope of two anchored to an observed point; (3) scalar Q versus h^2 with the exact and extrapolated values indicated.</p>
 <p>Label every axis as dimensionless where appropriate. A visually overlapping solution curve is insufficient evidence of accuracy. Use the error plot and scalar table to quantify it.</p>
-<div id="e7b39d04" class="cell" data-execution_count="33">
+<div id="e7b39d04" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-15T18:49:01.475176Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-15T18:49:01.474929Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-15T18:49:01.750449Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-15T18:49:01.750103Z&quot;}}" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">4</span>))</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot 1: E2 vs N</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>plt.subplot(<span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">1</span>)</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>N_values <span class="op">=</span> <span class="bu">sorted</span>(results.keys())</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>E2_values <span class="op">=</span> [results[N][<span class="st">'E2'</span>] <span class="cf">for</span> N <span class="kw">in</span> N_values]</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>plt.loglog(N_values, E2_values, marker<span class="op">=</span><span class="st">'o'</span>)</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'N'</span>)</span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'E2'</span>)</span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'E2 vs N'</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">3</span>, figsize<span class="op">=</span>(<span class="dv">15</span>, <span class="dv">4</span>), layout<span class="op">=</span><span class="st">'constrained'</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>N_fine_mesh <span class="op">=</span> <span class="bu">max</span>(results.keys())</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>x_fine <span class="op">=</span> results[N_fine_mesh][<span class="st">'x'</span>]</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>x_dense <span class="op">=</span> np.linspace(<span class="dv">0</span>, L, <span class="dv">400</span>)</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].plot(x_dense, u_star(x_dense), label<span class="op">=</span><span class="st">'exact $u_*$'</span>, color<span class="op">=</span><span class="st">'tab:gray'</span>, lw<span class="op">=</span><span class="fl">1.5</span>)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].plot(x_fine, results[N_fine_mesh][<span class="st">'u'</span>], <span class="st">'o'</span>, ms<span class="op">=</span><span class="dv">3</span>, label<span class="op">=</span><span class="ss">f'numerical, N=</span><span class="sc">{</span>N_fine_mesh<span class="sc">}</span><span class="ss">'</span>, color<span class="op">=</span><span class="st">'tab:blue'</span>)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].<span class="bu">set</span>(xlabel<span class="op">=</span><span class="st">'x (dimensionless)'</span>, ylabel<span class="op">=</span><span class="st">'u (dimensionless)'</span>, title<span class="op">=</span><span class="st">'Finest-grid solution vs. exact'</span>)</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].legend()</span>
 <span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>plt.subplot(<span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">2</span>)</span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>Einf_values <span class="op">=</span> [results[N][<span class="st">'Einf'</span>] <span class="cf">for</span> N <span class="kw">in</span> N_values]</span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>plt.loglog(N_values, Einf_values, marker<span class="op">=</span><span class="st">'o'</span>)</span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'N'</span>)</span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'Einf'</span>)</span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Einf vs N'</span>)</span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>plt.subplot(<span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">3</span>)</span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>p_E2_values <span class="op">=</span> [results[N].get(<span class="st">'p_E2'</span>, np.nan) <span class="cf">for</span> N <span class="kw">in</span> N_values]</span>
-<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>plt.plot(N_values[<span class="dv">1</span>:], p_E2_values[<span class="dv">1</span>:], marker<span class="op">=</span><span class="st">'o'</span>)</span>
-<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'N'</span>)</span>
-<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'p_E2'</span>)</span>
-<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Convergence Rate p_E2'</span>)</span>
-<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>N_values <span class="op">=</span> <span class="bu">sorted</span>(results.keys())</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>h_values <span class="op">=</span> [L <span class="op">/</span> N <span class="cf">for</span> N <span class="kw">in</span> N_values]</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>E2_values <span class="op">=</span> [results[N][<span class="st">'E2'</span>] <span class="cf">for</span> N <span class="kw">in</span> N_values]</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>Einf_values <span class="op">=</span> [results[N][<span class="st">'Einf'</span>] <span class="cf">for</span> N <span class="kw">in</span> N_values]</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].loglog(h_values, E2_values, <span class="st">'o-'</span>, label<span class="op">=</span><span class="st">'$E_2$'</span>)</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].loglog(h_values, Einf_values, <span class="st">'s-'</span>, label<span class="op">=</span><span class="st">'$E_</span><span class="ch">\\</span><span class="st">infty$'</span>)</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>h_ref <span class="op">=</span> np.array([h_values[<span class="dv">0</span>], h_values[<span class="op">-</span><span class="dv">1</span>]])</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].loglog(h_ref, E2_values[<span class="dv">0</span>] <span class="op">*</span> (h_ref <span class="op">/</span> h_values[<span class="dv">0</span>])<span class="op">**</span><span class="dv">2</span>, <span class="st">'k--'</span>, lw<span class="op">=</span><span class="dv">1</span>, label<span class="op">=</span><span class="st">'slope 2 reference'</span>)</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].<span class="bu">set</span>(xlabel<span class="op">=</span><span class="st">'h (dimensionless)'</span>, ylabel<span class="op">=</span><span class="st">'error (dimensionless)'</span>, title<span class="op">=</span><span class="st">'Field error vs. mesh spacing'</span>)</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].legend()</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>Q_values <span class="op">=</span> [results[N][<span class="st">'Q'</span>] <span class="cf">for</span> N <span class="kw">in</span> N_values]</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>h2_values <span class="op">=</span> [h<span class="op">**</span><span class="dv">2</span> <span class="cf">for</span> h <span class="kw">in</span> h_values]</span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">2</span>].plot(h2_values, Q_values, <span class="st">'o-'</span>, label<span class="op">=</span><span class="st">'$Q_h$'</span>)</span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">2</span>].axhline(Q_star, color<span class="op">=</span><span class="st">'tab:gray'</span>, ls<span class="op">=</span><span class="st">'--'</span>, label<span class="op">=</span><span class="st">'$Q_*$ (exact)'</span>)</span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>Q_ext_fine <span class="op">=</span> gci_results[(<span class="dv">32</span>, <span class="dv">64</span>, <span class="dv">128</span>)][<span class="st">'Q_ext'</span>]</span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">2</span>].axhline(Q_ext_fine, color<span class="op">=</span><span class="st">'tab:red'</span>, ls<span class="op">=</span><span class="st">':'</span>, label<span class="op">=</span><span class="st">'$Q_</span><span class="sc">{ext}</span><span class="st">$ (richardson)'</span>)</span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">2</span>].<span class="bu">set</span>(xlabel<span class="op">=</span><span class="st">'$h^2$ (dimensionless)'</span>, ylabel<span class="op">=</span><span class="st">'Q (dimensionless)'</span>, title<span class="op">=</span><span class="st">'Scalar output vs. $h^2$'</span>)</span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">2</span>].legend()</span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div>
@@ -516,191 +629,48 @@ Q_{\rm ext}=Q_1+\frac{Q_1-Q_2}{r^{p_Q}-1}.\]</span> Estimate the fine-grid fract
 <h2 class="anchored" data-anchor-id="automatic-checks">6. Automatic checks</h2>
 <p>Assert: finite values; correct array sizes; exact imposed boundary values; reflection symmetry to absolute tolerance 1e-10; decreasing E2 and Einf; last two p_E values in [1.9, 2.1]; residual below 1e-10 on every mesh; and fine GCI below 0.1% for the (128, 64, 32) triplet.</p>
 <p>Verify the matrix is symmetric and has at most 3(N-1) nonzero entries. Check the source and exact solution are evaluated independently of assembly. Discuss the observed GCI coverage instead of asserting universal coverage. If a check fails, investigate signs, h scaling, refinement indexing, boundary treatment, and roundoff before weakening the target.</p>
-<div id="bf9f82f1" class="cell" data-execution_count="34">
+<div id="bf9f82f1" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-15T18:49:01.751290Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-15T18:49:01.751220Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-15T18:49:01.755632Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-15T18:49:01.755423Z&quot;}}" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> assert_results(results):</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Assert various properties of the results and GCI diagnostics."""</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> N <span class="kw">in</span> results:</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>        x <span class="op">=</span> results[N][<span class="st">'x'</span>]</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>        u <span class="op">=</span> results[N][<span class="st">'u'</span>]</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>        A <span class="op">=</span> results[N][<span class="st">'A'</span>]</span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>        b <span class="op">=</span> results[N][<span class="st">'b'</span>]</span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>        E2 <span class="op">=</span> results[N][<span class="st">'E2'</span>]</span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>        Einf <span class="op">=</span> results[N][<span class="st">'Einf'</span>]</span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>        p_E2 <span class="op">=</span> results[N].get(<span class="st">'p_E2'</span>, <span class="va">None</span>)</span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Assert finite values</span></span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">assert</span> np.<span class="bu">all</span>(np.isfinite(u)), <span class="ss">f"Non-finite values in u for N=</span><span class="sc">{</span>N<span class="sc">}</span><span class="ss">"</span></span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">assert</span> np.<span class="bu">all</span>(np.isfinite(b)), <span class="ss">f"Non-finite values in b for N=</span><span class="sc">{</span>N<span class="sc">}</span><span class="ss">"</span></span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>        <span class="cf">assert</span> np.<span class="bu">all</span>(np.isfinite(E2)), <span class="ss">f"Non-finite E2 for N=</span><span class="sc">{</span>N<span class="sc">}</span><span class="ss">"</span></span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>        <span class="cf">assert</span> np.<span class="bu">all</span>(np.isfinite(Einf)), <span class="ss">f"Non-finite Einf for N=</span><span class="sc">{</span>N<span class="sc">}</span><span class="ss">"</span></span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Assert correct array sizes</span></span>
-<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>        <span class="cf">assert</span> <span class="bu">len</span>(x) <span class="op">==</span> N <span class="op">+</span> <span class="dv">1</span>, <span class="ss">f"x array size mismatch for N=</span><span class="sc">{</span>N<span class="sc">}</span><span class="ss">"</span></span>
-<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>        <span class="cf">assert</span> <span class="bu">len</span>(u) <span class="op">==</span> N <span class="op">+</span> <span class="dv">1</span>, <span class="ss">f"u array size mismatch for N=</span><span class="sc">{</span>N<span class="sc">}</span><span class="ss">"</span></span>
-<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>        <span class="cf">assert</span> A.shape <span class="op">==</span> (N <span class="op">-</span> <span class="dv">1</span>, N <span class="op">-</span> <span class="dv">1</span>), <span class="ss">f"A shape mismatch for N=</span><span class="sc">{</span>N<span class="sc">}</span><span class="ss">"</span></span>
-<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>        <span class="cf">assert</span> b.shape <span class="op">==</span> (N <span class="op">-</span> <span class="dv">1</span>,), <span class="ss">f"b shape mismatch for N=</span><span class="sc">{</span>N<span class="sc">}</span><span class="ss">"</span></span>
-<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Assert exact imposed boundary values</span></span>
-<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>        <span class="cf">assert</span> u[<span class="dv">0</span>] <span class="op">==</span> parameters[<span class="st">'u0'</span>], <span class="ss">f"Boundary value u[0] mismatch for N=</span><span class="sc">{</span>N<span class="sc">}</span><span class="ss">"</span></span>
-<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>        <span class="cf">assert</span> u[<span class="op">-</span><span class="dv">1</span>] <span class="op">==</span> parameters[<span class="st">'uL'</span>], <span class="ss">f"Boundary value u[-1] mismatch for N=</span><span class="sc">{</span>N<span class="sc">}</span><span class="ss">"</span></span>
-<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Assert reflection symmetry to absolute tolerance 1e-10</span></span>
-<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>        <span class="cf">assert</span> np.allclose(u, u[::<span class="op">-</span><span class="dv">1</span>], atol<span class="op">=</span><span class="fl">1e-10</span>), <span class="ss">f"Reflection symmetry failed for N=</span><span class="sc">{</span>N<span class="sc">}</span><span class="ss">"</span></span>
-<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Assert decreasing E2 and Einf</span></span>
-<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>    E2_values <span class="op">=</span> [results[N][<span class="st">'E2'</span>] <span class="cf">for</span> N <span class="kw">in</span> <span class="bu">sorted</span>(results.keys())]</span>
-<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>    Einf_values <span class="op">=</span> [results[N][<span class="st">'Einf'</span>] <span class="cf">for</span> N <span class="kw">in</span> <span class="bu">sorted</span>(results.keys())]</span>
-<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Assert decreasing E2 and Einf</span></span>
-<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>    <span class="co"># If they are not decreasing, raise an assertion error with a message indicating which one failed, continue and investigate signs, h scaling, refinement indexing, boundary treatment, and roundoff before weakening the target.</span></span>
-<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="kw">not</span> <span class="bu">all</span>(E2_values[i] <span class="op">&gt;</span> E2_values[i <span class="op">+</span> <span class="dv">1</span>] <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(E2_values) <span class="op">-</span> <span class="dv">1</span>)):</span>
-<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Investigate signs, h scaling, refinement indexing, boundary treatment, and roundoff before weakening the target.</span></span>
-<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"Investigating E2 values: </span><span class="sc">{</span>E2_values<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a>        </span>
-<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Sign Investigation: Check if the E2 values are negative or if there is a sign change in the error computation. If so, review the error calculation and ensure that it is correctly implemented. Also, check for any potential issues with the source term or boundary conditions that could lead to unexpected behavior in the solution.</span></span>
-<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"Investigating sign issues in E2 values..."</span>)</span>
-<span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a>        signs <span class="op">=</span> np.sign(E2_values)</span>
-<span id="cb6-44"><a href="#cb6-44" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> i, sign <span class="kw">in</span> <span class="bu">enumerate</span>(signs):</span>
-<span id="cb6-45"><a href="#cb6-45" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> sign <span class="op">&lt;</span> <span class="dv">0</span>:</span>
-<span id="cb6-46"><a href="#cb6-46" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(<span class="ss">f"Negative E2 value at index </span><span class="sc">{</span>i<span class="sc">}</span><span class="ss">: </span><span class="sc">{</span>E2_values[i]<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb6-47"><a href="#cb6-47" aria-hidden="true" tabindex="-1"></a>            <span class="cf">elif</span> sign <span class="op">==</span> <span class="dv">0</span>:</span>
-<span id="cb6-48"><a href="#cb6-48" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(<span class="ss">f"Zero E2 value at index </span><span class="sc">{</span>i<span class="sc">}</span><span class="ss">: </span><span class="sc">{</span>E2_values[i]<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb6-49"><a href="#cb6-49" aria-hidden="true" tabindex="-1"></a>                </span>
-<span id="cb6-50"><a href="#cb6-50" aria-hidden="true" tabindex="-1"></a>        <span class="co"># h Scaling Investigation: Check if the mesh spacing h is being computed correctly and consistently across different resolutions. Ensure that the refinement ratio is as expected (e.g., halving the mesh size for each refinement). If there are inconsistencies, review the mesh generation and refinement logic.</span></span>
-<span id="cb6-51"><a href="#cb6-51" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"Investigating h scaling issues..."</span>)</span>
-<span id="cb6-52"><a href="#cb6-52" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(E2_values) <span class="op">-</span> <span class="dv">1</span>):</span>
-<span id="cb6-53"><a href="#cb6-53" aria-hidden="true" tabindex="-1"></a>            N_coarse <span class="op">=</span> <span class="bu">sorted</span>(results.keys())[i]</span>
-<span id="cb6-54"><a href="#cb6-54" aria-hidden="true" tabindex="-1"></a>            N_fine <span class="op">=</span> <span class="bu">sorted</span>(results.keys())[i <span class="op">+</span> <span class="dv">1</span>]</span>
-<span id="cb6-55"><a href="#cb6-55" aria-hidden="true" tabindex="-1"></a>            h_coarse <span class="op">=</span> L <span class="op">/</span> N_coarse</span>
-<span id="cb6-56"><a href="#cb6-56" aria-hidden="true" tabindex="-1"></a>            h_fine <span class="op">=</span> L <span class="op">/</span> N_fine</span>
-<span id="cb6-57"><a href="#cb6-57" aria-hidden="true" tabindex="-1"></a>            expected_ratio <span class="op">=</span> h_coarse <span class="op">/</span> h_fine</span>
-<span id="cb6-58"><a href="#cb6-58" aria-hidden="true" tabindex="-1"></a>            actual_ratio <span class="op">=</span> E2_values[i] <span class="op">/</span> E2_values[i <span class="op">+</span> <span class="dv">1</span>]</span>
-<span id="cb6-59"><a href="#cb6-59" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="ss">f"Expected h ratio: </span><span class="sc">{</span>expected_ratio<span class="sc">}</span><span class="ss">, Actual E2 ratio: </span><span class="sc">{</span>actual_ratio<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb6-60"><a href="#cb6-60" aria-hidden="true" tabindex="-1"></a>            </span>
-<span id="cb6-61"><a href="#cb6-61" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Refinement Indexing Investigation: Ensure that the indexing of the refinement levels is consistent and correctly applied when computing errors and convergence rates. Check that the correct pairs of coarse, medium, and fine meshes are being used for the three-grid diagnostic and that the error calculations are based on the appropriate mesh levels.</span></span>
-<span id="cb6-62"><a href="#cb6-62" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"Investigating refinement indexing issues..."</span>)</span>
-<span id="cb6-63"><a href="#cb6-63" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(E2_values) <span class="op">-</span> <span class="dv">1</span>):</span>
-<span id="cb6-64"><a href="#cb6-64" aria-hidden="true" tabindex="-1"></a>            N_coarse <span class="op">=</span> <span class="bu">sorted</span>(results.keys())[i]</span>
-<span id="cb6-65"><a href="#cb6-65" aria-hidden="true" tabindex="-1"></a>            N_fine <span class="op">=</span> <span class="bu">sorted</span>(results.keys())[i <span class="op">+</span> <span class="dv">1</span>]</span>
-<span id="cb6-66"><a href="#cb6-66" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="ss">f"Refinement pair: Coarse N=</span><span class="sc">{</span>N_coarse<span class="sc">}</span><span class="ss">, Fine N=</span><span class="sc">{</span>N_fine<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb6-67"><a href="#cb6-67" aria-hidden="true" tabindex="-1"></a>            </span>
-<span id="cb6-68"><a href="#cb6-68" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Boundary Treatment Investigation: Review how boundary conditions are applied in the numerical scheme. Ensure that the boundary values are correctly imposed and that they do not introduce artifacts into the solution that could affect the error metrics.</span></span>
-<span id="cb6-69"><a href="#cb6-69" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"Investigating boundary treatment issues..."</span>)</span>
-<span id="cb6-70"><a href="#cb6-70" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> N <span class="kw">in</span> results:</span>
-<span id="cb6-71"><a href="#cb6-71" aria-hidden="true" tabindex="-1"></a>            u <span class="op">=</span> results[N][<span class="st">'u'</span>]</span>
-<span id="cb6-72"><a href="#cb6-72" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> u[<span class="dv">0</span>] <span class="op">!=</span> parameters[<span class="st">'u0'</span>] <span class="kw">or</span> u[<span class="op">-</span><span class="dv">1</span>] <span class="op">!=</span> parameters[<span class="st">'uL'</span>]:</span>
-<span id="cb6-73"><a href="#cb6-73" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(<span class="ss">f"Boundary condition mismatch for N=</span><span class="sc">{</span>N<span class="sc">}</span><span class="ss">: u[0]=</span><span class="sc">{</span>u[<span class="dv">0</span>]<span class="sc">}</span><span class="ss">, u[-1]=</span><span class="sc">{</span>u[<span class="op">-</span><span class="dv">1</span>]<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb6-74"><a href="#cb6-74" aria-hidden="true" tabindex="-1"></a>        </span>
-<span id="cb6-75"><a href="#cb6-75" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Roundoff Investigation: Check for potential roundoff errors in the numerical computations, especially when dealing with very small or very large values. Ensure that the numerical precision is sufficient for the problem at hand and consider using higher precision arithmetic if necessary.</span></span>
-<span id="cb6-76"><a href="#cb6-76" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"Investigating roundoff issues..."</span>)</span>
-<span id="cb6-77"><a href="#cb6-77" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> N <span class="kw">in</span> results:</span>
-<span id="cb6-78"><a href="#cb6-78" aria-hidden="true" tabindex="-1"></a>            E2 <span class="op">=</span> results[N][<span class="st">'E2'</span>]</span>
-<span id="cb6-79"><a href="#cb6-79" aria-hidden="true" tabindex="-1"></a>            Einf <span class="op">=</span> results[N][<span class="st">'Einf'</span>]</span>
-<span id="cb6-80"><a href="#cb6-80" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> np.isclose(E2, <span class="dv">0</span>, atol<span class="op">=</span><span class="fl">1e-15</span>) <span class="kw">or</span> np.isclose(Einf, <span class="dv">0</span>, atol<span class="op">=</span><span class="fl">1e-15</span>):</span>
-<span id="cb6-81"><a href="#cb6-81" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(<span class="ss">f"Potential roundoff issue for N=</span><span class="sc">{</span>N<span class="sc">}</span><span class="ss">: E2=</span><span class="sc">{</span>E2<span class="sc">}</span><span class="ss">, Einf=</span><span class="sc">{</span>Einf<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb6-82"><a href="#cb6-82" aria-hidden="true" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">AssertionError</span>(<span class="st">"E2 not decreasing"</span>)</span>
-<span id="cb6-83"><a href="#cb6-83" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="kw">not</span> <span class="bu">all</span>(Einf_values[i] <span class="op">&gt;</span> Einf_values[i <span class="op">+</span> <span class="dv">1</span>] <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(Einf_values) <span class="op">-</span> <span class="dv">1</span>)):</span>
-<span id="cb6-84"><a href="#cb6-84" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Investigate signs, h scaling, refinement indexing, boundary treatment, and roundoff before weakening the target.</span></span>
-<span id="cb6-85"><a href="#cb6-85" aria-hidden="true" tabindex="-1"></a>        </span>
-<span id="cb6-86"><a href="#cb6-86" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Sign Investigation: Check if the E2 values are negative or if there is a sign change in the error computation. If so, review the error calculation and ensure that it is correctly implemented. Also, check for any potential issues with the source term or boundary conditions that could lead to unexpected behavior in the solution.</span></span>
-<span id="cb6-87"><a href="#cb6-87" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"Investigating sign issues in E2 values..."</span>)</span>
-<span id="cb6-88"><a href="#cb6-88" aria-hidden="true" tabindex="-1"></a>        signs <span class="op">=</span> np.sign(Einf_values)</span>
-<span id="cb6-89"><a href="#cb6-89" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> i, sign <span class="kw">in</span> <span class="bu">enumerate</span>(signs):</span>
-<span id="cb6-90"><a href="#cb6-90" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> sign <span class="op">&lt;</span> <span class="dv">0</span>:</span>
-<span id="cb6-91"><a href="#cb6-91" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(<span class="ss">f"Negative Einf value at index </span><span class="sc">{</span>i<span class="sc">}</span><span class="ss">: </span><span class="sc">{</span>Einf_values[i]<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb6-92"><a href="#cb6-92" aria-hidden="true" tabindex="-1"></a>            <span class="cf">elif</span> sign <span class="op">==</span> <span class="dv">0</span>:</span>
-<span id="cb6-93"><a href="#cb6-93" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(<span class="ss">f"Zero Einf value at index </span><span class="sc">{</span>i<span class="sc">}</span><span class="ss">: </span><span class="sc">{</span>Einf_values[i]<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb6-94"><a href="#cb6-94" aria-hidden="true" tabindex="-1"></a>                </span>
-<span id="cb6-95"><a href="#cb6-95" aria-hidden="true" tabindex="-1"></a>        <span class="co"># h Scaling Investigation: Check if the mesh spacing h is being computed correctly and consistently across different resolutions. Ensure that the refinement ratio is as expected (e.g., halving the mesh size for each refinement). If there are inconsistencies, review the mesh generation and refinement logic.</span></span>
-<span id="cb6-96"><a href="#cb6-96" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"Investigating h scaling issues..."</span>)</span>
-<span id="cb6-97"><a href="#cb6-97" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(Einf_values) <span class="op">-</span> <span class="dv">1</span>):</span>
-<span id="cb6-98"><a href="#cb6-98" aria-hidden="true" tabindex="-1"></a>            N_coarse <span class="op">=</span> <span class="bu">sorted</span>(results.keys())[i]</span>
-<span id="cb6-99"><a href="#cb6-99" aria-hidden="true" tabindex="-1"></a>            N_fine <span class="op">=</span> <span class="bu">sorted</span>(results.keys())[i <span class="op">+</span> <span class="dv">1</span>]</span>
-<span id="cb6-100"><a href="#cb6-100" aria-hidden="true" tabindex="-1"></a>            h_coarse <span class="op">=</span> L <span class="op">/</span> N_coarse</span>
-<span id="cb6-101"><a href="#cb6-101" aria-hidden="true" tabindex="-1"></a>            h_fine <span class="op">=</span> L <span class="op">/</span> N_fine</span>
-<span id="cb6-102"><a href="#cb6-102" aria-hidden="true" tabindex="-1"></a>            expected_ratio <span class="op">=</span> h_coarse <span class="op">/</span> h_fine</span>
-<span id="cb6-103"><a href="#cb6-103" aria-hidden="true" tabindex="-1"></a>            actual_ratio <span class="op">=</span> Einf_values[i] <span class="op">/</span> Einf_values[i <span class="op">+</span> <span class="dv">1</span>]</span>
-<span id="cb6-104"><a href="#cb6-104" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="ss">f"Expected h ratio: </span><span class="sc">{</span>expected_ratio<span class="sc">}</span><span class="ss">, Actual Einf ratio: </span><span class="sc">{</span>actual_ratio<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb6-105"><a href="#cb6-105" aria-hidden="true" tabindex="-1"></a>            </span>
-<span id="cb6-106"><a href="#cb6-106" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Refinement Indexing Investigation: Ensure that the indexing of the refinement levels is consistent and correctly applied when computing errors and convergence rates. Check that the correct pairs of coarse, medium, and fine meshes are being used for the three-grid diagnostic and that the error calculations are based on the appropriate mesh levels.</span></span>
-<span id="cb6-107"><a href="#cb6-107" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"Investigating refinement indexing issues..."</span>)</span>
-<span id="cb6-108"><a href="#cb6-108" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(Einf_values) <span class="op">-</span> <span class="dv">1</span>):</span>
-<span id="cb6-109"><a href="#cb6-109" aria-hidden="true" tabindex="-1"></a>            N_coarse <span class="op">=</span> <span class="bu">sorted</span>(results.keys())[i]</span>
-<span id="cb6-110"><a href="#cb6-110" aria-hidden="true" tabindex="-1"></a>            N_fine <span class="op">=</span> <span class="bu">sorted</span>(results.keys())[i <span class="op">+</span> <span class="dv">1</span>]</span>
-<span id="cb6-111"><a href="#cb6-111" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="ss">f"Refinement pair: Coarse N=</span><span class="sc">{</span>N_coarse<span class="sc">}</span><span class="ss">, Fine N=</span><span class="sc">{</span>N_fine<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb6-112"><a href="#cb6-112" aria-hidden="true" tabindex="-1"></a>            </span>
-<span id="cb6-113"><a href="#cb6-113" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Boundary Treatment Investigation: Review how boundary conditions are applied in the numerical scheme. Ensure that the boundary values are correctly imposed and that they do not introduce artifacts into the solution that could affect the error metrics.</span></span>
-<span id="cb6-114"><a href="#cb6-114" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"Investigating boundary treatment issues..."</span>)</span>
-<span id="cb6-115"><a href="#cb6-115" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> N <span class="kw">in</span> results:</span>
-<span id="cb6-116"><a href="#cb6-116" aria-hidden="true" tabindex="-1"></a>            u <span class="op">=</span> results[N][<span class="st">'u'</span>]</span>
-<span id="cb6-117"><a href="#cb6-117" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> u[<span class="dv">0</span>] <span class="op">!=</span> parameters[<span class="st">'u0'</span>] <span class="kw">or</span> u[<span class="op">-</span><span class="dv">1</span>] <span class="op">!=</span> parameters[<span class="st">'uL'</span>]:</span>
-<span id="cb6-118"><a href="#cb6-118" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(<span class="ss">f"Boundary condition mismatch for N=</span><span class="sc">{</span>N<span class="sc">}</span><span class="ss">: u[0]=</span><span class="sc">{</span>u[<span class="dv">0</span>]<span class="sc">}</span><span class="ss">, u[-1]=</span><span class="sc">{</span>u[<span class="op">-</span><span class="dv">1</span>]<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb6-119"><a href="#cb6-119" aria-hidden="true" tabindex="-1"></a>        </span>
-<span id="cb6-120"><a href="#cb6-120" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Roundoff Investigation: Check for potential roundoff errors in the numerical computations, especially when dealing with very small or very large values. Ensure that the numerical precision is sufficient for the problem at hand and consider using higher precision arithmetic if necessary.</span></span>
-<span id="cb6-121"><a href="#cb6-121" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"Investigating roundoff issues..."</span>)</span>
-<span id="cb6-122"><a href="#cb6-122" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> N <span class="kw">in</span> results:</span>
-<span id="cb6-123"><a href="#cb6-123" aria-hidden="true" tabindex="-1"></a>            E2 <span class="op">=</span> results[N][<span class="st">'E2'</span>]</span>
-<span id="cb6-124"><a href="#cb6-124" aria-hidden="true" tabindex="-1"></a>            Einf <span class="op">=</span> results[N][<span class="st">'Einf'</span>]</span>
-<span id="cb6-125"><a href="#cb6-125" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> np.isclose(E2, <span class="dv">0</span>, atol<span class="op">=</span><span class="fl">1e-15</span>) <span class="kw">or</span> np.isclose(Einf, <span class="dv">0</span>, atol<span class="op">=</span><span class="fl">1e-15</span>):</span>
-<span id="cb6-126"><a href="#cb6-126" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(<span class="ss">f"Potential roundoff issue for N=</span><span class="sc">{</span>N<span class="sc">}</span><span class="ss">: E2=</span><span class="sc">{</span>E2<span class="sc">}</span><span class="ss">, Einf=</span><span class="sc">{</span>Einf<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb6-127"><a href="#cb6-127" aria-hidden="true" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">AssertionError</span>(<span class="st">"Einf not decreasing"</span>)</span>
-<span id="cb6-128"><a href="#cb6-128" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-129"><a href="#cb6-129" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Assert last two p_E values in [1.9, 2.1]</span></span>
-<span id="cb6-130"><a href="#cb6-130" aria-hidden="true" tabindex="-1"></a>    p_E2_values <span class="op">=</span> [results[N].get(<span class="st">'p_E2'</span>, <span class="va">None</span>) <span class="cf">for</span> N <span class="kw">in</span> <span class="bu">sorted</span>(results.keys())]</span>
-<span id="cb6-131"><a href="#cb6-131" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="kw">not</span> <span class="bu">all</span>(<span class="fl">1.9</span> <span class="op">&lt;=</span> p <span class="op">&lt;=</span> <span class="fl">2.1</span> <span class="cf">for</span> p <span class="kw">in</span> p_E2_values[<span class="dv">1</span>:]):</span>
-<span id="cb6-132"><a href="#cb6-132" aria-hidden="true" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">AssertionError</span>(<span class="st">"Last two p_E2 values not in [1.9, 2.1]"</span>)</span>
-<span id="cb6-133"><a href="#cb6-133" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-134"><a href="#cb6-134" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> assert_gci(gci_results):</span>
-<span id="cb6-135"><a href="#cb6-135" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Assert GCI diagnostics."""</span></span>
-<span id="cb6-136"><a href="#cb6-136" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (N_coarse, N_medium, N_fine), Q <span class="kw">in</span> gci_results.items():</span>
-<span id="cb6-137"><a href="#cb6-137" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Assert fine GCI below 0.1% for the (128, 64, 32) triplet.</span></span>
-<span id="cb6-138"><a href="#cb6-138" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (N_coarse, N_medium, N_fine) <span class="op">==</span> (<span class="dv">32</span>, <span class="dv">64</span>, <span class="dv">128</span>):</span>
-<span id="cb6-139"><a href="#cb6-139" aria-hidden="true" tabindex="-1"></a>            <span class="cf">assert</span> Q <span class="op">&lt;</span> <span class="fl">0.001</span>, <span class="ss">f"GCI Q=</span><span class="sc">{</span>Q<span class="sc">}</span><span class="ss"> exceeds 0.1% for triplet (32, 64, 128)"</span></span>
-<span id="cb6-140"><a href="#cb6-140" aria-hidden="true" tabindex="-1"></a>            </span>
-<span id="cb6-141"><a href="#cb6-141" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-142"><a href="#cb6-142" aria-hidden="true" tabindex="-1"></a>assert_results(results)</span>
-<span id="cb6-143"><a href="#cb6-143" aria-hidden="true" tabindex="-1"></a>assert_gci(gci_results)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Assert solver, error, and convergence properties for each mesh."""</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    N_sorted <span class="op">=</span> <span class="bu">sorted</span>(results.keys())</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> N <span class="kw">in</span> N_sorted:</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>        r <span class="op">=</span> results[N]</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>        x, u, A, b <span class="op">=</span> r[<span class="st">'x'</span>], r[<span class="st">'u'</span>], r[<span class="st">'A'</span>], r[<span class="st">'b'</span>]</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">assert</span> np.<span class="bu">all</span>(np.isfinite(u)) <span class="kw">and</span> np.<span class="bu">all</span>(np.isfinite(b))</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">assert</span> <span class="bu">len</span>(x) <span class="op">==</span> N <span class="op">+</span> <span class="dv">1</span> <span class="kw">and</span> <span class="bu">len</span>(u) <span class="op">==</span> N <span class="op">+</span> <span class="dv">1</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">assert</span> A.shape <span class="op">==</span> (N <span class="op">-</span> <span class="dv">1</span>, N <span class="op">-</span> <span class="dv">1</span>)</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">assert</span> b.shape <span class="op">==</span> (N <span class="op">-</span> <span class="dv">1</span>,)</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">assert</span> A.nnz <span class="op">&lt;=</span> <span class="dv">3</span> <span class="op">*</span> (N <span class="op">-</span> <span class="dv">1</span>), <span class="ss">f"A has more nonzeros than a tridiagonal matrix allows for N=</span><span class="sc">{</span>N<span class="sc">}</span><span class="ss">"</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>        np.testing.assert_allclose((A <span class="op">-</span> A.T).toarray(), <span class="fl">0.0</span>, atol<span class="op">=</span><span class="fl">1e-12</span>)</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">assert</span> u[<span class="dv">0</span>] <span class="op">==</span> parameters[<span class="st">'u0'</span>] <span class="kw">and</span> u[<span class="op">-</span><span class="dv">1</span>] <span class="op">==</span> parameters[<span class="st">'uL'</span>]</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>        np.testing.assert_allclose(u, u[::<span class="op">-</span><span class="dv">1</span>], atol<span class="op">=</span><span class="fl">1e-10</span>), <span class="ss">f"Reflection symmetry failed for N=</span><span class="sc">{</span>N<span class="sc">}</span><span class="ss">"</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>        <span class="cf">assert</span> r[<span class="st">'R'</span>] <span class="op">&lt;</span> <span class="fl">1e-10</span>, <span class="ss">f"Relative residual too large for N=</span><span class="sc">{</span>N<span class="sc">}</span><span class="ss">: </span><span class="sc">{</span>r[<span class="st">'R'</span>]<span class="sc">:.3e}</span><span class="ss">"</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    E2_values <span class="op">=</span> [results[N][<span class="st">'E2'</span>] <span class="cf">for</span> N <span class="kw">in</span> N_sorted]</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>    Einf_values <span class="op">=</span> [results[N][<span class="st">'Einf'</span>] <span class="cf">for</span> N <span class="kw">in</span> N_sorted]</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="bu">all</span>(E2_values[i] <span class="op">&gt;</span> E2_values[i <span class="op">+</span> <span class="dv">1</span>] <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(E2_values) <span class="op">-</span> <span class="dv">1</span>)), <span class="st">"E2 must decrease under refinement"</span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="bu">all</span>(Einf_values[i] <span class="op">&gt;</span> Einf_values[i <span class="op">+</span> <span class="dv">1</span>] <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(Einf_values) <span class="op">-</span> <span class="dv">1</span>)), <span class="st">"Einf must decrease under refinement"</span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>    p_E2_values <span class="op">=</span> [results[N][<span class="st">'p_E2'</span>] <span class="cf">for</span> N <span class="kw">in</span> N_sorted[<span class="dv">1</span>:]]</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="bu">all</span>(<span class="fl">1.9</span> <span class="op">&lt;=</span> p <span class="op">&lt;=</span> <span class="fl">2.1</span> <span class="cf">for</span> p <span class="kw">in</span> p_E2_values[<span class="op">-</span><span class="dv">2</span>:]), <span class="ss">f"Last two p_E2 values out of [1.9, 2.1]: </span><span class="sc">{</span>p_E2_values[<span class="op">-</span><span class="dv">2</span>:]<span class="sc">}</span><span class="ss">"</span></span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> assert_gci(gci_results):</span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Assert the three-grid Richardson/GCI diagnostics are well formed."""</span></span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (N_coarse, N_medium, N_fine), diag <span class="kw">in</span> gci_results.items():</span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>        <span class="cf">assert</span> diag[<span class="st">'monotone'</span>], <span class="ss">f"Non-monotone convergence for triplet (</span><span class="sc">{</span>N_coarse<span class="sc">}</span><span class="ss">, </span><span class="sc">{</span>N_medium<span class="sc">}</span><span class="ss">, </span><span class="sc">{</span>N_fine<span class="sc">}</span><span class="ss">)"</span></span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>        <span class="cf">assert</span> diag[<span class="st">'p_Q'</span>] <span class="op">&gt;</span> <span class="dv">0</span>, <span class="ss">f"Non-positive observed order for triplet (</span><span class="sc">{</span>N_coarse<span class="sc">}</span><span class="ss">, </span><span class="sc">{</span>N_medium<span class="sc">}</span><span class="ss">, </span><span class="sc">{</span>N_fine<span class="sc">}</span><span class="ss">)"</span></span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>    fine_gci <span class="op">=</span> gci_results[(<span class="dv">32</span>, <span class="dv">64</span>, <span class="dv">128</span>)]</span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> fine_gci[<span class="st">'g12_pct'</span>] <span class="op">&lt;</span> <span class="fl">0.1</span>, <span class="ss">f"Fine-grid GCI </span><span class="sc">{</span>fine_gci[<span class="st">'g12_pct'</span>]<span class="sc">:.4f}</span><span class="ss">% exceeds 0.1% target"</span></span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>assert_results(results)</span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>assert_gci(gci_results)</span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"PASS: residuals below 1e-10, E2/Einf decreasing, last two p_E2 in [1.9, 2.1], "</span></span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>      <span class="st">"and fine-grid GCI below 0.1</span><span class="sc">% f</span><span class="st">or the (32, 64, 128) triplet."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Investigating E2 values: [np.float64(0.6833060494295727), np.float64(0.6956300865537504), np.float64(0.7014750806503723), np.float64(0.7043177321354127)]
-Investigating sign issues in E2 values...
-Investigating h scaling issues...
-Expected h ratio: 2.0, Actual E2 ratio: 0.9822836341291208
-Expected h ratio: 2.0, Actual E2 ratio: 0.9916675670200532
-Expected h ratio: 2.0, Actual E2 ratio: 0.9959639643369168
-Investigating refinement indexing issues...
-Refinement pair: Coarse N=16, Fine N=32
-Refinement pair: Coarse N=32, Fine N=64
-Refinement pair: Coarse N=64, Fine N=128
-Investigating boundary treatment issues...
-Investigating roundoff issues...</code></pre>
-</div>
-<div class="cell-output cell-output-error">
-<div class="ansi-escaped-output">
-<pre><span class="ansi-red-fg">---------------------------------------------------------------------------</span>
-<span class="ansi-red-fg">AssertionError</span>                            Traceback (most recent call last)
-<span class="ansi-cyan-fg">Cell</span><span class="ansi-cyan-fg"> </span><span class="ansi-green-fg">In[34]</span><span class="ansi-green-fg">, line 142</span>
-<span class="ansi-green-fg">    138</span>         <span style="font-weight:bold;color:rgb(0,135,0)">if</span> (N_coarse, N_medium, N_fine) == (<span class="ansi-green-fg">32</span>, <span class="ansi-green-fg">64</span>, <span class="ansi-green-fg">128</span>):
-<span class="ansi-green-fg">    139</span>             <span style="font-weight:bold;color:rgb(0,135,0)">assert</span> Q &lt; <span class="ansi-green-fg">0.001</span>, f"GCI Q={Q} exceeds 0.1% for triplet (32, 64, 128)"
-<span class="ansi-green-fg">    140</span> 
-<span class="ansi-green-fg">    141</span> 
-<span class="ansi-green-fg">--&gt; </span><span class="ansi-green-fg">142</span> assert_results(results)
-<span class="ansi-green-fg">    143</span> assert_gci(gci_results)
-
-<span class="ansi-cyan-fg">Cell</span><span class="ansi-cyan-fg"> </span><span class="ansi-green-fg">In[34]</span><span class="ansi-green-fg">, line 82</span>, in <span class="ansi-cyan-fg">assert_results</span><span class="ansi-blue-fg">(results)</span>
-<span class="ansi-green-fg">     78</span>             E2 = results[N][<span class="ansi-yellow-fg">'E2'</span>]
-<span class="ansi-green-fg">     79</span>             Einf = results[N][<span class="ansi-yellow-fg">'Einf'</span>]
-<span class="ansi-green-fg">     80</span>             <span style="font-weight:bold;color:rgb(0,135,0)">if</span> np.isclose(E2, <span class="ansi-green-fg">0</span>, atol=<span class="ansi-green-fg">1e-15</span>) <span style="font-weight:bold;color:rgb(0,135,0)">or</span> np.isclose(Einf, <span class="ansi-green-fg">0</span>, atol=<span class="ansi-green-fg">1e-15</span>):
-<span class="ansi-green-fg">     81</span>                 print(f"Potential roundoff issue for N={N}: E2={E2}, Einf={Einf}")
-<span class="ansi-green-fg">---&gt; </span><span class="ansi-green-fg">82</span>         <span style="font-weight:bold;color:rgb(0,135,0)">raise</span> AssertionError(<span class="ansi-yellow-fg">"E2 not decreasing"</span>)
-<span class="ansi-green-fg">     83</span>     <span style="font-weight:bold;color:rgb(0,135,0)">if</span> <span style="font-weight:bold;color:rgb(0,135,0)">not</span> all(Einf_values[i] &gt; Einf_values[i + <span class="ansi-green-fg">1</span>] <span style="font-weight:bold;color:rgb(0,135,0)">for</span> i <span style="font-weight:bold;color:rgb(0,135,0)">in</span> range(len(Einf_values) - <span class="ansi-green-fg">1</span>)):
-<span class="ansi-green-fg">     84</span>         <span style="font-style:italic;color:rgb(95,135,135)"># Investigate signs, h scaling, refinement indexing, boundary treatment, and roundoff before weakening the target.</span>
-<span class="ansi-green-fg">     85</span> 
-
-<span class="ansi-red-fg">AssertionError</span>: E2 not decreasing</pre>
-</div>
+<pre><code>PASS: residuals below 1e-10, E2/Einf decreasing, last two p_E2 in [1.9, 2.1], and fine-grid GCI below 0.1% for the (32, 64, 128) triplet.</code></pre>
 </div>
 </div>
 </section>

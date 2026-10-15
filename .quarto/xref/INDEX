@@ -1,46 +1,41 @@
 {
-  "index.qmd": {
-    "index.html": "92800a55"
-  },
-  "20260929-verify-heat-conduction.ipynb": {
-    "20260929-verify-heat-conduction.html": "f465d81c"
-  },
-  "20260930-solver-error.ipynb": {
-    "20260930-solver-error.html": "94cda989"
-  },
-  "20261001-estimate-mesh-error.ipynb": {
-    "20261001-estimate-mesh-error.html": "7f573d3c"
-  },
-  "problem-template.ipynb": {
-    "problem-template.html": "b1ce458e"
-  },
   "20261002-heat-balance-uncertainty.ipynb": {
-    "20261002-heat-balance-uncertainty.html": "910acffc"
+    "20261002-heat-balance-uncertainty.html": "5beb02a4"
   },
   "20261005-grid-convergence-and-discretization-uncertainty.ipynb": {
-    "20261005-grid-convergence-and-discretization-uncertainty.html": "fed8b3b5"
+    "20261005-grid-convergence-and-discretization-uncertainty.html": "e10c73b6"
   },
-  "20261006-advection-cfl-conservation.ipynb": {
-    "20261006-advection-cfl-conservation.html": "bd27570e"
+  "20260929-verify-heat-conduction.ipynb": {
+    "20260929-verify-heat-conduction.html": "1d52f0fb"
   },
-<<<<<<< HEAD
-  "20261012-discrete-adjoint-control.ipynb": {
-    "20261012-discrete-adjoint-control.html": "5270e3bb"
+  "20260930-solver-error.ipynb": {
+    "20260930-solver-error.html": "3e39442f"
   },
-  "20261014-characteristic-weno-z.ipynb": {
-    "20261014-characteristic-weno-z.html": "2f4382b6"
-  },
-  "20261013-partitioned-cht-coupling.ipynb": {
-    "20261013-partitioned-cht-coupling.html": "9f2ff151"
-  },
-  "20261009-natural-circulation-transient.ipynb": {
-    "20261009-natural-circulation-transient.html": "3eccd663"
-=======
-  "20261007-cg-line-preconditioning.ipynb": {
-    "20261007-cg-line-preconditioning.html": "c36dbd6e"
+  "20261001-estimate-mesh-error.ipynb": {
+    "20261001-estimate-mesh-error.html": "e32c7d9e"
   },
   "20261008-aos-vs-soa-flux-kernel.ipynb": {
-    "20261008-aos-vs-soa-flux-kernel.html": "9d7baf5d"
->>>>>>> 9db5e18d585fbb37b9e9f41052b2a77abb0291fc
+    "20261008-aos-vs-soa-flux-kernel.html": "60ce6038"
+  },
+  "20261006-advection-cfl-conservation.ipynb": {
+    "20261006-advection-cfl-conservation.html": "704d2c30"
+  },
+  "20261007-cg-line-preconditioning.ipynb": {
+    "20261007-cg-line-preconditioning.html": "97f43f23"
+  },
+  "20261009-natural-circulation-transient.ipynb": {
+    "20261009-natural-circulation-transient.html": "ad5821c1"
+  },
+  "20261012-discrete-adjoint-control.ipynb": {
+    "20261012-discrete-adjoint-control.html": "4412db1b"
+  },
+  "20261013-partitioned-cht-coupling.ipynb": {
+    "20261013-partitioned-cht-coupling.html": "e6d1774c"
+  },
+  "20261014-characteristic-weno-z.ipynb": {
+    "20261014-characteristic-weno-z.html": "45c2143d"
+  },
+  "20261015-halo-overlap-scaling.ipynb": {
+    "20261015-halo-overlap-scaling.html": "a9064e8a"
   }
 }

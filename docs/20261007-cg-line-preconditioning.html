@@ -82,7 +82,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-6c0ad46e1861a38265c10768182fb462.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-dad9a4322ad7fa4720762ae757f50ef1.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="dark">
+<link href="site_libs/bootstrap/bootstrap-0a289de8f5facb2eb205fb6a6c1f6796.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="dark">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -273,7 +273,7 @@ window.Quarto = {
 <p>CG is an iterative method: rather than factorizing a large matrix, it starts with a guess and improves it using matrix-vector products. For a symmetric positive-definite matrix, ordinary CG can be understood as minimizing the quadratic energy <span class="math inline">\(\frac12 u^T A u-b^T u\)</span>; its residual <span class="math inline">\(r=b-Au\)</span> measures how far the current guess is from satisfying the equations. The method chooses successive directions that are conjugate with respect to <span class="math inline">\(A\)</span> (orthogonal in the geometry defined by <span class="math inline">\(A\)</span>), so it avoids undoing progress made in earlier directions. The actual iteration formulas and the role of preconditioning appear in section 2.</p>
 <p>Use one seeded random load <span class="math inline">\(b=\texttt{default\_rng(7).standard\_normal(n*n)}\)</span>, shared across all cases. This synthetic source is not intended to represent a realistic heating profile. A random vector typically contains components in many eigen-directions, making it a useful reproducible way to compare solver behavior rather than testing only an unusually easy single mode.</p>
 <p>For each <span class="math inline">\(\alpha\)</span>, compute <span class="math inline">\(u_{\rm ref}\)</span> with a sparse direct solve as an independent algebraic reference. This direct solve checks the iterative answer; it is not a claim that direct factorization is the preferred approach for larger problems. Compare iterative solutions with this reference to measure algebraic agreement; the difference is not the physical or discretization error of the continuous model.</p>
-<div id="6c2d11fa" class="cell" data-execution_count="7">
+<div id="6c2d11fa" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-15T18:58:52.446898Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-15T18:58:52.446769Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-15T18:58:52.660230Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-15T18:58:52.660030Z&quot;}}" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
@@ -337,7 +337,7 @@ window.Quarto = {
 <p>Compare these three choices: 1. <strong>No preconditioner:</strong> CG works with the original system; there is no setup cost, but it may need many iterations when the system has poorly scaled directions. 2. <strong>Jacobi:</strong> <span class="math inline">\(P_J=\operatorname{diag}(A)\)</span> keeps only the diagonal and scales each unknown independently. Applying <span class="math inline">\(P_J^{-1}\)</span> is componentwise division. Here every diagonal entry is the same, so Jacobi only multiplies the system by a scalar; it cannot change the condition number or improve the exact-arithmetic CG iteration count. 3. <strong>x-line block Jacobi:</strong> solve along each whole horizontal line, retaining the strong x-direction coupling while ignoring coupling between different lines. Its block-diagonal matrix is <span class="math display">\[P_L=h^{-2}I\otimes B_L,\qquad B_L=\alpha T+2I.\]</span> This captures the direction that becomes difficult when <span class="math inline">\(\alpha\)</span> is large. Factor <span class="math inline">\(B_L\)</span> once per <span class="math inline">\(\alpha\)</span>, reshape each residual into rows, solve the independent line systems, and reuse the factor on every PCG application. Because <span class="math inline">\(P_L^{-1}=h^2(I\otimes B_L^{-1})\)</span>, the inverse action includes the factor <span class="math inline">\(h^2\)</span>. The exact line-block matrix is SPD; using a factorization to apply its inverse does not change that. An arbitrary nonsymmetric ILU preconditioner would not provide the same standard PCG guarantee.</p>
 <p>In SciPy’s <code>cg</code>, the argument <code>M</code> must apply the inverse action <span class="math inline">\(P^{-1}\)</span> (often represented by a <code>LinearOperator</code>), not multiply by <span class="math inline">\(P\)</span>. The function still solves the original <span class="math inline">\(Au=b\)</span>. Use <span class="math inline">\(x_0=0\)</span>, <code>rtol=1e-8</code>, <code>atol=0</code>, and <code>maxiter=2000</code> for every solve; the stopping tolerance controls the relative residual, not the error relative to the unknown exact solution.</p>
 <p><strong>Important deduction:</strong> For this square, constant-coefficient system, <span class="math inline">\(\operatorname{diag}(A)\)</span> is constant. Investigate what scalar rescaling can and cannot do to the spectral condition number. Also derive whether <span class="math inline">\(\kappa(A)\)</span> varies with <span class="math inline">\(\alpha\)</span> here; do not assume anisotropy always raises it at fixed equal dimensions.</p>
-<div id="185f6ec3" class="cell" data-execution_count="8">
+<div id="185f6ec3" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-15T18:58:52.663528Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-15T18:58:52.663439Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-15T18:58:52.676091Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-15T18:58:52.675949Z&quot;}}" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> assemble_system(n, alpha):</span>
@@ -506,7 +506,7 @@ d=\frac{\|u-u_{\rm ref}\|_2}{\|u_{\rm ref}\|_2}.\]</span> Log rho_0 = 1 explicit
 <p><strong>Timing protocol:</strong> Assemble A once per alpha. Record preconditioner construction separately. Collect residual histories in one diagnostic solve. Warm up, then time three equivalent solves with the same built preconditioner and no callback; report the median solve time. Record setup + median solve for a single right-hand side, and setup + K times median solve for a modeled K = 20 identical-cost right-hand sides. Label the latter as a cost model, not a measured multi-RHS workload. Include no direct-solve baseline or plotting costs in these times.</p>
 <p>For the spectrum, the 1D eigenvalues are <span class="math display">\[\tau_j=2-2\cos(j\pi/(n+1)),\quad j=1,\ldots,n.\]</span> Derive the eigenvalues of A and the generalized problem A v = lambda P_L v using these separable modes. Plot normalized eigenvalues lambda/mean(lambda) so scalar scaling does not masquerade as improved clustering. Compare kappa(A), kappa(P_J^{-1/2} A P_J^{-1/2}), and kappa(P_L^{-1/2} A P_L^{-1/2}). Use the analytically derived eigenvalues; do not run symmetric eigensolvers on an arbitrary left-preconditioned matrix.</p>
 <p>Worst-case condition-number bounds do not fully predict actual CG histories; clustering and how b projects onto eigenvectors also matter. The Euclidean residual need not decrease every iteration.</p>
-<div id="1e427339" class="cell" data-execution_count="9">
+<div id="1e427339" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-15T18:58:52.679467Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-15T18:58:52.679407Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-15T18:58:52.775151Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-15T18:58:52.774679Z&quot;}}" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Cache one assembled matrix and one direct reference per alpha. This</span></span>
@@ -545,7 +545,7 @@ d=\frac{\|u-u_{\rm ref}\|_2}{\|u_{\rm ref}\|_2}.\]</span> Log rho_0 = 1 explicit
 <p>The convergence here is iterative linear-solver convergence on one fixed mesh.</p>
 <p><strong>Deliverable:</strong> A nine-row table containing alpha, preconditioner, iteration count, final true relative residual, direct-reference difference, spectral condition number, setup time, median solve time, and single-RHS total time.</p>
 <p>State whether Jacobi changes the condition number or iteration count materially, and explain why. Quantify the x-line iteration reduction at alpha = 1e4. Do not assert wall-time speedup solely because iteration count falls. Explain any nonmonotone iteration trend as alpha increases.</p>
-<div id="90feac61" class="cell" data-execution_count="10">
+<div id="90feac61" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-15T18:58:52.776064Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-15T18:58:52.775938Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-15T18:58:52.781283Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-15T18:58:52.780937Z&quot;}}" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Format a reproducible nine-row summary, retaining info so a capped or</span></span>
@@ -638,10 +638,10 @@ d=\frac{\|u-u_{\rm ref}\|_2}{\|u_{\rm ref}\|_2}.\]</span> Log rho_0 = 1 explicit
 <td>9.979e-09</td>
 <td>7.168e-09</td>
 <td>6.806e+02</td>
-<td>6.000e-07</td>
-<td>1.628e-03</td>
-<td>1.628e-03</td>
-<td>3.255e-02</td>
+<td>6.400e-07</td>
+<td>1.477e-03</td>
+<td>1.477e-03</td>
+<td>2.953e-02</td>
 </tr>
 <tr class="even">
 <td>1</td>
@@ -651,10 +651,10 @@ d=\frac{\|u-u_{\rm ref}\|_2}{\|u_{\rm ref}\|_2}.\]</span> Log rho_0 = 1 explicit
 <td>9.979e-09</td>
 <td>7.168e-09</td>
 <td>6.806e+02</td>
-<td>2.480e-05</td>
-<td>1.736e-03</td>
-<td>1.761e-03</td>
-<td>3.475e-02</td>
+<td>2.840e-05</td>
+<td>1.566e-03</td>
+<td>1.595e-03</td>
+<td>3.135e-02</td>
 </tr>
 <tr class="odd">
 <td>1</td>
@@ -664,10 +664,10 @@ d=\frac{\|u-u_{\rm ref}\|_2}{\|u_{\rm ref}\|_2}.\]</span> Log rho_0 = 1 explicit
 <td>9.275e-09</td>
 <td>8.116e-09</td>
 <td>3.408e+02</td>
-<td>1.665e-04</td>
-<td>2.251e-03</td>
-<td>2.418e-03</td>
-<td>4.519e-02</td>
+<td>1.277e-04</td>
+<td>2.097e-03</td>
+<td>2.224e-03</td>
+<td>4.206e-02</td>
 </tr>
 <tr class="even">
 <td>100</td>
@@ -677,10 +677,10 @@ d=\frac{\|u-u_{\rm ref}\|_2}{\|u_{\rm ref}\|_2}.\]</span> Log rho_0 = 1 explicit
 <td>9.539e-09</td>
 <td>1.326e-08</td>
 <td>6.806e+02</td>
-<td>4.000e-07</td>
-<td>3.112e-03</td>
-<td>3.112e-03</td>
-<td>6.224e-02</td>
+<td>3.100e-07</td>
+<td>2.797e-03</td>
+<td>2.797e-03</td>
+<td>5.594e-02</td>
 </tr>
 <tr class="odd">
 <td>100</td>
@@ -690,10 +690,10 @@ d=\frac{\|u-u_{\rm ref}\|_2}{\|u_{\rm ref}\|_2}.\]</span> Log rho_0 = 1 explicit
 <td>9.539e-09</td>
 <td>1.326e-08</td>
 <td>6.806e+02</td>
-<td>2.000e-05</td>
-<td>3.298e-03</td>
-<td>3.318e-03</td>
-<td>6.598e-02</td>
+<td>1.674e-05</td>
+<td>2.943e-03</td>
+<td>2.960e-03</td>
+<td>5.888e-02</td>
 </tr>
 <tr class="even">
 <td>100</td>
@@ -703,10 +703,10 @@ d=\frac{\|u-u_{\rm ref}\|_2}{\|u_{\rm ref}\|_2}.\]</span> Log rho_0 = 1 explicit
 <td>7.818e-09</td>
 <td>1.823e-08</td>
 <td>7.729e+00</td>
-<td>1.531e-04</td>
-<td>5.645e-04</td>
-<td>7.176e-04</td>
-<td>1.144e-02</td>
+<td>1.160e-04</td>
+<td>5.129e-04</td>
+<td>6.289e-04</td>
+<td>1.037e-02</td>
 </tr>
 <tr class="odd">
 <td>10000</td>
@@ -716,10 +716,10 @@ d=\frac{\|u-u_{\rm ref}\|_2}{\|u_{\rm ref}\|_2}.\]</span> Log rho_0 = 1 explicit
 <td>8.915e-09</td>
 <td>1.357e-08</td>
 <td>6.806e+02</td>
-<td>3.000e-07</td>
-<td>1.610e-03</td>
-<td>1.610e-03</td>
-<td>3.220e-02</td>
+<td>2.100e-07</td>
+<td>1.431e-03</td>
+<td>1.431e-03</td>
+<td>2.862e-02</td>
 </tr>
 <tr class="even">
 <td>10000</td>
@@ -729,10 +729,10 @@ d=\frac{\|u-u_{\rm ref}\|_2}{\|u_{\rm ref}\|_2}.\]</span> Log rho_0 = 1 explicit
 <td>8.915e-09</td>
 <td>1.357e-08</td>
 <td>6.806e+02</td>
-<td>1.540e-05</td>
-<td>1.699e-03</td>
-<td>1.714e-03</td>
-<td>3.399e-02</td>
+<td>1.375e-05</td>
+<td>1.517e-03</td>
+<td>1.531e-03</td>
+<td>3.036e-02</td>
 </tr>
 <tr class="odd">
 <td>10000</td>
@@ -742,10 +742,10 @@ d=\frac{\|u-u_{\rm ref}\|_2}{\|u_{\rm ref}\|_2}.\]</span> Log rho_0 = 1 explicit
 <td>6.091e-10</td>
 <td>1.535e-09</td>
 <td>1.068e+00</td>
-<td>1.353e-04</td>
-<td>1.258e-04</td>
-<td>2.611e-04</td>
-<td>2.651e-03</td>
+<td>1.178e-04</td>
+<td>1.165e-04</td>
+<td>2.343e-04</td>
+<td>2.448e-03</td>
 </tr>
 </tbody>
 </table>
@@ -755,7 +755,7 @@ d=\frac{\|u-u_{\rm ref}\|_2}{\|u_{\rm ref}\|_2}.\]</span> Log rho_0 = 1 explicit
 <ul>
 <li>At alpha=1e4, x-line CG used 5 iterations versus 122 without preconditioning, a reduction of 95.9%.</li>
 <li>Jacobi and plain CG have the same spectrum up to division by one positive scalar. Their condition numbers are equal, and their measured iterations are equal here; scalar scaling cannot improve the conditioning.</li>
-<li>At alpha=1e4, measured x-line setup took 1.353e-04 s and its median solve took 1.258e-04 s; plain CG had no setup and took 1.610e-03 s. These measurements show whether the additional line work paid off on this machine; do not generalize small timings into a hardware-independent speedup.</li>
+<li>At alpha=1e4, measured x-line setup took 1.178e-04 s and its median solve took 1.165e-04 s; plain CG had no setup and took 1.431e-03 s. These measurements show whether the additional line work paid off on this machine; do not generalize small timings into a hardware-independent speedup.</li>
 <li>The modeled 20-RHS total assumes the same setup can be reused and each right-hand side has the measured median solve cost; it is a cost model, not a measured batched workload. Reuse amortizes setup over more right-hand sides.</li>
 <li>Plain-CG iterations across increasing alpha were [124, 238, 122]. Yet the condition number is exactly independent of alpha on this square grid: the smallest and largest eigenvalues are (alpha+1)<em>tau_1 and (alpha+1)</em>tau_n.&nbsp;Iterations can still change because CG responds to the full eigenvalue distribution and to how the initial residual projects onto its eigenvectors, not just the extreme ratio.</li>
 </ul>
@@ -766,7 +766,7 @@ d=\frac{\|u-u_{\rm ref}\|_2}{\|u_{\rm ref}\|_2}.\]</span> Log rho_0 = 1 explicit
 <h2 class="anchored" data-anchor-id="solution-and-diagnostic-plots">5. Solution and diagnostic plots</h2>
 <p>Create: 1. Semilog true-residual histories for the three configurations, one panel per alpha. 2. Normalized spectral distributions for A, Jacobi, and x-line preconditioning at alpha = 1e4. Use the same axes for comparable distributions. 3. Setup and solve time comparison, plus the modeled K = 20 reuse cost. Label the cost model distinctly from measured timings.</p>
 <p>An optional 2D solution plot can check array ordering. It is not a CFD validation plot. Distinguish residual histories (instrumented) from timing runs (uninstrumented).</p>
-<div id="45c849c5" class="cell" data-execution_count="11">
+<div id="45c849c5" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-15T18:58:52.781951Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-15T18:58:52.781888Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-15T18:58:53.168620Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-15T18:58:53.168183Z&quot;}}" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot one: compare instrumented, independently recomputed residuals.</span></span>
@@ -865,7 +865,7 @@ d=\frac{\|u-u_{\rm ref}\|_2}{\|u_{\rm ref}\|_2}.\]</span> Log rho_0 = 1 explicit
 <p>For each preconditioner test vector r, check the inverse action against the intended P: norm(P M r-r)/norm(r) &lt; 1e-11. Build P only for this sparse check if convenient; never build its inverse.</p>
 <p>Require info = 0, true relative residual &lt;= 2e-8, and relative direct-reference difference &lt;= 1e-5 for every solve. Check that all diagonals of A are equal and that Jacobi preserves the spectral condition number to relative tolerance 1e-12. At alpha = 1e4 require x-line iteration count &lt; 0.5 times plain CG iterations. Do not demand exactly equal plain/Jacobi iteration counts across machines because finite-precision paths can differ.</p>
 <p>Do not assert a timing ratio: tiny cases can be dominated by overhead. If a line-action check fails, inspect reshape direction, transpose, and h-squared scaling before weakening tolerances.</p>
-<div id="f2420fe4" class="cell" data-execution_count="12">
+<div id="f2420fe4" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-15T18:58:53.169434Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-15T18:58:53.169367Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-15T18:58:53.175472Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-15T18:58:53.175183Z&quot;}}" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Check matrix structure and the analytic SPD conditions for each alpha.</span></span>

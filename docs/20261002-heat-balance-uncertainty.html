@@ -82,7 +82,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-6c0ad46e1861a38265c10768182fb462.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-dad9a4322ad7fa4720762ae757f50ef1.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="dark">
+<link href="site_libs/bootstrap/bootstrap-0a289de8f5facb2eb205fb6a6c1f6796.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="dark">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -226,17 +226,19 @@ window.Quarto = {
   <li><a href="#put-uncertainty-on-a-heat-balance" id="toc-put-uncertainty-on-a-heat-balance" class="nav-link active" data-scroll-target="#put-uncertainty-on-a-heat-balance">Put uncertainty on a heat balance</a>
   <ul class="collapse">
   <li><a href="#sensitivity-coefficients-correlated-temperatures-and-monte-carlo-verification" id="toc-sensitivity-coefficients-correlated-temperatures-and-monte-carlo-verification" class="nav-link" data-scroll-target="#sensitivity-coefficients-correlated-temperatures-and-monte-carlo-verification">Sensitivity coefficients, correlated temperatures, and Monte Carlo verification</a></li>
-  <li><a href="#modeling-assumptions-and-input-data" id="toc-modeling-assumptions-and-input-data" class="nav-link" data-scroll-target="#modeling-assumptions-and-input-data">1. Modeling assumptions and input data</a>
+  <li><a href="#governing-model-and-reference-solution" id="toc-governing-model-and-reference-solution" class="nav-link" data-scroll-target="#governing-model-and-reference-solution">1. Governing model and reference solution</a>
   <ul class="collapse">
   <li><a href="#sensitivity-row-and-covariance-expansion" id="toc-sensitivity-row-and-covariance-expansion" class="nav-link" data-scroll-target="#sensitivity-row-and-covariance-expansion">Sensitivity row and covariance expansion</a></li>
   </ul></li>
-  <li><a href="#uncertainty-propagation" id="toc-uncertainty-propagation" class="nav-link" data-scroll-target="#uncertainty-propagation">2. Uncertainty propagation</a></li>
-  <li><a href="#monte-carlo-verification" id="toc-monte-carlo-verification" class="nav-link" data-scroll-target="#monte-carlo-verification">3. Monte Carlo verification</a>
+  <li><a href="#discretization-and-conditions" id="toc-discretization-and-conditions" class="nav-link" data-scroll-target="#discretization-and-conditions">2. Discretization and conditions</a></li>
+  <li><a href="#error-measures-and-expected-behavior" id="toc-error-measures-and-expected-behavior" class="nav-link" data-scroll-target="#error-measures-and-expected-behavior">3. Error measures and expected behavior</a></li>
+  <li><a href="#results-and-convergence" id="toc-results-and-convergence" class="nav-link" data-scroll-target="#results-and-convergence">4. Results and convergence</a></li>
+  <li><a href="#solution-and-diagnostic-plots" id="toc-solution-and-diagnostic-plots" class="nav-link" data-scroll-target="#solution-and-diagnostic-plots">5. Solution and diagnostic plots</a></li>
+  <li><a href="#automatic-checks" id="toc-automatic-checks" class="nav-link" data-scroll-target="#automatic-checks">6. Automatic checks</a>
   <ul class="collapse">
   <li><a href="#temperature-cancellation-check" id="toc-temperature-cancellation-check" class="nav-link" data-scroll-target="#temperature-cancellation-check">Temperature cancellation check</a></li>
   </ul></li>
-  <li><a href="#results-and-comparison" id="toc-results-and-comparison" class="nav-link" data-scroll-target="#results-and-comparison">4. Results and comparison</a></li>
-  <li><a href="#discussion-limitations-and-reading" id="toc-discussion-limitations-and-reading" class="nav-link" data-scroll-target="#discussion-limitations-and-reading">5. Discussion, limitations, and reading</a></li>
+  <li><a href="#discussion-and-next-steps" id="toc-discussion-and-next-steps" class="nav-link" data-scroll-target="#discussion-and-next-steps">7. Discussion and next steps</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -256,8 +258,8 @@ window.Quarto = {
 <p>The key idea is that the standard uncertainty is not a property of the nominal value alone: it depends on how each input varies and on whether the temperature readings move together. The first-order estimate from <span class="math inline">\(u_Q^2 = J\Sigma J^T\)</span> can be checked directly against the standard deviation from a Gaussian Monte Carlo experiment.</p>
 <p><strong>Notation:</strong> <span class="math inline">\(\dot m\)</span> denotes mass flow rate (kg/s), <span class="math inline">\(c_p\)</span> specific heat, <span class="math inline">\(\Delta T=T_{out}-T_{in}\)</span>, <span class="math inline">\(Q\)</span> heat rate (W), <span class="math inline">\(J\)</span> the sensitivity row, and <span class="math inline">\(\Sigma\)</span> the input covariance matrix. Always order inputs as <strong>[m, cp, Tin, Tout]</strong>. Report standard uncertainty <span class="math inline">\(u_Q\)</span>, not expanded uncertainty or a confidence interval.</p>
 </section>
-<section id="modeling-assumptions-and-input-data" class="level2">
-<h2 class="anchored" data-anchor-id="modeling-assumptions-and-input-data">1. Modeling assumptions and input data</h2>
+<section id="governing-model-and-reference-solution" class="level2">
+<h2 class="anchored" data-anchor-id="governing-model-and-reference-solution">1. Governing model and reference solution</h2>
 <p>This is a steady single-phase heater with negligible kinetic and potential energy changes, no shaft work, no phase change, and no heat loss. The inlet and outlet temperatures are measured with standard uncertainties of 0.20 K, while the mass flow and heat capacity carry their own independent uncertainty. The nominal values are</p>
 <table class="caption-top table">
 <thead>
@@ -329,7 +331,12 @@ u_m^2 &amp; 0 &amp; 0 &amp; 0\\
 +\left(\frac{\partial Q}{\partial T_{out}}\right)^2u_{Tout}^2
 +2\frac{\partial Q}{\partial T_{in}}\frac{\partial Q}{\partial T_{out}}\rho u_{Tin}u_{Tout}.\]</span></p>
 <p>The final term is the covariance contribution from the two temperature measurements. Because the derivatives have opposite signs, the product is negative, so positive correlation reduces the temperature-difference variance and therefore reduces <span class="math inline">\(u_Q\)</span>. That cancellation is exactly why a shared sensor offset can be much less damaging than independent temperature uncertainty.</p>
-<div id="heat-04" class="cell" data-execution_count="1">
+</section>
+</section>
+<section id="discretization-and-conditions" class="level2">
+<h2 class="anchored" data-anchor-id="discretization-and-conditions">2. Discretization and conditions</h2>
+<p>There is no spatial or temporal grid here since the heat balance is a lumped, steady, zero-dimensional model; the discretization choices instead live in how the uncertainty analysis itself is set up. Three conditions matter: the finite-difference step used to check the analytic Jacobian (a fractional perturbation of 0.1% of each nominal input), the number of Monte Carlo draws used to approximate the sampling distribution of <span class="math inline">\(Q\)</span> (100,000 per correlation case), and the two correlation cases under investigation, <span class="math inline">\(\rho \in \{0, 0.9\}\)</span>. These are set below alongside the nominal input vector and its standard uncertainties.</p>
+<div id="3934bcf4" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-15T18:58:26.295164Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-15T18:58:26.295104Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-15T18:58:26.448885Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-15T18:58:26.448453Z&quot;}}" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
@@ -351,13 +358,11 @@ u_m^2 &amp; 0 &amp; 0 &amp; 0\\
 </details>
 </div>
 </section>
-</section>
-<section id="uncertainty-propagation" class="level2">
-<h2 class="anchored" data-anchor-id="uncertainty-propagation">2. Uncertainty propagation</h2>
-<p>The numerical implementation is straightforward once the derivatives and covariance structure are pinned down. The function <code>heat_rate(x)</code> evaluates the steady balance for a single vector or a batch of input samples, while <code>sensitivities(x)</code> returns the analytic Jacobian row at the nominal point. The covariance matrix is built from the standard uncertainties and the temperature correlation, with the off-diagonal temperature entries set to <span class="math inline">\(\rho u_{Tin}u_{Tout}\)</span>.</p>
-<p>The centered finite-difference check is useful because it confirms the analytic derivatives are not just algebraically consistent but numerically consistent with the heat-rate function itself. When the perturbation is small enough, the finite-difference estimate and the analytic derivative should agree to within around 0.1%.</p>
-<p>Using the propagation law, the uncertainty is computed from the sensitivity row and the input covariance matrix. The result is a combined standard uncertainty in W, not an expanded interval or a confidence limit. This is the quantity that should be compared against Monte Carlo sampling when the model is smooth and mildly nonlinear.</p>
-<div id="heat-06" class="cell" data-execution_count="2">
+<section id="error-measures-and-expected-behavior" class="level2">
+<h2 class="anchored" data-anchor-id="error-measures-and-expected-behavior">3. Error measures and expected behavior</h2>
+<p>Two error measures are used to judge whether the implementation and the linearization are trustworthy. The first is the relative difference between the analytic sensitivity row <span class="math inline">\(J\)</span> and a centered finite-difference estimate; because the heat-rate model is exactly bilinear in each pair of inputs, this difference should be very small, and it is expected to fall within 0.1% once the perturbation is small. The second, introduced in Section 4, is the relative difference between the first-order propagated uncertainty <span class="math inline">\(u_Q\)</span> and the Monte Carlo sample standard deviation; since the model is smooth and only mildly nonlinear near the operating point, this is expected to agree within 2%.</p>
+<p>The function <code>heat_rate(x)</code> evaluates the steady balance for a single vector or a batch of input samples, while <code>sensitivities(x)</code> returns the analytic Jacobian row at the nominal point. The covariance matrix is built from the standard uncertainties and the temperature correlation, with the off-diagonal temperature entries set to <span class="math inline">\(\rho u_{Tin}u_{Tout}\)</span>.</p>
+<div id="6ab6fb59" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-15T18:58:26.449925Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-15T18:58:26.449813Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-15T18:58:26.452193Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-15T18:58:26.451966Z&quot;}}" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> heat_rate(x):</span>
@@ -395,7 +400,7 @@ u_m^2 &amp; 0 &amp; 0 &amp; 0\\
 <span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">float</span>(np.sqrt(J <span class="op">@</span> Sigma <span class="op">@</span> J.T))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
-<div id="heat-07" class="cell" data-execution_count="3">
+<div id="6db3bf78" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-15T18:58:26.453091Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-15T18:58:26.453006Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-15T18:58:26.455858Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-15T18:58:26.455679Z&quot;}}" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Centered finite differences are independent of your analytic derivative formula.</span></span>
@@ -466,7 +471,11 @@ u_m^2 &amp; 0 &amp; 0 &amp; 0\\
 </table>
 </div>
 </div>
-<div id="heat-08" class="cell" data-execution_count="4">
+</section>
+<section id="results-and-convergence" class="level2">
+<h2 class="anchored" data-anchor-id="results-and-convergence">4. Results and convergence</h2>
+<p>Using the propagation law, the first-order standard uncertainty is computed from the sensitivity row and the input covariance matrix for each correlation case. With the first-order expression assembled, it is then checked against a direct Monte Carlo sample of the same Gaussian input model: 100,000 realizations are drawn from the input distribution for each correlation case, the heat-rate function is evaluated on all of them, and the sample standard deviation is computed with <code>ddof=1</code>. Good agreement between the Monte Carlo value and the propagated estimate verifies that the local linear approximation holds for this problem; the samples also show the effect of correlation directly, since positive correlation shrinks the variance of <span class="math inline">\(T_{out}-T_{in}\)</span> and lowers the propagated uncertainty even though the nominal heat rate is unchanged.</p>
+<div id="5c921fc4" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-15T18:58:26.456416Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-15T18:58:26.456358Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-15T18:58:26.464601Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-15T18:58:26.464338Z&quot;}}" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>Q_nominal <span class="op">=</span> <span class="bu">float</span>(heat_rate(x_nominal))</span>
@@ -526,59 +535,33 @@ u_m^2 &amp; 0 &amp; 0 &amp; 0\\
 </table>
 </div>
 </div>
-<div id="heat-09" class="cell" data-execution_count="5">
+<div id="e6227ccc" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-15T18:58:26.465322Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-15T18:58:26.465263Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-15T18:58:26.479789Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-15T18:58:26.479491Z&quot;}}" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">6</span>, <span class="dv">4</span>), layout<span class="op">=</span><span class="st">"constrained"</span>)</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>ax.bar([<span class="ss">f"rho = </span><span class="sc">{</span>row[<span class="st">'rho'</span>]<span class="sc">:.1f}</span><span class="ss">"</span> <span class="cf">for</span> row <span class="kw">in</span> results],</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>       [row[<span class="st">"u_Q"</span>] <span class="cf">for</span> row <span class="kw">in</span> results], color<span class="op">=</span>[<span class="st">"tab:blue"</span>, <span class="st">"tab:orange"</span>])</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>ax.<span class="bu">set</span>(xlabel<span class="op">=</span><span class="st">"Temperature-reading correlation"</span>,</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>       ylabel<span class="op">=</span><span class="st">"Heat-rate standard uncertainty u_Q (W)"</span>,</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>       title<span class="op">=</span><span class="st">"First-order propagated input uncertainty"</span>)</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>ax.grid(axis<span class="op">=</span><span class="st">"y"</span>, alpha<span class="op">=</span><span class="fl">0.25</span>)</span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</details>
-<div class="cell-output cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="20261002-heat-balance-uncertainty_files/figure-html/cell-6-output-1.png" class="img-fluid figure-img"></p>
-</figure>
-</div>
-</div>
-</div>
-</section>
-<section id="monte-carlo-verification" class="level2">
-<h2 class="anchored" data-anchor-id="monte-carlo-verification">3. Monte Carlo verification</h2>
-<p>With the first-order expression assembled, the next step is to test it against a direct Monte Carlo sample of the same Gaussian input model. The code draws 100,000 realizations from the input distribution for each correlation case, evaluates the heat-rate function on all of them, and computes the sample standard deviation using <code>ddof=1</code>.</p>
-<p>The comparison is useful because a good agreement between the Monte Carlo value and the propagated estimate verifies that the local linear approximation is working for this problem. The same samples also show the effect of correlation directly: when the temperature readings move together, the variance of <span class="math inline">\(T_{out}-T_{in}\)</span> shrinks, and the propagated uncertainty falls even though the nominal heat rate remains identical.</p>
-<p>This verification check is meant to test the uncertainty model, not the physical model itself. Monte Carlo agreement tells us the propagation formula is behaving as expected for this Gaussian, smooth, differentiable heat-balance problem; it does not establish whether the steady-energy model omits heat loss or other physics.</p>
-<div id="heat-11" class="cell" data-execution_count="6">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">42</span>)</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> row <span class="kw">in</span> results:</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    Sigma <span class="op">=</span> row[<span class="st">"Sigma"</span>]</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    samples <span class="op">=</span> rng.multivariate_normal(</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>        mean<span class="op">=</span>x_nominal,</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>        cov<span class="op">=</span>Sigma,</span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>        size<span class="op">=</span>N_SAMPLES,</span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>        check_valid<span class="op">=</span><span class="st">"raise"</span>,</span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    Q_samples <span class="op">=</span> heat_rate(samples)</span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    mc_std <span class="op">=</span> <span class="bu">float</span>(np.std(Q_samples, ddof<span class="op">=</span><span class="dv">1</span>))</span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    row[<span class="st">"mc_std"</span>] <span class="op">=</span> mc_std</span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    row[<span class="st">"mc_relative_error"</span>] <span class="op">=</span> <span class="bu">abs</span>(mc_std <span class="op">-</span> row[<span class="st">"u_Q"</span>]) <span class="op">/</span> row[<span class="st">"u_Q"</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">42</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> row <span class="kw">in</span> results:</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    Sigma <span class="op">=</span> row[<span class="st">"Sigma"</span>]</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    samples <span class="op">=</span> rng.multivariate_normal(</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>        mean<span class="op">=</span>x_nominal,</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>        cov<span class="op">=</span>Sigma,</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>        size<span class="op">=</span>N_SAMPLES,</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>        check_valid<span class="op">=</span><span class="st">"raise"</span>,</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    Q_samples <span class="op">=</span> heat_rate(samples)</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    mc_std <span class="op">=</span> <span class="bu">float</span>(np.std(Q_samples, ddof<span class="op">=</span><span class="dv">1</span>))</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    row[<span class="st">"mc_std"</span>] <span class="op">=</span> mc_std</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    row[<span class="st">"mc_relative_error"</span>] <span class="op">=</span> <span class="bu">abs</span>(mc_std <span class="op">-</span> row[<span class="st">"u_Q"</span>]) <span class="op">/</span> row[<span class="st">"u_Q"</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
-<div id="heat-12" class="cell" data-execution_count="7">
+<div id="055b885b" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-15T18:58:26.480571Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-15T18:58:26.480473Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-15T18:58:26.482618Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-15T18:58:26.482393Z&quot;}}" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>table <span class="op">=</span> [<span class="st">"| rho | Samples | First-order u_Q (W) | Monte Carlo s_Q (W) | Difference (%) | Within 2%? |"</span>,</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>         <span class="st">"|---:|---:|---:|---:|---:|:---:|"</span>]</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> row <span class="kw">in</span> results:</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    passed <span class="op">=</span> row[<span class="st">"mc_relative_error"</span>] <span class="op">&lt;=</span> MC_TOL</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    table.append(<span class="ss">f"| </span><span class="sc">{</span>row[<span class="st">'rho'</span>]<span class="sc">:.1f}</span><span class="ss"> | </span><span class="sc">{</span>N_SAMPLES<span class="sc">:,}</span><span class="ss"> | </span><span class="sc">{</span>row[<span class="st">'u_Q'</span>]<span class="sc">:.2f}</span><span class="ss"> | </span><span class="sc">{</span>row[<span class="st">'mc_std'</span>]<span class="sc">:.2f}</span><span class="ss"> | </span><span class="sc">{</span><span class="dv">100</span> <span class="op">*</span> row[<span class="st">'mc_relative_error'</span>]<span class="sc">:.3f}</span><span class="ss"> | </span><span class="sc">{</span><span class="st">'PASS'</span> <span class="cf">if</span> passed <span class="cf">else</span> <span class="st">'FAIL'</span><span class="sc">}</span><span class="ss"> |"</span>)</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>display(Markdown(<span class="st">"</span><span class="ch">\n</span><span class="st">"</span>.join(table)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>table <span class="op">=</span> [<span class="st">"| rho | Samples | First-order u_Q (W) | Monte Carlo s_Q (W) | Difference (%) | Within 2%? |"</span>,</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>         <span class="st">"|---:|---:|---:|---:|---:|:---:|"</span>]</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> row <span class="kw">in</span> results:</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    passed <span class="op">=</span> row[<span class="st">"mc_relative_error"</span>] <span class="op">&lt;=</span> MC_TOL</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    table.append(<span class="ss">f"| </span><span class="sc">{</span>row[<span class="st">'rho'</span>]<span class="sc">:.1f}</span><span class="ss"> | </span><span class="sc">{</span>N_SAMPLES<span class="sc">:,}</span><span class="ss"> | </span><span class="sc">{</span>row[<span class="st">'u_Q'</span>]<span class="sc">:.2f}</span><span class="ss"> | </span><span class="sc">{</span>row[<span class="st">'mc_std'</span>]<span class="sc">:.2f}</span><span class="ss"> | </span><span class="sc">{</span><span class="dv">100</span> <span class="op">*</span> row[<span class="st">'mc_relative_error'</span>]<span class="sc">:.3f}</span><span class="ss"> | </span><span class="sc">{</span><span class="st">'PASS'</span> <span class="cf">if</span> passed <span class="cf">else</span> <span class="st">'FAIL'</span><span class="sc">}</span><span class="ss"> |"</span>)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>display(Markdown(<span class="st">"</span><span class="ch">\n</span><span class="st">"</span>.join(table)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display cell-output-markdown">
 <table class="caption-top table table-sm table-striped small">
@@ -621,12 +604,40 @@ u_m^2 &amp; 0 &amp; 0 &amp; 0\\
 </table>
 </div>
 </div>
+</section>
+<section id="solution-and-diagnostic-plots" class="level2">
+<h2 class="anchored" data-anchor-id="solution-and-diagnostic-plots">5. Solution and diagnostic plots</h2>
+<p>The bar chart below is a static comparison across two discrete correlation cases rather than a continuous parameter sweep, so a matplotlib figure is the right tool here (an interactive Plotly explorer would add no diagnostic value over two bars). It shows the first-order propagated uncertainty <span class="math inline">\(u_Q\)</span> for <span class="math inline">\(\rho=0\)</span> and <span class="math inline">\(\rho=0.9\)</span>, making the cancellation effect from the covariance term visually direct.</p>
+<div id="330fb749" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-15T18:58:26.483135Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-15T18:58:26.483080Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-15T18:58:26.537139Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-15T18:58:26.536750Z&quot;}}" data-execution_count="7">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">6</span>, <span class="dv">4</span>), layout<span class="op">=</span><span class="st">"constrained"</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>ax.bar([<span class="ss">f"rho = </span><span class="sc">{</span>row[<span class="st">'rho'</span>]<span class="sc">:.1f}</span><span class="ss">"</span> <span class="cf">for</span> row <span class="kw">in</span> results],</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>       [row[<span class="st">"u_Q"</span>] <span class="cf">for</span> row <span class="kw">in</span> results], color<span class="op">=</span>[<span class="st">"tab:blue"</span>, <span class="st">"tab:orange"</span>])</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>ax.<span class="bu">set</span>(xlabel<span class="op">=</span><span class="st">"Temperature-reading correlation"</span>,</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>       ylabel<span class="op">=</span><span class="st">"Heat-rate standard uncertainty u_Q (W)"</span>,</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>       title<span class="op">=</span><span class="st">"First-order propagated input uncertainty"</span>)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>ax.grid(axis<span class="op">=</span><span class="st">"y"</span>, alpha<span class="op">=</span><span class="fl">0.25</span>)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="20261002-heat-balance-uncertainty_files/figure-html/cell-8-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="automatic-checks" class="level2">
+<h2 class="anchored" data-anchor-id="automatic-checks">6. Automatic checks</h2>
+<p>The strongest check is that the Monte Carlo standard deviation stays within 2% of the first-order value for both <span class="math inline">\(\rho=0\)</span> and <span class="math inline">\(\rho=0.9\)</span>; that agreement supports the Gaussian linearization used throughout this notebook. The cells below additionally confirm the algebraic cancellation argument directly (a shared temperature offset should leave <span class="math inline">\(Q\)</span> unchanged and should remove the temperature-difference variance at <span class="math inline">\(\rho=1\)</span>), and then assert the full set of numerical results together.</p>
 <section id="temperature-cancellation-check" class="level3">
 <h3 class="anchored" data-anchor-id="temperature-cancellation-check">Temperature cancellation check</h3>
 <p>Use</p>
 <p><span class="math display">\[\operatorname{Var}(T_{out}-T_{in}) = u_{Tout}^2 + u_{Tin}^2 - 2\rho u_{Tin}u_{Tout}.\]</span></p>
 <p>At <span class="math inline">\(\rho=1\)</span> with equal standard uncertainties, the temperature-difference variance collapses to zero because both readings carry the same offset. In other words, a common sensor bias adds equally to both temperatures and cancels in the difference <span class="math inline">\(T_{out}-T_{in}\)</span>. The full heat-rate uncertainty does not vanish, because the mass-flow and heat-capacity terms remain uncertain: only the shared temperature offset cancels, not the physical and process uncertainties in <span class="math inline">\(m\)</span> and <span class="math inline">\(c_p\)</span>. This is why the covariance term is important and why the same sensor drift can be nearly invisible in a differential measurement while still leaving the overall heat-rate estimate uncertain.</p>
-<div id="heat-14" class="cell" data-execution_count="8">
+<div id="63e6d861" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-15T18:58:26.537702Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-15T18:58:26.537639Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-15T18:58:26.540054Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-15T18:58:26.539843Z&quot;}}" data-execution_count="8">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>rho_sweep <span class="op">=</span> np.array([<span class="fl">0.0</span>, <span class="fl">0.9</span>, <span class="fl">0.99</span>, <span class="fl">1.0</span>])</span>
@@ -653,13 +664,7 @@ u_m^2 &amp; 0 &amp; 0 &amp; 0\\
 <pre><code>PASS: shared temperature offset cancels; flow and heat-capacity uncertainty remain.</code></pre>
 </div>
 </div>
-</section>
-</section>
-<section id="results-and-comparison" class="level2">
-<h2 class="anchored" data-anchor-id="results-and-comparison">4. Results and comparison</h2>
-<p>The first-order propagation gives the standard uncertainty for each temperature-correlation case, and the Monte Carlo sample provides an independent check of the same quantity. The plotted comparison shows the expected pattern: the positive correlation case has a smaller propagated uncertainty because the common temperature variation cancels in the temperature difference.</p>
-<p>The strongest check is that the Monte Carlo standard deviation stays within 2% of the first-order value for both <span class="math inline">\(\rho=0\)</span> and <span class="math inline">\(\rho=0.9\)</span>. That agreement supports the Gaussian linearization here, while still leaving room for model-form uncertainty outside the statistical description.</p>
-<div id="heat-16" class="cell" data-execution_count="9">
+<div id="2a32f197" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-15T18:58:26.540591Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-15T18:58:26.540532Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-15T18:58:26.542878Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-15T18:58:26.542617Z&quot;}}" data-execution_count="9">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> np.isclose(Q_nominal, <span class="fl">420_000.0</span>), <span class="st">"Nominal heat rate must be 420000 W."</span></span>
@@ -683,8 +688,9 @@ u_m^2 &amp; 0 &amp; 0 &amp; 0\\
 </div>
 </div>
 </section>
-<section id="discussion-limitations-and-reading" class="level2">
-<h2 class="anchored" data-anchor-id="discussion-limitations-and-reading">5. Discussion, limitations, and reading</h2>
+</section>
+<section id="discussion-and-next-steps" class="level2">
+<h2 class="anchored" data-anchor-id="discussion-and-next-steps">7. Discussion and next steps</h2>
 <p>The two cases have the same nominal heat rate, but very different propagated standard uncertainties. With independent temperature readings (<span class="math inline">\(\rho=0\)</span>), both inlet and outlet uncertainty contribute directly to the variance of the temperature difference. With strong positive correlation (<span class="math inline">\(\rho=0.9\)</span>), the covariance term partially cancels those contributions, so the uncertainty in <span class="math inline">\(T_{out}-T_{in}\)</span> drops even though the mean heat rate stays the same. The remaining uncertainty comes from the flow rate and heat-capacity terms, which do not cancel.</p>
 <p>This is why a shared sensor offset can be almost invisible in a differential heat balance while the overall heat-rate uncertainty is still nonzero. The calculation here is a statistical uncertainty propagation, not a validation of the underlying model. A small propagated uncertainty does not mean the steady-energy balance omits no physics; it only means the chosen Gaussian input model and its local linearization are behaving consistently.</p>
 <p>Two limitations are worth keeping explicit. First, the first-order propagation and the Monte Carlo check are only as good as the assumed Gaussian input model and covariance structure; they are not a substitute for checking whether the measured inputs are actually distributed that way. Second, model-form uncertainty such as neglected heat loss, unmodeled flow maldistribution, or a biased calibration remains outside this calculation and would require a separate validation study.</p>

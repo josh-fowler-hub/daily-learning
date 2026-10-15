@@ -82,7 +82,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-6c0ad46e1861a38265c10768182fb462.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-dad9a4322ad7fa4720762ae757f50ef1.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="dark">
+<link href="site_libs/bootstrap/bootstrap-0a289de8f5facb2eb205fb6a6c1f6796.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="dark">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -226,13 +226,13 @@ window.Quarto = {
   <li><a href="#aos-vs-soa-for-a-finite-volume-flux-kernel" id="toc-aos-vs-soa-for-a-finite-volume-flux-kernel" class="nav-link active" data-scroll-target="#aos-vs-soa-for-a-finite-volume-flux-kernel">AoS vs SoA for a Finite-Volume Flux Kernel</a>
   <ul class="collapse">
   <li><a href="#when-the-arithmetic-is-identical-does-layout-control-throughput" id="toc-when-the-arithmetic-is-identical-does-layout-control-throughput" class="nav-link" data-scroll-target="#when-the-arithmetic-is-identical-does-layout-control-throughput">When the arithmetic is identical, does layout control throughput?</a></li>
-  <li><a href="#kernel-and-storage-layouts" id="toc-kernel-and-storage-layouts" class="nav-link" data-scroll-target="#kernel-and-storage-layouts">1. Kernel and storage layouts</a></li>
-  <li><a href="#reproducible-admissible-state" id="toc-reproducible-admissible-state" class="nav-link" data-scroll-target="#reproducible-admissible-state">2. Reproducible admissible state</a></li>
-  <li><a href="#correctness-before-performance" id="toc-correctness-before-performance" class="nav-link" data-scroll-target="#correctness-before-performance">3. Correctness before performance</a></li>
-  <li><a href="#timing-protocol-and-traffic-model" id="toc-timing-protocol-and-traffic-model" class="nav-link" data-scroll-target="#timing-protocol-and-traffic-model">4. Timing protocol and traffic model</a></li>
-  <li><a href="#required-plots-and-interpretation" id="toc-required-plots-and-interpretation" class="nav-link" data-scroll-target="#required-plots-and-interpretation">5. Required plots and interpretation</a></li>
-  <li><a href="#automatic-success-checks" id="toc-automatic-success-checks" class="nav-link" data-scroll-target="#automatic-success-checks">6. Automatic success checks</a></li>
-  <li><a href="#discussion-stretch-goal-and-references" id="toc-discussion-stretch-goal-and-references" class="nav-link" data-scroll-target="#discussion-stretch-goal-and-references">7. Discussion, stretch goal, and references</a>
+  <li><a href="#governing-model-and-reference-solution" id="toc-governing-model-and-reference-solution" class="nav-link" data-scroll-target="#governing-model-and-reference-solution">1. Governing model and reference solution</a></li>
+  <li><a href="#discretization-and-conditions" id="toc-discretization-and-conditions" class="nav-link" data-scroll-target="#discretization-and-conditions">2. Discretization and conditions</a></li>
+  <li><a href="#error-measures-and-expected-behavior" id="toc-error-measures-and-expected-behavior" class="nav-link" data-scroll-target="#error-measures-and-expected-behavior">3. Error measures and expected behavior</a></li>
+  <li><a href="#results-and-convergence" id="toc-results-and-convergence" class="nav-link" data-scroll-target="#results-and-convergence">4. Results and convergence</a></li>
+  <li><a href="#solution-and-diagnostic-plots" id="toc-solution-and-diagnostic-plots" class="nav-link" data-scroll-target="#solution-and-diagnostic-plots">5. Solution and diagnostic plots</a></li>
+  <li><a href="#automatic-checks" id="toc-automatic-checks" class="nav-link" data-scroll-target="#automatic-checks">6. Automatic checks</a></li>
+  <li><a href="#discussion-and-next-steps" id="toc-discussion-and-next-steps" class="nav-link" data-scroll-target="#discussion-and-next-steps">7. Discussion and next steps</a>
   <ul class="collapse">
   <li><a href="#scope-and-limitations" id="toc-scope-and-limitations" class="nav-link" data-scroll-target="#scope-and-limitations">Scope and limitations</a></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
@@ -258,8 +258,8 @@ window.Quarto = {
 <p><strong>Success targets:</strong> Both layouts agree to tight floating-point tolerance; all generated states remain physically admissible; timings exclude compilation and allocation; results report median time, cell-updates/s, estimated useful bandwidth, and run-to-run spread.</p>
 <p>The code cells contain a fully commented implementation. Predict the winner before measuring, then run the cells in order. A performance result without a verified equivalent computation is not valid.</p>
 </section>
-<section id="kernel-and-storage-layouts" class="level2">
-<h2 class="anchored" data-anchor-id="kernel-and-storage-layouts">1. Kernel and storage layouts</h2>
+<section id="governing-model-and-reference-solution" class="level2">
+<h2 class="anchored" data-anchor-id="governing-model-and-reference-solution">1. Governing model and reference solution</h2>
 <p>For the 1D Euler conserved state <span class="math display">\[U=(\rho,\rho u,E)^T,\qquad p=(\gamma-1)\left(E-\tfrac12\rho u^2\right),\]</span> the physical flux is <span class="math display">\[F(U)=\left(\rho u,\rho u^2+p,u(E+p)\right)^T.\]</span> At each periodic face, evaluate the local Lax-Friedrichs/Rusanov flux <span class="math display">\[F_{i+1/2}=\tfrac12\left[F(U_i)+F(U_{i+1})\right]-\tfrac12s_{i+1/2}(U_{i+1}-U_i),\]</span> where <span class="math inline">\(s_{i+1/2}=\max(|u_i|+c_i,|u_{i+1}|+c_{i+1})\)</span> and <span class="math inline">\(c=\sqrt{\gamma p/\rho}\)</span>. Return the unscaled residual <span class="math inline">\(R_i=F_{i+1/2}-F_{i-1/2}\)</span>. Do not advance a solution in time.</p>
 <p>Implement the identical operation in two layouts:</p>
 <ul>
@@ -267,7 +267,7 @@ window.Quarto = {
 <li><strong>SoA:</strong> three C-contiguous arrays <code>rho</code>, <code>mom</code>, and <code>energy</code>; one field is adjacent across cells.</li>
 </ul>
 <p>Use explicit Numba loops with periodic index wrap. Do not use <code>np.roll</code>, temporary face arrays, parallel execution, or <code>fastmath</code> in the required experiment; those alter the memory traffic or numerical contract. Preallocate outputs.</p>
-<div id="680f80a5" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-08T21:17:47.222325Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-08T21:17:47.222221Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-08T21:17:47.523339Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-08T21:17:47.522865Z&quot;}}" data-execution_count="16">
+<div id="680f80a5" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-15T18:52:06.622037Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-15T18:52:06.621955Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-15T18:52:06.924098Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-15T18:52:06.923720Z&quot;}}" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
@@ -327,11 +327,11 @@ window.Quarto = {
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Benchmark context:
-  cpu_model: AMD64 Family 26 Model 68 Stepping 0, AuthenticAMD
-  platform: Windows-11-10.0.26200-SP0
-  python: 3.13.14
-  numpy: 2.5.3
-  numba: 0.68.0
+  cpu_model: x86_64
+  platform: Linux-7.0.0-38-generic-x86_64-with-glibc2.39
+  python: 3.12.3
+  numpy: 2.5.2
+  numba: 0.67.0
   logical_cpu_count: 8
   numba_thread_pool_size: 8
   kernel_execution: serial; no parallel=True
@@ -340,12 +340,12 @@ The kernels are serial regardless of the available Numba thread pool.</code></pr
 </div>
 </div>
 </section>
-<section id="reproducible-admissible-state" class="level2">
-<h2 class="anchored" data-anchor-id="reproducible-admissible-state">2. Reproducible admissible state</h2>
+<section id="discretization-and-conditions" class="level2">
+<h2 class="anchored" data-anchor-id="discretization-and-conditions">2. Discretization and conditions</h2>
 <p>Generate one smooth-but-nonuniform state for each N using cell centers <span class="math inline">\(x_i=(i+1/2)/N\)</span>: <span class="math display">\[\rho=1+0.15\sin(2\pi x)+0.03\eta_\rho,\]</span> <span class="math display">\[u=0.35+0.10\cos(6\pi x)+0.02\eta_u,\]</span> <span class="math display">\[p=1+0.10\sin(4\pi x+0.3)+0.03\eta_p,\]</span> where each seeded random component is uniform on <span class="math inline">\([-1,1]\)</span>. Construct <span class="math inline">\(\rho u\)</span> and <span class="math inline">\(E=p/(\gamma-1)+\rho u^2/2\)</span>.</p>
 <p>Create AoS and SoA inputs from the same underlying values. Assert positive density and pressure. Print array shapes, strides, contiguity flags, and total input/output bytes. Explain which index is unit-stride in each representation.</p>
 <p>Allocate every array before timing. The output layout must match the input layout. Use float64 for the main experiment.</p>
-<div id="16dcccdd" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-08T21:17:47.524588Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-08T21:17:47.524446Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-08T21:17:47.543173Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-08T21:17:47.542812Z&quot;}}" data-execution_count="17">
+<div id="16dcccdd" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-15T18:52:06.924975Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-15T18:52:06.924888Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-15T18:52:06.947590Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-15T18:52:06.947172Z&quot;}}" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> make_state(n, seed<span class="op">=</span>SEED):</span>
@@ -578,12 +578,12 @@ The kernels are serial regardless of the available Numba thread pool.</code></pr
 </details>
 </div>
 </section>
-<section id="correctness-before-performance" class="level2">
-<h2 class="anchored" data-anchor-id="correctness-before-performance">3. Correctness before performance</h2>
+<section id="error-measures-and-expected-behavior" class="level2">
+<h2 class="anchored" data-anchor-id="error-measures-and-expected-behavior">3. Error measures and expected behavior</h2>
 <p>Compile both kernels with a small state, then compare the three residual components. Because the mathematical operations and intended order are the same, require <span class="math display">\[\frac{\|R_{AoS}-R_{SoA}\|_2}{\max(\|R_{AoS}\|_2,10^{-300})}\le 5\times10^{-13}\]</span> and maximum componentwise absolute difference <span class="math inline">\(\le 5\times10^{-13}\)</span> for the supplied state range.</p>
 <p>Also check: finite outputs; discrete conservation <code>abs(sum(R[:,k])) &lt;= 2e-12*N*max(abs(R[:,k]))</code> for every conserved component; repeated calls overwrite rather than accumulate; and the input arrays are unchanged.</p>
 <p>These are equivalence and conservation checks on a fixed workload. They are not spatial-error or observed-order calculations.</p>
-<div id="184a08e5" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-08T21:17:47.544171Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-08T21:17:47.544069Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-08T21:17:47.980136Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-08T21:17:47.979458Z&quot;}}" data-execution_count="18">
+<div id="184a08e5" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-15T18:52:06.948584Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-15T18:52:06.948525Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-15T18:52:07.346160Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-15T18:52:07.345787Z&quot;}}" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Start small so Numba compiles the two layouts before any long run. The</span></span>
@@ -663,8 +663,8 @@ The kernels are serial regardless of the available Numba thread pool.</code></pr
 </div>
 </div>
 </section>
-<section id="timing-protocol-and-traffic-model" class="level2">
-<h2 class="anchored" data-anchor-id="timing-protocol-and-traffic-model">4. Timing protocol and traffic model</h2>
+<section id="results-and-convergence" class="level2">
+<h2 class="anchored" data-anchor-id="results-and-convergence">4. Results and convergence</h2>
 <p>For each N and layout:</p>
 <ol type="1">
 <li>Build and allocate outside the timed region.</li>
@@ -675,7 +675,7 @@ The kernels are serial regardless of the available Numba thread pool.</code></pr
 </ol>
 <p>Report throughput in million cell updates/s. Construct a transparent <strong>lower-bound useful-traffic model</strong>: each residual evaluation must at least read the three conserved fields and write the three residual fields once, or 48 bytes/cell in float64. Thus <span class="math display">\[B_{useful}=48N/t.\]</span> This is not measured DRAM traffic: neighbor reuse, write allocation, cache hierarchy, scalar reloads, and compiler transformations change physical traffic. Label it <code>estimated useful bandwidth</code>, never <code>hardware bandwidth</code>.</p>
 <p>Estimate arithmetic intensity by explicitly counting the main floating-point operations in your implementation and dividing by the 48-byte lower bound. State how square root, comparison, and division complicate a single-FLOP model.</p>
-<div id="23fce5af" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-08T21:17:47.981327Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-08T21:17:47.981194Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-08T21:18:12.585350Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-08T21:18:12.584770Z&quot;}}" data-execution_count="19">
+<div id="23fce5af" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-15T18:52:07.347098Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-15T18:52:07.347016Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-15T18:52:29.672524Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-15T18:52:29.672121Z&quot;}}" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> choose_batch_count(call, target_s<span class="op">=</span><span class="fl">0.2</span>):</span>
@@ -858,17 +858,17 @@ The kernels are serial regardless of the available Numba thread pool.</code></pr
 <span id="cb6-178"><a href="#cb6-178" aria-hidden="true" tabindex="-1"></a>      <span class="st">"+ 32 temporary bytes written + 32 temporary bytes read + 24 output bytes."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>N=   4,096 AoS batch=4,619 median=4.4814e-05 s MLUPS=91.40
-N=   4,096 SoA batch=4,673 median=4.5012e-05 s MLUPS=91.00
-N=  32,768 SoA batch=  568 median=3.6026e-04 s MLUPS=90.96
-N=  32,768 AoS batch=  578 median=3.5842e-04 s MLUPS=91.42
-N= 262,144 AoS batch=   73 median=2.8613e-03 s MLUPS=91.62
-N= 262,144 SoA batch=   73 median=2.8461e-03 s MLUPS=92.11
-N=4,194,304 SoA batch=    5 median=4.5640e-02 s MLUPS=91.90
-N=4,194,304 AoS batch=    5 median=4.5543e-02 s MLUPS=92.10
+<pre><code>N=   4,096 AoS batch=4,576 median=4.1427e-05 s MLUPS=98.87
+N=   4,096 SoA batch=2,397 median=4.1343e-05 s MLUPS=99.07
+N=  32,768 SoA batch=  611 median=3.2887e-04 s MLUPS=99.64
+N=  32,768 AoS batch=  606 median=3.3249e-04 s MLUPS=98.55
+N= 262,144 AoS batch=   75 median=2.6631e-03 s MLUPS=98.43
+N= 262,144 SoA batch=   76 median=2.6377e-03 s MLUPS=99.38
+N=4,194,304 SoA batch=    5 median=4.2250e-02 s MLUPS=99.27
+N=4,194,304 AoS batch=    5 median=4.2480e-02 s MLUPS=98.74
 Recorded 8 fused configurations; each has 9 raw samples.
-N= 262,144 split AoS=1.5236e-03s SoA=1.2528e-03s max fused differences=0.00e+00/0.00e+00
-N=4,194,304 split AoS=2.4800e-02s SoA=2.2697e-02s max fused differences=0.00e+00/0.00e+00</code></pre>
+N= 262,144 split AoS=1.3293e-03s SoA=1.1826e-03s max fused differences=0.00e+00/0.00e+00
+N=4,194,304 split AoS=2.2811e-02s SoA=2.4246e-02s max fused differences=0.00e+00/0.00e+00</code></pre>
 </div>
 <section id="optional-two-pass-stretch-results" class="level3 cell-output cell-output-display cell-output-markdown">
 <h3 class="anchored" data-anchor-id="optional-two-pass-stretch-results">Optional two-pass stretch results</h3>
@@ -899,41 +899,41 @@ N=4,194,304 split AoS=2.4800e-02s SoA=2.2697e-02s max fused differences=0.00e+00
 <tr class="odd">
 <td style="text-align: right;">262,144</td>
 <td style="text-align: left;">AoS</td>
-<td style="text-align: right;">1.5236e-03</td>
-<td style="text-align: right;">1.006e-05</td>
-<td style="text-align: right;">1.878</td>
+<td style="text-align: right;">1.3293e-03</td>
+<td style="text-align: right;">8.483e-07</td>
+<td style="text-align: right;">2.003</td>
 <td style="text-align: right;">20.0</td>
-<td style="text-align: right;">23.400</td>
+<td style="text-align: right;">26.819</td>
 <td style="text-align: right;">0.00e+00</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">262,144</td>
 <td style="text-align: left;">SoA</td>
-<td style="text-align: right;">1.2528e-03</td>
-<td style="text-align: right;">1.673e-05</td>
-<td style="text-align: right;">2.272</td>
+<td style="text-align: right;">1.1826e-03</td>
+<td style="text-align: right;">9.309e-07</td>
+<td style="text-align: right;">2.230</td>
 <td style="text-align: right;">20.0</td>
-<td style="text-align: right;">28.457</td>
+<td style="text-align: right;">30.147</td>
 <td style="text-align: right;">0.00e+00</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">4,194,304</td>
 <td style="text-align: left;">AoS</td>
-<td style="text-align: right;">2.4800e-02</td>
-<td style="text-align: right;">2.212e-04</td>
-<td style="text-align: right;">1.836</td>
+<td style="text-align: right;">2.2811e-02</td>
+<td style="text-align: right;">2.727e-05</td>
+<td style="text-align: right;">1.862</td>
 <td style="text-align: right;">320.0</td>
-<td style="text-align: right;">23.001</td>
+<td style="text-align: right;">25.006</td>
 <td style="text-align: right;">0.00e+00</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">4,194,304</td>
 <td style="text-align: left;">SoA</td>
-<td style="text-align: right;">2.2697e-02</td>
-<td style="text-align: right;">6.916e-04</td>
-<td style="text-align: right;">2.011</td>
+<td style="text-align: right;">2.4246e-02</td>
+<td style="text-align: right;">1.310e-04</td>
+<td style="text-align: right;">1.743</td>
 <td style="text-align: right;">320.0</td>
-<td style="text-align: right;">25.132</td>
+<td style="text-align: right;">23.527</td>
 <td style="text-align: right;">0.00e+00</td>
 </tr>
 </tbody>
@@ -944,8 +944,8 @@ N=4,194,304 split AoS=2.4800e-02s SoA=2.2697e-02s max fused differences=0.00e+00
 </div>
 </div>
 </section>
-<section id="required-plots-and-interpretation" class="level2">
-<h2 class="anchored" data-anchor-id="required-plots-and-interpretation">5. Required plots and interpretation</h2>
+<section id="solution-and-diagnostic-plots" class="level2">
+<h2 class="anchored" data-anchor-id="solution-and-diagnostic-plots">5. Solution and diagnostic plots</h2>
 <p>Create three diagnostics:</p>
 <ol type="1">
 <li>Median kernel time versus N on log-log axes, with IQR error bars.</li>
@@ -960,7 +960,7 @@ N=4,194,304 split AoS=2.4800e-02s SoA=2.2697e-02s max fused differences=0.00e+00
 <li>Why does a 48-byte useful model not prove that the kernel reached a fraction of peak DRAM bandwidth?</li>
 <li>Which layout would you choose for a Titan Numerics CPU flux kernel, and what new evidence would you demand before choosing a GPU layout?</li>
 </ul>
-<div id="fd87fdb4" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-08T21:18:12.586717Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-08T21:18:12.586608Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-08T21:18:13.073960Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-08T21:18:13.073509Z&quot;}}" data-execution_count="20">
+<div id="fd87fdb4" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-15T18:52:29.673529Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-15T18:52:29.673457Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-15T18:52:30.121305Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-15T18:52:30.120864Z&quot;}}" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> IPython.display <span class="im">import</span> display, Markdown</span>
@@ -1128,7 +1128,7 @@ N=4,194,304 split AoS=2.4800e-02s SoA=2.2697e-02s max fused differences=0.00e+00
 <span id="cb9-163"><a href="#cb9-163" aria-hidden="true" tabindex="-1"></a>      <span class="st">"= 1.77 nominal ops/byte; divisions, square roots, and comparisons have different costs."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Measured environment: {'cpu_model': 'AMD64 Family 26 Model 68 Stepping 0, AuthenticAMD', 'platform': 'Windows-11-10.0.26200-SP0', 'python': '3.13.14', 'numpy': '2.5.3', 'numba': '0.68.0', 'logical_cpu_count': 8, 'numba_thread_pool_size': 8, 'kernel_execution': 'serial; no parallel=True'}</code></pre>
+<pre><code>Measured environment: {'cpu_model': 'x86_64', 'platform': 'Linux-7.0.0-38-generic-x86_64-with-glibc2.39', 'python': '3.12.3', 'numpy': '2.5.2', 'numba': '0.67.0', 'logical_cpu_count': 8, 'numba_thread_pool_size': 8, 'kernel_execution': 'serial; no parallel=True'}</code></pre>
 </div>
 <div class="cell-output cell-output-display cell-output-markdown">
 <table class="caption-top table table-sm table-striped small">
@@ -1158,80 +1158,80 @@ N=4,194,304 split AoS=2.4800e-02s SoA=2.2697e-02s max fused differences=0.00e+00
 <tr class="odd">
 <td style="text-align: right;">4,096</td>
 <td style="text-align: left;">AoS</td>
-<td style="text-align: right;">4.4814e-05</td>
-<td style="text-align: right;">8.425e-07</td>
-<td style="text-align: right;">91.40</td>
-<td style="text-align: right;">4.387</td>
+<td style="text-align: right;">4.1427e-05</td>
+<td style="text-align: right;">1.338e-08</td>
+<td style="text-align: right;">98.87</td>
+<td style="text-align: right;">4.746</td>
 <td style="text-align: right;">0.19</td>
-<td style="text-align: right;">4,619</td>
+<td style="text-align: right;">4,576</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">4,096</td>
 <td style="text-align: left;">SoA</td>
-<td style="text-align: right;">4.5012e-05</td>
-<td style="text-align: right;">5.089e-07</td>
-<td style="text-align: right;">91.00</td>
-<td style="text-align: right;">4.368</td>
+<td style="text-align: right;">4.1343e-05</td>
+<td style="text-align: right;">2.098e-08</td>
+<td style="text-align: right;">99.07</td>
+<td style="text-align: right;">4.756</td>
 <td style="text-align: right;">0.19</td>
-<td style="text-align: right;">4,673</td>
+<td style="text-align: right;">2,397</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">32,768</td>
 <td style="text-align: left;">SoA</td>
-<td style="text-align: right;">3.6026e-04</td>
-<td style="text-align: right;">6.736e-06</td>
-<td style="text-align: right;">90.96</td>
-<td style="text-align: right;">4.366</td>
+<td style="text-align: right;">3.2887e-04</td>
+<td style="text-align: right;">1.589e-07</td>
+<td style="text-align: right;">99.64</td>
+<td style="text-align: right;">4.783</td>
 <td style="text-align: right;">1.50</td>
-<td style="text-align: right;">568</td>
+<td style="text-align: right;">611</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">32,768</td>
 <td style="text-align: left;">AoS</td>
-<td style="text-align: right;">3.5842e-04</td>
-<td style="text-align: right;">1.751e-06</td>
-<td style="text-align: right;">91.42</td>
-<td style="text-align: right;">4.388</td>
+<td style="text-align: right;">3.3249e-04</td>
+<td style="text-align: right;">3.520e-07</td>
+<td style="text-align: right;">98.55</td>
+<td style="text-align: right;">4.731</td>
 <td style="text-align: right;">1.50</td>
-<td style="text-align: right;">578</td>
+<td style="text-align: right;">606</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">262,144</td>
 <td style="text-align: left;">AoS</td>
-<td style="text-align: right;">2.8613e-03</td>
-<td style="text-align: right;">2.625e-05</td>
-<td style="text-align: right;">91.62</td>
-<td style="text-align: right;">4.398</td>
+<td style="text-align: right;">2.6631e-03</td>
+<td style="text-align: right;">2.474e-06</td>
+<td style="text-align: right;">98.43</td>
+<td style="text-align: right;">4.725</td>
 <td style="text-align: right;">12.00</td>
-<td style="text-align: right;">73</td>
+<td style="text-align: right;">75</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">262,144</td>
 <td style="text-align: left;">SoA</td>
-<td style="text-align: right;">2.8461e-03</td>
-<td style="text-align: right;">1.789e-05</td>
-<td style="text-align: right;">92.11</td>
-<td style="text-align: right;">4.421</td>
+<td style="text-align: right;">2.6377e-03</td>
+<td style="text-align: right;">1.998e-06</td>
+<td style="text-align: right;">99.38</td>
+<td style="text-align: right;">4.770</td>
 <td style="text-align: right;">12.00</td>
-<td style="text-align: right;">73</td>
+<td style="text-align: right;">76</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">4,194,304</td>
 <td style="text-align: left;">SoA</td>
-<td style="text-align: right;">4.5640e-02</td>
-<td style="text-align: right;">2.060e-04</td>
-<td style="text-align: right;">91.90</td>
-<td style="text-align: right;">4.411</td>
+<td style="text-align: right;">4.2250e-02</td>
+<td style="text-align: right;">1.669e-05</td>
+<td style="text-align: right;">99.27</td>
+<td style="text-align: right;">4.765</td>
 <td style="text-align: right;">192.00</td>
 <td style="text-align: right;">5</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">4,194,304</td>
 <td style="text-align: left;">AoS</td>
-<td style="text-align: right;">4.5543e-02</td>
-<td style="text-align: right;">4.351e-04</td>
-<td style="text-align: right;">92.10</td>
-<td style="text-align: right;">4.421</td>
+<td style="text-align: right;">4.2480e-02</td>
+<td style="text-align: right;">5.917e-05</td>
+<td style="text-align: right;">98.74</td>
+<td style="text-align: right;">4.739</td>
 <td style="text-align: right;">192.00</td>
 <td style="text-align: right;">5</td>
 </tr>
@@ -1269,12 +1269,12 @@ N=4,194,304 split AoS=2.4800e-02s SoA=2.2697e-02s max fused differences=0.00e+00
 <section id="interpretation-of-this-run" class="level3 cell-output cell-output-display cell-output-markdown">
 <h3 class="anchored" data-anchor-id="interpretation-of-this-run">Interpretation of this run</h3>
 <ul>
-<li>SoA was faster at 1 of 4 sizes and AoS at 3; the AoS-time/SoA-time ratios ranged from 0.995 to 1.005. The largest SoA advantage occurred at N=262,144; its smallest ratio was at N=32,768.</li>
-<li>Successive throughput ratios (larger size divided by preceding size) were [(‘AoS’, [1.0002431278229644, 1.0021148010309058, 1.0052266099634712]), (‘SoA’, [0.9995440755526598, 1.0126401447175601, 0.9977673564226107])]. Across this run, throughput ranged from 90.96 to 92.11 MLUPS, so there is no clear cache-exit knee in the measured points. Exact L2/L3 sizes were not reliably available, so do not assign a transition to a particular cache.</li>
+<li>SoA was faster at 4 of 4 sizes and AoS at 0; the AoS-time/SoA-time ratios ranged from 1.002 to 1.011. The largest SoA advantage occurred at N=32,768; its smallest ratio was at N=4,096.</li>
+<li>Successive throughput ratios (larger size divided by preceding size) were [(‘AoS’, [0.9967660177252108, 0.9987921876058391, 1.0030517924770117]), (‘SoA’, [1.0057186529308406, 0.9974239293074063, 0.9989083064086002])]. Across this run, throughput ranged from 98.43 to 99.64 MLUPS, so there is no clear cache-exit knee in the measured points. Exact L2/L3 sizes were not reliably available, so do not assign a transition to a particular cache.</li>
 <li>AoS has cell stride 24 bytes and field stride 8 bytes; SoA has cell stride 8 bytes within each field. The former places the three values consumed together nearby; the latter creates regular field streams that can help vectorization. The speedup measurements show which effect won for this fused loop and compiler.</li>
 <li>The useful-bandwidth estimate divides 48 required bytes per cell by time. It is not a DRAM counter: adjacent fluxes reuse values, cache hits may satisfy reads, stores can trigger write allocation, and prefetching/compiler transformations change physical traffic. Without hardware counters and a reliable peak-bandwidth measurement it cannot establish a fraction of peak DRAM bandwidth.</li>
 <li>For this CPU kernel, prefer the layout that wins consistently across the sizes and matters to the full application; if results are mixed, benchmark the production loop and surrounding reconstruction/update stages before committing. For a GPU, add device measurements of coalesced access, occupancy, register pressure, achieved memory bandwidth, launch overhead, and end-to-end solver performance before deciding.</li>
-<li>In the two largest cases, the fused and split AoS/SoA time ratios were [(262144, 1.0053391411072472, 1.216131383726964), (4194304, 0.9978790525324507, 1.092629996964861)]; the measured winner changed between fused and split forms. The split version also pays to write and reread four temporary fields, so any reduction in repeated flux arithmetic must outweigh both that traffic and the extra pass overhead.</li>
+<li>In the two largest cases, the fused and split AoS/SoA time ratios were [(262144, 1.009629696850605, 1.124069623764855), (4194304, 1.0054590382519855, 0.9408343399223958)]; the measured winner changed between fused and split forms. The split version also pays to write and reread four temporary fields, so any reduction in repeated flux arithmetic must outweigh both that traffic and the extra pass overhead.</li>
 </ul>
 </section>
 <div class="cell-output cell-output-stdout">
@@ -1282,8 +1282,8 @@ N=4,194,304 split AoS=2.4800e-02s SoA=2.2697e-02s max fused differences=0.00e+00
 </div>
 </div>
 </section>
-<section id="automatic-success-checks" class="level2">
-<h2 class="anchored" data-anchor-id="automatic-success-checks">6. Automatic success checks</h2>
+<section id="automatic-checks" class="level2">
+<h2 class="anchored" data-anchor-id="automatic-checks">6. Automatic checks</h2>
 <p>Assert all of the following:</p>
 <ul>
 <li>Input states have positive density and pressure and all arrays are float64, 1D/2D as specified, and C-contiguous.</li>
@@ -1295,7 +1295,7 @@ N=4,194,304 split AoS=2.4800e-02s SoA=2.2697e-02s max fused differences=0.00e+00
 <li>At least one case is larger than 100 MiB for combined input and output, so the experiment is not entirely cache-resident on typical workstations.</li>
 </ul>
 <p>Do <strong>not</strong> assert that SoA must be faster. Layout performance is hardware-, compiler-, and kernel-dependent; a forced expected winner would invalidate the experiment.</p>
-<div id="80e4f4dc" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-08T21:18:13.075156Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-08T21:18:13.075017Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-08T21:18:13.080214Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-08T21:18:13.079709Z&quot;}}" data-execution_count="21">
+<div id="80e4f4dc" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-15T18:52:30.122025Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-15T18:52:30.121955Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-15T18:52:30.125519Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-15T18:52:30.125325Z&quot;}}" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Assert state admissibility and storage layout for the checked instance.</span></span>
@@ -1353,8 +1353,8 @@ Largest single-layout fused working set: 192.0 MiB</code></pre>
 </div>
 </div>
 </section>
-<section id="discussion-stretch-goal-and-references" class="level2">
-<h2 class="anchored" data-anchor-id="discussion-stretch-goal-and-references">7. Discussion, stretch goal, and references</h2>
+<section id="discussion-and-next-steps" class="level2">
+<h2 class="anchored" data-anchor-id="discussion-and-next-steps">7. Discussion and next steps</h2>
 <p><strong>Stretch goal:</strong> Split each layout into two passes: (1) primitive variables and spectral radii, then (2) face flux/residual. Rebenchmark at the two largest sizes. Account for every new temporary in the working set and useful-traffic model. Determine whether the layout conclusion changes when field-wise arrays are reused across kernels. Do not enable parallel execution until the single-thread comparison is complete.</p>
 <section id="scope-and-limitations" class="level3">
 <h3 class="anchored" data-anchor-id="scope-and-limitations">Scope and limitations</h3>

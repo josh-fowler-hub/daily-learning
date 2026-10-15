@@ -226,14 +226,17 @@ window.Quarto = {
   <li><a href="#partitioned-conjugate-heat-transfer-coupling" id="toc-partitioned-conjugate-heat-transfer-coupling" class="nav-link active" data-scroll-target="#partitioned-conjugate-heat-transfer-coupling">Partitioned Conjugate-Heat-Transfer Coupling</a>
   <ul class="collapse">
   <li><a href="#when-two-individually-stable-solvers-make-a-slow-coupled-solver" id="toc-when-two-individually-stable-solvers-make-a-slow-coupled-solver" class="nav-link" data-scroll-target="#when-two-individually-stable-solvers-make-a-slow-coupled-solver">When two individually stable solvers make a slow coupled solver</a></li>
-  <li><a href="#coupled-reduced-model" id="toc-coupled-reduced-model" class="nav-link" data-scroll-target="#coupled-reduced-model">1. Coupled reduced model</a></li>
-  <li><a href="#assemble-two-reusable-physics-solvers" id="toc-assemble-two-reusable-physics-solvers" class="nav-link" data-scroll-target="#assemble-two-reusable-physics-solvers">2. Assemble two reusable physics solvers</a></li>
-  <li><a href="#dirichlet-neumann-fixed-point-coupling" id="toc-dirichlet-neumann-fixed-point-coupling" class="nav-link" data-scroll-target="#dirichlet-neumann-fixed-point-coupling">3. Dirichlet-Neumann fixed-point coupling</a></li>
-  <li><a href="#fixed-relaxation-and-vector-aitken-acceleration" id="toc-fixed-relaxation-and-vector-aitken-acceleration" class="nav-link" data-scroll-target="#fixed-relaxation-and-vector-aitken-acceleration">4. Fixed relaxation and vector Aitken acceleration</a></li>
-  <li><a href="#coupling-strength-experiment" id="toc-coupling-strength-experiment" class="nav-link" data-scroll-target="#coupling-strength-experiment">5. Coupling-strength experiment</a></li>
-  <li><a href="#required-diagnostics-and-interpretation" id="toc-required-diagnostics-and-interpretation" class="nav-link" data-scroll-target="#required-diagnostics-and-interpretation">6. Required diagnostics and interpretation</a></li>
-  <li><a href="#verification-and-success-criteria" id="toc-verification-and-success-criteria" class="nav-link" data-scroll-target="#verification-and-success-criteria">7. Verification and success criteria</a></li>
-  <li><a href="#stretch-goal-and-references" id="toc-stretch-goal-and-references" class="nav-link" data-scroll-target="#stretch-goal-and-references">8. Stretch goal and references</a>
+  <li><a href="#governing-model-and-reference-solution" id="toc-governing-model-and-reference-solution" class="nav-link" data-scroll-target="#governing-model-and-reference-solution">1. Governing model and reference solution</a></li>
+  <li><a href="#discretization-and-conditions" id="toc-discretization-and-conditions" class="nav-link" data-scroll-target="#discretization-and-conditions">2. Discretization and conditions</a>
+  <ul class="collapse">
+  <li><a href="#dirichlet-neumann-fixed-point-coupling" id="toc-dirichlet-neumann-fixed-point-coupling" class="nav-link" data-scroll-target="#dirichlet-neumann-fixed-point-coupling">Dirichlet-Neumann fixed-point coupling</a></li>
+  <li><a href="#fixed-relaxation-and-vector-aitken-acceleration" id="toc-fixed-relaxation-and-vector-aitken-acceleration" class="nav-link" data-scroll-target="#fixed-relaxation-and-vector-aitken-acceleration">Fixed relaxation and vector Aitken acceleration</a></li>
+  </ul></li>
+  <li><a href="#error-measures-and-expected-behavior" id="toc-error-measures-and-expected-behavior" class="nav-link" data-scroll-target="#error-measures-and-expected-behavior">3. Error measures and expected behavior</a></li>
+  <li><a href="#results-and-convergence" id="toc-results-and-convergence" class="nav-link" data-scroll-target="#results-and-convergence">4. Results and convergence</a></li>
+  <li><a href="#solution-and-diagnostic-plots" id="toc-solution-and-diagnostic-plots" class="nav-link" data-scroll-target="#solution-and-diagnostic-plots">5. Solution and diagnostic plots</a></li>
+  <li><a href="#automatic-checks" id="toc-automatic-checks" class="nav-link" data-scroll-target="#automatic-checks">6. Automatic checks</a></li>
+  <li><a href="#discussion-and-next-steps" id="toc-discussion-and-next-steps" class="nav-link" data-scroll-target="#discussion-and-next-steps">7. Discussion and next steps</a>
   <ul class="collapse">
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
   <li><a href="#topic-ledger" id="toc-topic-ledger" class="nav-link" data-scroll-target="#topic-ledger">Topic ledger</a></li>
@@ -256,39 +259,48 @@ window.Quarto = {
 <p><strong>Learning goal:</strong> Build a partitioned conjugate-heat-transfer solver, diagnose its interface fixed-point convergence, and compare unrelaxed, fixed-relaxation, and Aitken-accelerated coupling against a monolithic reference.</p>
 <p><strong>Time:</strong> 60-90 minutes. Python, NumPy, SciPy, Matplotlib. Use one fixed spatial grid with <code>N = 80</code>; this is not a grid-convergence exercise.</p>
 <p><strong>Engineering connection:</strong> This is the algorithmic core of coupling separate CFD and thermal/system solvers: define exchanged data, enforce interface consistency, monitor a coupling residual, and accelerate the outer iteration without hiding failed physics solves.</p>
-<p>Implementation cells intentionally contain TODOs only. Do not tune relaxation by looking only at the final temperature plot; convergence history and conservation must agree.</p>
+<p>Do not tune relaxation by looking only at the final temperature plot; convergence history and conservation must agree.</p>
 </section>
-<section id="coupled-reduced-model" class="level2">
-<h2 class="anchored" data-anchor-id="coupled-reduced-model">1. Coupled reduced model</h2>
+<section id="governing-model-and-reference-solution" class="level2">
+<h2 class="anchored" data-anchor-id="governing-model-and-reference-solution">1. Governing model and reference solution</h2>
 <p>Use a one-dimensional streamwise coordinate <span class="math inline">\(x\in[0,1]\)</span> with two fields on the same fixed nodes:</p>
 <p><span class="math display">\[C_f\frac{dT_f}{dx}=H(T_s-T_f),\qquad T_f(0)=T_{in},\]</span> <span class="math display">\[-K_s\frac{d^2T_s}{dx^2}+H(T_s-T_f)=q_v(x),\qquad T_s'(0)=T_s'(1)=0.\]</span></p>
-<p><span class="math inline">\(T_f\)</span> is a plug-flow coolant temperature and <span class="math inline">\(T_s\)</span> is the axial solid temperature. <span class="math inline">\(H(T_s-T_f)\)</span> is the distributed interfacial heat transfer. Use backward upwind differencing for the fluid equation and conservative second differences for the solid equation.</p>
+<p><span class="math inline">\(T_f\)</span> is a plug-flow coolant temperature and <span class="math inline">\(T_s\)</span> is the axial solid temperature. <span class="math inline">\(H(T_s-T_f)\)</span> is the distributed interfacial heat transfer. Use backward upwind differencing for the fluid equation and conservative second differences for the solid equation. All quantities here are already given in the reduced, nondimensionalized form of the model: <span class="math inline">\(x\)</span>, <span class="math inline">\(T_f\)</span>, <span class="math inline">\(T_s\)</span>, <span class="math inline">\(C_f\)</span>, <span class="math inline">\(K_s\)</span>, <span class="math inline">\(H\)</span>, and <span class="math inline">\(q_v\)</span> are dimensionless model quantities, not SI quantities.</p>
 <p>Write the discrete block system as</p>
 <p><span class="math display">\[A_fT_f+C_{fs}T_s=b_f,\]</span> <span class="math display">\[C_{sf}T_f+A_sT_s=b_s.\]</span></p>
 <p>Set <code>N=80</code>, <span class="math inline">\(C_f=1\)</span>, <span class="math inline">\(K_s=0.02\)</span>, <span class="math inline">\(H=100\)</span>, <span class="math inline">\(T_{in}=0\)</span>, and <span class="math display">\[q_v(x)=8\exp[-((x-0.72)/0.12)^2]+1.\]</span></p>
 <p>Use second-order one-sided Neumann rows or a finite-volume boundary treatment. Document the choice and use it identically in the partitioned and monolithic systems.</p>
-<div id="3e0ed37d" class="cell">
+<div id="69593fde" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-15T19:29:59.185303Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-15T19:29:59.185243Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-15T19:29:59.398407Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-15T19:29:59.398193Z&quot;}}" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.sparse <span class="im">import</span> bmat, csc_matrix, diags</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.sparse.linalg <span class="im">import</span> splu, spsolve</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>N <span class="op">=</span> <span class="dv">80</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>CF <span class="op">=</span> <span class="fl">1.0</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>KS <span class="op">=</span> <span class="fl">0.02</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>H_VALUES <span class="op">=</span> [<span class="fl">5.0</span>, <span class="fl">25.0</span>, <span class="fl">100.0</span>, <span class="fl">500.0</span>]</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>T_IN <span class="op">=</span> <span class="fl">0.0</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>TOL <span class="op">=</span> <span class="fl">1.0e-10</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>MAXITER <span class="op">=</span> <span class="dv">500</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: Set deterministic plotting/printing options and record package versions.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> scipy</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.sparse <span class="im">import</span> bmat, csc_matrix, diags</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.sparse.linalg <span class="im">import</span> splu, spsolve</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> IPython.display <span class="im">import</span> Markdown, display</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>N <span class="op">=</span> <span class="dv">80</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>CF <span class="op">=</span> <span class="fl">1.0</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>KS <span class="op">=</span> <span class="fl">0.02</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>H_VALUES <span class="op">=</span> [<span class="fl">5.0</span>, <span class="fl">25.0</span>, <span class="fl">100.0</span>, <span class="fl">500.0</span>]</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>T_IN <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>TOL <span class="op">=</span> <span class="fl">1.0e-10</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>MAXITER <span class="op">=</span> <span class="dv">500</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>np.set_printoptions(precision<span class="op">=</span><span class="dv">6</span>, suppress<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>plt.rcParams[<span class="st">"figure.dpi"</span>] <span class="op">=</span> <span class="dv">110</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"NumPy version:"</span>, np.__version__)</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"SciPy version:"</span>, scipy.__version__)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
+<div class="cell-output cell-output-stdout">
+<pre><code>NumPy version: 2.5.2
+SciPy version: 1.18.1</code></pre>
+</div>
 </div>
 </section>
-<section id="assemble-two-reusable-physics-solvers" class="level2">
-<h2 class="anchored" data-anchor-id="assemble-two-reusable-physics-solvers">2. Assemble two reusable physics solvers</h2>
+<section id="discretization-and-conditions" class="level2">
+<h2 class="anchored" data-anchor-id="discretization-and-conditions">2. Discretization and conditions</h2>
 <p>Implement <code>build_operators(H)</code> returning the four block matrices and right-hand sides. Factor <span class="math inline">\(A_f\)</span> and <span class="math inline">\(A_s\)</span> once for each value of <span class="math inline">\(H\)</span>.</p>
 <p>Implement:</p>
 <ul>
@@ -298,50 +310,16 @@ window.Quarto = {
 <li><code>block_residual(Tf, Ts, problem)</code>: return normalized fluid, solid, and combined residual norms.</li>
 </ul>
 <p>Do not form matrix inverses. Check matrix shapes, sparsity, finite entries, and boundary rows before iterating.</p>
-<div id="0e84be7f" class="cell">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> build_operators(H, n<span class="op">=</span>N):</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Assemble and factor the fixed-grid fluid and solid blocks."""</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># </span><span class="al">TODO</span><span class="co">: Return x, dx, Af, Cfs, Csf, As, bf, bs, and LU factors.</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">raise</span> <span class="pp">NotImplementedError</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> solve_fluid(Ts, problem):</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># </span><span class="al">TODO</span><span class="co">: One fluid subsolve.</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">raise</span> <span class="pp">NotImplementedError</span></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> solve_solid(Tf, problem):</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># </span><span class="al">TODO</span><span class="co">: One solid subsolve.</span></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">raise</span> <span class="pp">NotImplementedError</span></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> solve_monolithic(problem):</span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="co"># </span><span class="al">TODO</span><span class="co">: Solve the assembled 2N by 2N block system.</span></span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">raise</span> <span class="pp">NotImplementedError</span></span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> block_residual(Tf, Ts, problem):</span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    <span class="co"># </span><span class="al">TODO</span><span class="co">: Return normalized fluid, solid, and combined residual norms.</span></span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">raise</span> <span class="pp">NotImplementedError</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</details>
-</div>
-</section>
-<section id="dirichlet-neumann-fixed-point-coupling" class="level2">
-<h2 class="anchored" data-anchor-id="dirichlet-neumann-fixed-point-coupling">3. Dirichlet-Neumann fixed-point coupling</h2>
+<p><strong>Boundary treatment:</strong> the fluid rows use backward-upwind differencing with a Dirichlet inflow row at <span class="math inline">\(x=0\)</span> (<span class="math inline">\(A_f[0,0]=1\)</span>, <span class="math inline">\(C_{fs}[0,:]=0\)</span>). The solid rows use a conservative (finite-volume) second difference: interior nodes use the standard three-point Laplacian stencil <span class="math inline">\((-K_s/\Delta x^2,\,2K_s/\Delta x^2+H,\,-K_s/\Delta x^2)\)</span>, and the two insulated boundary nodes use a half-width control volume, so the zero-flux condition enters as a single-neighbor row with <em>twice</em> the usual off-diagonal weight (<span class="math inline">\(A_s[0,0]=2K_s/\Delta x^2+H\)</span>, <span class="math inline">\(A_s[0,1]=-2K_s/\Delta x^2\)</span>, and symmetrically at <span class="math inline">\(x=1\)</span>). Summing all solid rows with this treatment telescopes the diffusive flux exactly to zero at both insulated ends, which is what the discrete heat-balance check in Section 6 relies on.</p>
+<section id="dirichlet-neumann-fixed-point-coupling" class="level3">
+<h3 class="anchored" data-anchor-id="dirichlet-neumann-fixed-point-coupling">Dirichlet-Neumann fixed-point coupling</h3>
 <p>Given a solid iterate <span class="math inline">\(T_s^k\)</span>, perform a block Gauss-Seidel sweep:</p>
 <p><span class="math display">\[T_f^{k+1}=A_f^{-1}(b_f-C_{fs}T_s^k),\]</span> <span class="math display">\[\widehat T_s^{k+1}=A_s^{-1}(b_s-C_{sf}T_f^{k+1}).\]</span></p>
 <p>Define the interface/coupling residual <span class="math display">\[r^k=\widehat T_s^{k+1}-T_s^k,\]</span> and update <span class="math display">\[T_s^{k+1}=T_s^k+\omega_k r^k.\]</span></p>
 <p>Implement one driver that accepts a relaxation policy and records iteration, <span class="math inline">\(\|r^k\|_2/\sqrt N\)</span>, combined block residual, <span class="math inline">\(\omega_k\)</span>, and subsolve counts. Stop only when both coupling and block residuals are below tolerance. Treat reaching <code>MAXITER</code> as a failure, not a converged result.</p>
-<div id="a776d372" class="cell">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> partitioned_solve(problem, policy, omega0<span class="op">=</span><span class="fl">1.0</span>, tol<span class="op">=</span>TOL, maxiter<span class="op">=</span>MAXITER):</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Run strong partitioned coupling and return state plus full history."""</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># </span><span class="al">TODO</span><span class="co">: Implement the Gauss-Seidel exchange and robust stopping logic.</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">raise</span> <span class="pp">NotImplementedError</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</details>
-</div>
 </section>
-<section id="fixed-relaxation-and-vector-aitken-acceleration" class="level2">
-<h2 class="anchored" data-anchor-id="fixed-relaxation-and-vector-aitken-acceleration">4. Fixed relaxation and vector Aitken acceleration</h2>
+<section id="fixed-relaxation-and-vector-aitken-acceleration" class="level3">
+<h3 class="anchored" data-anchor-id="fixed-relaxation-and-vector-aitken-acceleration">Fixed relaxation and vector Aitken acceleration</h3>
 <p>Compare three policies:</p>
 <ol type="1">
 <li>Unrelaxed: <span class="math inline">\(\omega_k=1\)</span>.</li>
@@ -351,21 +329,188 @@ window.Quarto = {
 <p><span class="math display">\[\omega_k=-\omega_{k-1}\frac{(r^{k-1})^T(r^k-r^{k-1})}{\|r^k-r^{k-1}\|_2^2}.\]</span></p>
 <p>Use <span class="math inline">\(\omega_0=1\)</span> and clip the dynamic value to <code>[0.05, 1.5]</code>. If the denominator is too small or nonfinite, retain the previous valid value. Record every accepted relaxation factor.</p>
 <p>Important: form <span class="math inline">\(r^k\)</span> from the <strong>unrelaxed</strong> solid candidate. Applying Aitken to already relaxed residuals changes the method.</p>
-<div id="a305dd05" class="cell">
+<div id="aeae2204" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-15T19:29:59.399472Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-15T19:29:59.399336Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-15T19:29:59.404128Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-15T19:29:59.403910Z&quot;}}" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> fixed_policy(omega):</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># </span><span class="al">TODO</span><span class="co">: Return a callable compatible with partitioned_solve.</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">raise</span> <span class="pp">NotImplementedError</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> aitken_policy(omega0<span class="op">=</span><span class="fl">1.0</span>, bounds<span class="op">=</span>(<span class="fl">0.05</span>, <span class="fl">1.5</span>)):</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># </span><span class="al">TODO</span><span class="co">: Return a stateful callable implementing vector Aitken relaxation.</span></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">raise</span> <span class="pp">NotImplementedError</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> build_operators(H, n<span class="op">=</span>N):</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Assemble and factor the fixed-grid fluid and solid blocks."""</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> np.linspace(<span class="fl">0.0</span>, <span class="fl">1.0</span>, n)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    dx <span class="op">=</span> x[<span class="dv">1</span>] <span class="op">-</span> x[<span class="dv">0</span>]</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    qv <span class="op">=</span> <span class="fl">8.0</span> <span class="op">*</span> np.exp(<span class="op">-</span>(((x <span class="op">-</span> <span class="fl">0.72</span>) <span class="op">/</span> <span class="fl">0.12</span>) <span class="op">**</span> <span class="dv">2</span>)) <span class="op">+</span> <span class="fl">1.0</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Fluid: backward upwind, Dirichlet inflow row at x = 0.</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    Af <span class="op">=</span> np.zeros((n, n))</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    Cfs <span class="op">=</span> np.zeros((n, n))</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    bf <span class="op">=</span> np.zeros(n)</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    Af[<span class="dv">0</span>, <span class="dv">0</span>] <span class="op">=</span> <span class="fl">1.0</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    bf[<span class="dv">0</span>] <span class="op">=</span> T_IN</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, n):</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>        Af[i, i] <span class="op">=</span> CF <span class="op">/</span> dx <span class="op">+</span> H</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>        Af[i, i <span class="op">-</span> <span class="dv">1</span>] <span class="op">=</span> <span class="op">-</span>CF <span class="op">/</span> dx</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>        Cfs[i, i] <span class="op">=</span> <span class="op">-</span>H</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Solid: conservative second differences; half-width control volume at</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    <span class="co"># the two insulated (zero-flux) boundary nodes.</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    As <span class="op">=</span> np.zeros((n, n))</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>    Csf <span class="op">=</span> np.zeros((n, n))</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    bs <span class="op">=</span> qv.copy()</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, n <span class="op">-</span> <span class="dv">1</span>):</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>        As[i, i <span class="op">-</span> <span class="dv">1</span>] <span class="op">=</span> <span class="op">-</span>KS <span class="op">/</span> dx<span class="op">**</span><span class="dv">2</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>        As[i, i] <span class="op">=</span> <span class="fl">2.0</span> <span class="op">*</span> KS <span class="op">/</span> dx<span class="op">**</span><span class="dv">2</span> <span class="op">+</span> H</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>        As[i, i <span class="op">+</span> <span class="dv">1</span>] <span class="op">=</span> <span class="op">-</span>KS <span class="op">/</span> dx<span class="op">**</span><span class="dv">2</span></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>        Csf[i, i] <span class="op">=</span> <span class="op">-</span>H</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>    As[<span class="dv">0</span>, <span class="dv">0</span>] <span class="op">=</span> <span class="fl">2.0</span> <span class="op">*</span> KS <span class="op">/</span> dx<span class="op">**</span><span class="dv">2</span> <span class="op">+</span> H</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>    As[<span class="dv">0</span>, <span class="dv">1</span>] <span class="op">=</span> <span class="op">-</span><span class="fl">2.0</span> <span class="op">*</span> KS <span class="op">/</span> dx<span class="op">**</span><span class="dv">2</span></span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>    Csf[<span class="dv">0</span>, <span class="dv">0</span>] <span class="op">=</span> <span class="op">-</span>H</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>    As[n <span class="op">-</span> <span class="dv">1</span>, n <span class="op">-</span> <span class="dv">1</span>] <span class="op">=</span> <span class="fl">2.0</span> <span class="op">*</span> KS <span class="op">/</span> dx<span class="op">**</span><span class="dv">2</span> <span class="op">+</span> H</span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>    As[n <span class="op">-</span> <span class="dv">1</span>, n <span class="op">-</span> <span class="dv">2</span>] <span class="op">=</span> <span class="op">-</span><span class="fl">2.0</span> <span class="op">*</span> KS <span class="op">/</span> dx<span class="op">**</span><span class="dv">2</span></span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>    Csf[n <span class="op">-</span> <span class="dv">1</span>, n <span class="op">-</span> <span class="dv">1</span>] <span class="op">=</span> <span class="op">-</span>H</span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> Af.shape <span class="op">==</span> (n, n) <span class="kw">and</span> As.shape <span class="op">==</span> (n, n)</span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> Cfs.shape <span class="op">==</span> (n, n) <span class="kw">and</span> Csf.shape <span class="op">==</span> (n, n)</span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> np.<span class="bu">all</span>(np.isfinite(Af)) <span class="kw">and</span> np.<span class="bu">all</span>(np.isfinite(As))</span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> np.<span class="bu">all</span>(np.isfinite(bf)) <span class="kw">and</span> np.<span class="bu">all</span>(np.isfinite(bs))</span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> Af[<span class="dv">0</span>, <span class="dv">0</span>] <span class="op">==</span> <span class="fl">1.0</span> <span class="kw">and</span> bf[<span class="dv">0</span>] <span class="op">==</span> T_IN <span class="kw">and</span> np.allclose(Cfs[<span class="dv">0</span>, :], <span class="fl">0.0</span>)</span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> As[<span class="dv">0</span>, <span class="dv">1</span>] <span class="op">==</span> <span class="op">-</span><span class="fl">2.0</span> <span class="op">*</span> KS <span class="op">/</span> dx<span class="op">**</span><span class="dv">2</span> <span class="kw">and</span> As[n <span class="op">-</span> <span class="dv">1</span>, n <span class="op">-</span> <span class="dv">2</span>] <span class="op">==</span> <span class="op">-</span><span class="fl">2.0</span> <span class="op">*</span> KS <span class="op">/</span> dx<span class="op">**</span><span class="dv">2</span></span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>    Af_s <span class="op">=</span> csc_matrix(Af)</span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>    As_s <span class="op">=</span> csc_matrix(As)</span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>    Cfs_s <span class="op">=</span> csc_matrix(Cfs)</span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>    Csf_s <span class="op">=</span> csc_matrix(Csf)</span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> Af_s.nnz <span class="op">&lt;=</span> <span class="dv">2</span> <span class="op">*</span> n</span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> As_s.nnz <span class="op">&lt;=</span> <span class="dv">3</span> <span class="op">*</span> n</span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a>    Af_lu <span class="op">=</span> splu(Af_s)</span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a>    As_lu <span class="op">=</span> splu(As_s)</span>
+<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {</span>
+<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a>        <span class="st">"n"</span>: n, <span class="st">"H"</span>: H, <span class="st">"x"</span>: x, <span class="st">"dx"</span>: dx, <span class="st">"qv"</span>: qv,</span>
+<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Af"</span>: Af_s, <span class="st">"Cfs"</span>: Cfs_s, <span class="st">"Csf"</span>: Csf_s, <span class="st">"As"</span>: As_s,</span>
+<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a>        <span class="st">"bf"</span>: bf, <span class="st">"bs"</span>: bs, <span class="st">"Af_lu"</span>: Af_lu, <span class="st">"As_lu"</span>: As_lu,</span>
+<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> solve_fluid(Ts, problem):</span>
+<span id="cb3-60"><a href="#cb3-60" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""One fluid subsolve: Af Tf = bf - Cfs Ts."""</span></span>
+<span id="cb3-61"><a href="#cb3-61" aria-hidden="true" tabindex="-1"></a>    rhs <span class="op">=</span> problem[<span class="st">"bf"</span>] <span class="op">-</span> problem[<span class="st">"Cfs"</span>] <span class="op">@</span> Ts</span>
+<span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> problem[<span class="st">"Af_lu"</span>].solve(rhs)</span>
+<span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-64"><a href="#cb3-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-65"><a href="#cb3-65" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> solve_solid(Tf, problem):</span>
+<span id="cb3-66"><a href="#cb3-66" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""One solid subsolve: As Ts = bs - Csf Tf."""</span></span>
+<span id="cb3-67"><a href="#cb3-67" aria-hidden="true" tabindex="-1"></a>    rhs <span class="op">=</span> problem[<span class="st">"bs"</span>] <span class="op">-</span> problem[<span class="st">"Csf"</span>] <span class="op">@</span> Tf</span>
+<span id="cb3-68"><a href="#cb3-68" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> problem[<span class="st">"As_lu"</span>].solve(rhs)</span>
+<span id="cb3-69"><a href="#cb3-69" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-70"><a href="#cb3-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-71"><a href="#cb3-71" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> solve_monolithic(problem):</span>
+<span id="cb3-72"><a href="#cb3-72" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Solve the assembled 2N by 2N block system once as an independent reference."""</span></span>
+<span id="cb3-73"><a href="#cb3-73" aria-hidden="true" tabindex="-1"></a>    n <span class="op">=</span> problem[<span class="st">"n"</span>]</span>
+<span id="cb3-74"><a href="#cb3-74" aria-hidden="true" tabindex="-1"></a>    block <span class="op">=</span> bmat([[problem[<span class="st">"Af"</span>], problem[<span class="st">"Cfs"</span>]], [problem[<span class="st">"Csf"</span>], problem[<span class="st">"As"</span>]]], <span class="bu">format</span><span class="op">=</span><span class="st">"csc"</span>)</span>
+<span id="cb3-75"><a href="#cb3-75" aria-hidden="true" tabindex="-1"></a>    rhs <span class="op">=</span> np.concatenate([problem[<span class="st">"bf"</span>], problem[<span class="st">"bs"</span>]])</span>
+<span id="cb3-76"><a href="#cb3-76" aria-hidden="true" tabindex="-1"></a>    lu <span class="op">=</span> splu(block)</span>
+<span id="cb3-77"><a href="#cb3-77" aria-hidden="true" tabindex="-1"></a>    sol <span class="op">=</span> lu.solve(rhs)</span>
+<span id="cb3-78"><a href="#cb3-78" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> sol[:n], sol[n:]</span>
+<span id="cb3-79"><a href="#cb3-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-80"><a href="#cb3-80" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-81"><a href="#cb3-81" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> block_residual(Tf, Ts, problem):</span>
+<span id="cb3-82"><a href="#cb3-82" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Return normalized fluid, solid, and combined residual norms."""</span></span>
+<span id="cb3-83"><a href="#cb3-83" aria-hidden="true" tabindex="-1"></a>    n <span class="op">=</span> problem[<span class="st">"n"</span>]</span>
+<span id="cb3-84"><a href="#cb3-84" aria-hidden="true" tabindex="-1"></a>    rf <span class="op">=</span> problem[<span class="st">"Af"</span>] <span class="op">@</span> Tf <span class="op">+</span> problem[<span class="st">"Cfs"</span>] <span class="op">@</span> Ts <span class="op">-</span> problem[<span class="st">"bf"</span>]</span>
+<span id="cb3-85"><a href="#cb3-85" aria-hidden="true" tabindex="-1"></a>    rs <span class="op">=</span> problem[<span class="st">"Csf"</span>] <span class="op">@</span> Tf <span class="op">+</span> problem[<span class="st">"As"</span>] <span class="op">@</span> Ts <span class="op">-</span> problem[<span class="st">"bs"</span>]</span>
+<span id="cb3-86"><a href="#cb3-86" aria-hidden="true" tabindex="-1"></a>    rf_norm <span class="op">=</span> np.linalg.norm(rf) <span class="op">/</span> np.sqrt(n)</span>
+<span id="cb3-87"><a href="#cb3-87" aria-hidden="true" tabindex="-1"></a>    rs_norm <span class="op">=</span> np.linalg.norm(rs) <span class="op">/</span> np.sqrt(n)</span>
+<span id="cb3-88"><a href="#cb3-88" aria-hidden="true" tabindex="-1"></a>    combined <span class="op">=</span> np.linalg.norm(np.concatenate([rf, rs])) <span class="op">/</span> np.sqrt(<span class="dv">2</span> <span class="op">*</span> n)</span>
+<span id="cb3-89"><a href="#cb3-89" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> rf_norm, rs_norm, combined</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div id="3f00ec8f" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-15T19:29:59.404852Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-15T19:29:59.404736Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-15T19:29:59.407231Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-15T19:29:59.406995Z&quot;}}" data-execution_count="3">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> partitioned_solve(problem, policy, omega0<span class="op">=</span><span class="fl">1.0</span>, tol<span class="op">=</span>TOL, maxiter<span class="op">=</span>MAXITER):</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Run strong partitioned coupling and return state plus full history."""</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    n <span class="op">=</span> problem[<span class="st">"n"</span>]</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    Tf <span class="op">=</span> np.zeros(n)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    Ts <span class="op">=</span> np.zeros(n)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    omega <span class="op">=</span> omega0</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    r_prev <span class="op">=</span> <span class="va">None</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    history <span class="op">=</span> {<span class="st">"iter"</span>: [], <span class="st">"coupling_res"</span>: [], <span class="st">"block_res"</span>: [], <span class="st">"omega"</span>: []}</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    fluid_solves <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    solid_solves <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    converged <span class="op">=</span> <span class="va">False</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    final_coupling_res <span class="op">=</span> np.nan</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    final_block_res <span class="op">=</span> np.nan</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(maxiter):</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>        Tf <span class="op">=</span> solve_fluid(Ts, problem)</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>        fluid_solves <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>        Ts_hat <span class="op">=</span> solve_solid(Tf, problem)</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>        solid_solves <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>        r <span class="op">=</span> Ts_hat <span class="op">-</span> Ts</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>        coupling_res <span class="op">=</span> np.linalg.norm(r) <span class="op">/</span> np.sqrt(n)</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>        omega <span class="op">=</span> policy(k, r, r_prev, omega)</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>        Ts <span class="op">=</span> Ts <span class="op">+</span> omega <span class="op">*</span> r</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>        r_prev <span class="op">=</span> r</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>        _, _, block_res <span class="op">=</span> block_residual(Tf, Ts, problem)</span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>        history[<span class="st">"iter"</span>].append(k)</span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>        history[<span class="st">"coupling_res"</span>].append(coupling_res)</span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>        history[<span class="st">"block_res"</span>].append(block_res)</span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>        history[<span class="st">"omega"</span>].append(omega)</span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>        final_coupling_res <span class="op">=</span> coupling_res</span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>        final_block_res <span class="op">=</span> block_res</span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> coupling_res <span class="op">&lt;</span> tol <span class="kw">and</span> block_res <span class="op">&lt;</span> tol:</span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>            converged <span class="op">=</span> <span class="va">True</span></span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>            iterations <span class="op">=</span> k <span class="op">+</span> <span class="dv">1</span></span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>            <span class="cf">break</span></span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>        iterations <span class="op">=</span> maxiter</span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {</span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Tf"</span>: Tf, <span class="st">"Ts"</span>: Ts, <span class="st">"converged"</span>: converged, <span class="st">"iterations"</span>: iterations,</span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>        <span class="st">"history"</span>: history, <span class="st">"fluid_solves"</span>: fluid_solves, <span class="st">"solid_solves"</span>: solid_solves,</span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a>        <span class="st">"final_coupling_res"</span>: final_coupling_res, <span class="st">"final_block_res"</span>: final_block_res,</span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a>    }</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div id="492e3656" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-15T19:29:59.407814Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-15T19:29:59.407711Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-15T19:29:59.409745Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-15T19:29:59.409530Z&quot;}}" data-execution_count="4">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> fixed_policy(omega):</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Return a callable compatible with partitioned_solve using a constant omega."""</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> policy(k, r, r_prev, omega_prev):</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> omega</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> policy</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> aitken_policy(omega0<span class="op">=</span><span class="fl">1.0</span>, bounds<span class="op">=</span>(<span class="fl">0.05</span>, <span class="fl">1.5</span>)):</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Return a stateful callable implementing vector Aitken relaxation."""</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    state <span class="op">=</span> {<span class="st">"omega"</span>: omega0}</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> policy(k, r, r_prev, omega_prev):</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> r_prev <span class="kw">is</span> <span class="va">None</span>:</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>            state[<span class="st">"omega"</span>] <span class="op">=</span> omega0</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> state[<span class="st">"omega"</span>]</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>        delta <span class="op">=</span> r <span class="op">-</span> r_prev</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>        denom <span class="op">=</span> <span class="bu">float</span>(delta <span class="op">@</span> delta)</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> denom <span class="op">&lt;</span> <span class="fl">1.0e-14</span> <span class="kw">or</span> <span class="kw">not</span> np.isfinite(denom):</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> state[<span class="st">"omega"</span>]</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>        candidate <span class="op">=</span> <span class="op">-</span>state[<span class="st">"omega"</span>] <span class="op">*</span> <span class="bu">float</span>(r_prev <span class="op">@</span> delta) <span class="op">/</span> denom</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="kw">not</span> np.isfinite(candidate):</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> state[<span class="st">"omega"</span>]</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>        state[<span class="st">"omega"</span>] <span class="op">=</span> <span class="bu">float</span>(np.clip(candidate, bounds[<span class="dv">0</span>], bounds[<span class="dv">1</span>]))</span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> state[<span class="st">"omega"</span>]</span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> policy</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 </section>
-<section id="coupling-strength-experiment" class="level2">
-<h2 class="anchored" data-anchor-id="coupling-strength-experiment">5. Coupling-strength experiment</h2>
+</section>
+<section id="error-measures-and-expected-behavior" class="level2">
+<h2 class="anchored" data-anchor-id="error-measures-and-expected-behavior">3. Error measures and expected behavior</h2>
 <p>For each <span class="math inline">\(H\in\{5,25,100,500\}\)</span>:</p>
 <ul>
 <li>Compute the monolithic reference.</li>
@@ -373,35 +518,621 @@ window.Quarto = {
 <li>Record convergence status, iterations, final coupling residual, final block residual, and relative error against the monolithic stacked state.</li>
 <li>Estimate the asymptotic contraction factor from a linear fit to <code>log(coupling residual)</code> over a clean late-iteration window. Reject windows that include zeros, stagnation, or fewer than five points.</li>
 </ul>
+<p>Expect convergence to slow, or the fixed-point sweep to fail outright, as <span class="math inline">\(H\)</span> grows: a larger <span class="math inline">\(H\)</span> strengthens the interface coupling that the block Gauss-Seidel sweep still treats explicitly, one lagged field at a time. Relaxation and Aitken acceleration should recover usable convergence without changing the per-sweep subsolve cost (still exactly one fluid and one solid solve per sweep). A failed run is itself a result: it must be reported, not discarded, together with its final residuals.</p>
 <p>Do not change <code>N</code> between cases. The independent variable is coupling strength, not grid spacing.</p>
-<div id="dc52e125" class="cell">
+<div id="6ab1d1f4" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-15T19:29:59.410783Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-15T19:29:59.410719Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-15T19:29:59.613113Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-15T19:29:59.612812Z&quot;}}" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: Run the full method-by-H matrix and collect a tidy results table.</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Keep failed/nonconverged runs in the table rather than silently dropping them.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> estimate_contraction(coupling_res_history, window<span class="op">=</span><span class="dv">10</span>, min_points<span class="op">=</span><span class="dv">5</span>):</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Fit log(coupling residual) vs. iteration over a clean late-iteration window."""</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    r <span class="op">=</span> np.asarray(coupling_res_history, dtype<span class="op">=</span><span class="bu">float</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    r <span class="op">=</span> r[np.isfinite(r) <span class="op">&amp;</span> (r <span class="op">&gt;</span> <span class="fl">0.0</span>)]</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> r.size <span class="op">&lt;</span> min_points:</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> np.nan</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    tail <span class="op">=</span> r[<span class="op">-</span>window:] <span class="cf">if</span> r.size <span class="op">&gt;=</span> window <span class="cf">else</span> r</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> tail.size <span class="op">&lt;</span> min_points:</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> np.nan</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    log_r <span class="op">=</span> np.log(tail)</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> np.ptp(log_r) <span class="op">&lt;</span> <span class="fl">1.0e-12</span>:</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> np.nan  <span class="co"># stagnant window: no information about the contraction rate</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    iters <span class="op">=</span> np.arange(tail.size)</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>    slope, _ <span class="op">=</span> np.polyfit(iters, log_r, <span class="dv">1</span>)</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">float</span>(np.exp(slope))</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>policies <span class="op">=</span> [(<span class="st">"unrelaxed"</span>, fixed_policy(<span class="fl">1.0</span>))]</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> _omega <span class="kw">in</span> (<span class="fl">0.2</span>, <span class="fl">0.5</span>, <span class="fl">0.8</span>, <span class="fl">1.0</span>, <span class="fl">1.2</span>, <span class="fl">1.5</span>):</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>    policies.append((<span class="ss">f"fixed (omega=</span><span class="sc">{</span>_omega<span class="sc">}</span><span class="ss">)"</span>, fixed_policy(_omega)))</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>policies.append((<span class="st">"aitken"</span>, aitken_policy(omega0<span class="op">=</span><span class="fl">1.0</span>, bounds<span class="op">=</span>(<span class="fl">0.05</span>, <span class="fl">1.5</span>))))</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>problems <span class="op">=</span> {}</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>monolithic <span class="op">=</span> {}</span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>run_cache <span class="op">=</span> {}</span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>results <span class="op">=</span> []</span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> H <span class="kw">in</span> H_VALUES:</span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>    problem <span class="op">=</span> build_operators(H)</span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>    problems[H] <span class="op">=</span> problem</span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>    Tf_mono, Ts_mono <span class="op">=</span> solve_monolithic(problem)</span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>    _, _, mono_block_res <span class="op">=</span> block_residual(Tf_mono, Ts_mono, problem)</span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>    monolithic[H] <span class="op">=</span> (Tf_mono, Ts_mono, mono_block_res)</span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>    stacked_mono <span class="op">=</span> np.concatenate([Tf_mono, Ts_mono])</span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> name, policy <span class="kw">in</span> policies:</span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>        out <span class="op">=</span> partitioned_solve(problem, policy, omega0<span class="op">=</span><span class="fl">1.0</span>)</span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a>        stacked <span class="op">=</span> np.concatenate([out[<span class="st">"Tf"</span>], out[<span class="st">"Ts"</span>]])</span>
+<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a>        rel_error <span class="op">=</span> np.linalg.norm(stacked <span class="op">-</span> stacked_mono) <span class="op">/</span> np.linalg.norm(stacked_mono)</span>
+<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a>        contraction <span class="op">=</span> estimate_contraction(out[<span class="st">"history"</span>][<span class="st">"coupling_res"</span>])</span>
+<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a>        run_cache[(H, name)] <span class="op">=</span> out</span>
+<span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a>        results.append({</span>
+<span id="cb6-44"><a href="#cb6-44" aria-hidden="true" tabindex="-1"></a>            <span class="st">"H"</span>: H,</span>
+<span id="cb6-45"><a href="#cb6-45" aria-hidden="true" tabindex="-1"></a>            <span class="st">"policy"</span>: name,</span>
+<span id="cb6-46"><a href="#cb6-46" aria-hidden="true" tabindex="-1"></a>            <span class="st">"converged"</span>: out[<span class="st">"converged"</span>],</span>
+<span id="cb6-47"><a href="#cb6-47" aria-hidden="true" tabindex="-1"></a>            <span class="st">"iterations"</span>: out[<span class="st">"iterations"</span>],</span>
+<span id="cb6-48"><a href="#cb6-48" aria-hidden="true" tabindex="-1"></a>            <span class="st">"coupling_res"</span>: out[<span class="st">"final_coupling_res"</span>],</span>
+<span id="cb6-49"><a href="#cb6-49" aria-hidden="true" tabindex="-1"></a>            <span class="st">"block_res"</span>: out[<span class="st">"final_block_res"</span>],</span>
+<span id="cb6-50"><a href="#cb6-50" aria-hidden="true" tabindex="-1"></a>            <span class="st">"rel_error"</span>: rel_error,</span>
+<span id="cb6-51"><a href="#cb6-51" aria-hidden="true" tabindex="-1"></a>            <span class="st">"fluid_solves"</span>: out[<span class="st">"fluid_solves"</span>],</span>
+<span id="cb6-52"><a href="#cb6-52" aria-hidden="true" tabindex="-1"></a>            <span class="st">"solid_solves"</span>: out[<span class="st">"solid_solves"</span>],</span>
+<span id="cb6-53"><a href="#cb6-53" aria-hidden="true" tabindex="-1"></a>            <span class="st">"contraction"</span>: contraction,</span>
+<span id="cb6-54"><a href="#cb6-54" aria-hidden="true" tabindex="-1"></a>        })</span>
+<span id="cb6-55"><a href="#cb6-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-56"><a href="#cb6-56" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Computed </span><span class="sc">{</span><span class="bu">len</span>(results)<span class="sc">}</span><span class="ss"> partitioned runs across </span><span class="sc">{</span><span class="bu">len</span>(H_VALUES)<span class="sc">}</span><span class="ss"> values of H."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Computed 32 partitioned runs across 4 values of H.</code></pre>
+</div>
 </div>
 </section>
-<section id="required-diagnostics-and-interpretation" class="level2">
-<h2 class="anchored" data-anchor-id="required-diagnostics-and-interpretation">6. Required diagnostics and interpretation</h2>
+<section id="results-and-convergence" class="level2">
+<h2 class="anchored" data-anchor-id="results-and-convergence">4. Results and convergence</h2>
+<p><strong>Deliverable:</strong> a compact table reporting, for every <span class="math inline">\(H\)</span> and policy, convergence status, iterations, final coupling and block residuals, relative error against the monolithic reference, subsolve counts, and the estimated asymptotic contraction factor. Failed or nonconverged runs are kept in the table rather than dropped.</p>
+<div id="898b24b6" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-15T19:29:59.613848Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-15T19:29:59.613785Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-15T19:29:59.617011Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-15T19:29:59.616847Z&quot;}}" data-execution_count="6">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>header <span class="op">=</span> (<span class="st">"| H | Policy | Converged | Iterations | Coupling res. | Block res. | "</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>          <span class="st">"Rel. error vs. monolithic | Fluid solves | Solid solves | Contraction |"</span>)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>sep <span class="op">=</span> <span class="st">"|---|---|---|---|---|---|---|---|---|---|"</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>rows <span class="op">=</span> [header, sep]</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> row <span class="kw">in</span> results:</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    contraction_str <span class="op">=</span> <span class="ss">f"</span><span class="sc">{</span>row[<span class="st">'contraction'</span>]<span class="sc">:.4f}</span><span class="ss">"</span> <span class="cf">if</span> np.isfinite(row[<span class="st">"contraction"</span>]) <span class="cf">else</span> <span class="st">"n/a"</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    rows.append(</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>        <span class="ss">f"| </span><span class="sc">{</span>row[<span class="st">'H'</span>]<span class="sc">:.0f}</span><span class="ss"> | </span><span class="sc">{</span>row[<span class="st">'policy'</span>]<span class="sc">}</span><span class="ss"> | </span><span class="sc">{</span><span class="st">'yes'</span> <span class="cf">if</span> row[<span class="st">'converged'</span>] <span class="cf">else</span> <span class="st">'no'</span><span class="sc">}</span><span class="ss"> "</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>        <span class="ss">f"| </span><span class="sc">{</span>row[<span class="st">'iterations'</span>]<span class="sc">}</span><span class="ss"> | </span><span class="sc">{</span>row[<span class="st">'coupling_res'</span>]<span class="sc">:.3e}</span><span class="ss"> | </span><span class="sc">{</span>row[<span class="st">'block_res'</span>]<span class="sc">:.3e}</span><span class="ss"> "</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>        <span class="ss">f"| </span><span class="sc">{</span>row[<span class="st">'rel_error'</span>]<span class="sc">:.3e}</span><span class="ss"> | </span><span class="sc">{</span>row[<span class="st">'fluid_solves'</span>]<span class="sc">}</span><span class="ss"> | </span><span class="sc">{</span>row[<span class="st">'solid_solves'</span>]<span class="sc">}</span><span class="ss"> "</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>        <span class="ss">f"| </span><span class="sc">{</span>contraction_str<span class="sc">}</span><span class="ss"> |"</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>display(Markdown(<span class="st">"</span><span class="ch">\n</span><span class="st">"</span>.join(rows)))</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>mono_rows <span class="op">=</span> [<span class="st">"| H | Monolithic combined block residual |"</span>, <span class="st">"|---|---|"</span>]</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> H <span class="kw">in</span> H_VALUES:</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>    mono_rows.append(<span class="ss">f"| </span><span class="sc">{</span>H<span class="sc">:.0f}</span><span class="ss"> | </span><span class="sc">{</span>monolithic[H][<span class="dv">2</span>]<span class="sc">:.3e}</span><span class="ss"> |"</span>)</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>display(Markdown(<span class="st">"</span><span class="ch">\n</span><span class="st">"</span>.join(mono_rows)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display cell-output-markdown">
+<table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 10%">
+<col style="width: 10%">
+<col style="width: 10%">
+<col style="width: 10%">
+<col style="width: 10%">
+<col style="width: 10%">
+<col style="width: 10%">
+<col style="width: 10%">
+<col style="width: 10%">
+<col style="width: 10%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>H</th>
+<th>Policy</th>
+<th>Converged</th>
+<th>Iterations</th>
+<th>Coupling res.</th>
+<th>Block res.</th>
+<th>Rel. error vs.&nbsp;monolithic</th>
+<th>Fluid solves</th>
+<th>Solid solves</th>
+<th>Contraction</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>5</td>
+<td>unrelaxed</td>
+<td>yes</td>
+<td>39</td>
+<td>1.840e-11</td>
+<td>6.504e-11</td>
+<td>1.101e-11</td>
+<td>39</td>
+<td>39</td>
+<td>0.4967</td>
+</tr>
+<tr class="even">
+<td>5</td>
+<td>fixed (omega=0.2)</td>
+<td>yes</td>
+<td>247</td>
+<td>2.983e-11</td>
+<td>9.238e-11</td>
+<td>2.578e-11</td>
+<td>247</td>
+<td>247</td>
+<td>0.8996</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>fixed (omega=0.5)</td>
+<td>yes</td>
+<td>91</td>
+<td>3.030e-11</td>
+<td>7.830e-11</td>
+<td>2.297e-11</td>
+<td>91</td>
+<td>91</td>
+<td>0.7488</td>
+</tr>
+<tr class="even">
+<td>5</td>
+<td>fixed (omega=0.8)</td>
+<td>yes</td>
+<td>52</td>
+<td>2.520e-11</td>
+<td>7.377e-11</td>
+<td>1.662e-11</td>
+<td>52</td>
+<td>52</td>
+<td>0.5976</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>fixed (omega=1.0)</td>
+<td>yes</td>
+<td>39</td>
+<td>1.840e-11</td>
+<td>6.504e-11</td>
+<td>1.101e-11</td>
+<td>39</td>
+<td>39</td>
+<td>0.4967</td>
+</tr>
+<tr class="even">
+<td>5</td>
+<td>fixed (omega=1.2)</td>
+<td>yes</td>
+<td>30</td>
+<td>1.401e-11</td>
+<td>6.036e-11</td>
+<td>7.631e-12</td>
+<td>30</td>
+<td>30</td>
+<td>0.3958</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>fixed (omega=1.5)</td>
+<td>yes</td>
+<td>31</td>
+<td>3.096e-12</td>
+<td>5.219e-11</td>
+<td>6.577e-13</td>
+<td>31</td>
+<td>31</td>
+<td>0.4838</td>
+</tr>
+<tr class="even">
+<td>5</td>
+<td>aitken</td>
+<td>yes</td>
+<td>23</td>
+<td>1.115e-11</td>
+<td>8.670e-11</td>
+<td>2.607e-12</td>
+<td>23</td>
+<td>23</td>
+<td>0.3157</td>
+</tr>
+<tr class="odd">
+<td>25</td>
+<td>unrelaxed</td>
+<td>yes</td>
+<td>116</td>
+<td>5.100e-12</td>
+<td>9.015e-11</td>
+<td>1.212e-11</td>
+<td>116</td>
+<td>116</td>
+<td>0.7738</td>
+</tr>
+<tr class="even">
+<td>25</td>
+<td>fixed (omega=0.2)</td>
+<td>no</td>
+<td>500</td>
+<td>2.842e-09</td>
+<td>4.278e-08</td>
+<td>7.713e-09</td>
+<td>500</td>
+<td>500</td>
+<td>0.9556</td>
+</tr>
+<tr class="odd">
+<td>25</td>
+<td>fixed (omega=0.5)</td>
+<td>yes</td>
+<td>244</td>
+<td>7.039e-12</td>
+<td>8.955e-11</td>
+<td>1.802e-11</td>
+<td>244</td>
+<td>244</td>
+<td>0.8872</td>
+</tr>
+<tr class="even">
+<td>25</td>
+<td>fixed (omega=0.8)</td>
+<td>yes</td>
+<td>148</td>
+<td>5.902e-12</td>
+<td>8.621e-11</td>
+<td>1.445e-11</td>
+<td>148</td>
+<td>148</td>
+<td>0.8192</td>
+</tr>
+<tr class="odd">
+<td>25</td>
+<td>fixed (omega=1.0)</td>
+<td>yes</td>
+<td>116</td>
+<td>5.100e-12</td>
+<td>9.015e-11</td>
+<td>1.212e-11</td>
+<td>116</td>
+<td>116</td>
+<td>0.7738</td>
+</tr>
+<tr class="even">
+<td>25</td>
+<td>fixed (omega=1.2)</td>
+<td>yes</td>
+<td>95</td>
+<td>3.857e-12</td>
+<td>8.304e-11</td>
+<td>8.899e-12</td>
+<td>95</td>
+<td>95</td>
+<td>0.7282</td>
+</tr>
+<tr class="odd">
+<td>25</td>
+<td>fixed (omega=1.5)</td>
+<td>yes</td>
+<td>74</td>
+<td>2.355e-12</td>
+<td>6.606e-11</td>
+<td>5.194e-12</td>
+<td>74</td>
+<td>74</td>
+<td>0.6598</td>
+</tr>
+<tr class="even">
+<td>25</td>
+<td>aitken</td>
+<td>yes</td>
+<td>74</td>
+<td>2.760e-12</td>
+<td>7.744e-11</td>
+<td>6.091e-12</td>
+<td>74</td>
+<td>74</td>
+<td>0.6598</td>
+</tr>
+<tr class="odd">
+<td>100</td>
+<td>unrelaxed</td>
+<td>yes</td>
+<td>381</td>
+<td>1.403e-12</td>
+<td>9.919e-11</td>
+<td>1.140e-11</td>
+<td>381</td>
+<td>381</td>
+<td>0.9199</td>
+</tr>
+<tr class="even">
+<td>100</td>
+<td>fixed (omega=0.2)</td>
+<td>no</td>
+<td>500</td>
+<td>1.777e-03</td>
+<td>1.040e-01</td>
+<td>2.432e-02</td>
+<td>500</td>
+<td>500</td>
+<td>0.9915</td>
+</tr>
+<tr class="odd">
+<td>100</td>
+<td>fixed (omega=0.5)</td>
+<td>no</td>
+<td>500</td>
+<td>9.136e-08</td>
+<td>4.599e-06</td>
+<td>8.005e-07</td>
+<td>500</td>
+<td>500</td>
+<td>0.9623</td>
+</tr>
+<tr class="even">
+<td>100</td>
+<td>fixed (omega=0.8)</td>
+<td>yes</td>
+<td>478</td>
+<td>1.608e-12</td>
+<td>9.385e-11</td>
+<td>1.319e-11</td>
+<td>478</td>
+<td>478</td>
+<td>0.9359</td>
+</tr>
+<tr class="odd">
+<td>100</td>
+<td>fixed (omega=1.0)</td>
+<td>yes</td>
+<td>381</td>
+<td>1.403e-12</td>
+<td>9.919e-11</td>
+<td>1.140e-11</td>
+<td>381</td>
+<td>381</td>
+<td>0.9199</td>
+</tr>
+<tr class="even">
+<td>100</td>
+<td>fixed (omega=1.2)</td>
+<td>yes</td>
+<td>317</td>
+<td>1.139e-12</td>
+<td>9.800e-11</td>
+<td>9.160e-12</td>
+<td>317</td>
+<td>317</td>
+<td>0.9037</td>
+</tr>
+<tr class="odd">
+<td>100</td>
+<td>fixed (omega=1.5)</td>
+<td>yes</td>
+<td>253</td>
+<td>8.237e-13</td>
+<td>9.223e-11</td>
+<td>6.529e-12</td>
+<td>253</td>
+<td>253</td>
+<td>0.8795</td>
+</tr>
+<tr class="even">
+<td>100</td>
+<td>aitken</td>
+<td>yes</td>
+<td>253</td>
+<td>8.612e-13</td>
+<td>9.642e-11</td>
+<td>6.828e-12</td>
+<td>253</td>
+<td>253</td>
+<td>0.8795</td>
+</tr>
+<tr class="odd">
+<td>500</td>
+<td>unrelaxed</td>
+<td>no</td>
+<td>500</td>
+<td>3.083e-04</td>
+<td>1.090e-01</td>
+<td>1.908e-02</td>
+<td>500</td>
+<td>500</td>
+<td>0.9904</td>
+</tr>
+<tr class="even">
+<td>500</td>
+<td>fixed (omega=0.2)</td>
+<td>no</td>
+<td>500</td>
+<td>5.756e-03</td>
+<td>1.679e+00</td>
+<td>5.765e-01</td>
+<td>500</td>
+<td>500</td>
+<td>0.9991</td>
+</tr>
+<tr class="odd">
+<td>500</td>
+<td>fixed (omega=0.5)</td>
+<td>no</td>
+<td>500</td>
+<td>1.994e-03</td>
+<td>4.986e-01</td>
+<td>1.861e-01</td>
+<td>500</td>
+<td>500</td>
+<td>0.9963</td>
+</tr>
+<tr class="even">
+<td>500</td>
+<td>fixed (omega=0.8)</td>
+<td>no</td>
+<td>500</td>
+<td>7.206e-04</td>
+<td>2.101e-01</td>
+<td>5.410e-02</td>
+<td>500</td>
+<td>500</td>
+<td>0.9942</td>
+</tr>
+<tr class="odd">
+<td>500</td>
+<td>fixed (omega=1.0)</td>
+<td>no</td>
+<td>500</td>
+<td>3.083e-04</td>
+<td>1.090e-01</td>
+<td>1.908e-02</td>
+<td>500</td>
+<td>500</td>
+<td>0.9904</td>
+</tr>
+<tr class="even">
+<td>500</td>
+<td>fixed (omega=1.2)</td>
+<td>no</td>
+<td>500</td>
+<td>1.031e-04</td>
+<td>4.436e-02</td>
+<td>5.511e-03</td>
+<td>500</td>
+<td>500</td>
+<td>0.9858</td>
+</tr>
+<tr class="odd">
+<td>500</td>
+<td>fixed (omega=1.5)</td>
+<td>no</td>
+<td>500</td>
+<td>1.366e-05</td>
+<td>7.636e-03</td>
+<td>6.340e-04</td>
+<td>500</td>
+<td>500</td>
+<td>0.9785</td>
+</tr>
+<tr class="even">
+<td>500</td>
+<td>aitken</td>
+<td>no</td>
+<td>500</td>
+<td>1.376e-05</td>
+<td>7.692e-03</td>
+<td>6.389e-04</td>
+<td>500</td>
+<td>500</td>
+<td>0.9785</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="cell-output cell-output-display cell-output-markdown">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th>H</th>
+<th>Monolithic combined block residual</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>5</td>
+<td>3.497e-14</td>
+</tr>
+<tr class="even">
+<td>25</td>
+<td>3.529e-14</td>
+</tr>
+<tr class="odd">
+<td>100</td>
+<td>4.291e-14</td>
+</tr>
+<tr class="even">
+<td>500</td>
+<td>1.190e-13</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="solution-and-diagnostic-plots" class="level2">
+<h2 class="anchored" data-anchor-id="solution-and-diagnostic-plots">5. Solution and diagnostic plots</h2>
 <p>Create:</p>
 <ol type="1">
 <li><span class="math inline">\(T_f(x)\)</span> and <span class="math inline">\(T_s(x)\)</span> for the strongest converged case, overlaying the monolithic reference.</li>
 <li>Coupling residual versus iteration for all policies at <span class="math inline">\(H=100\)</span> on a semilog axis.</li>
 <li>Iteration count versus <span class="math inline">\(H\)</span> for each policy; mark failures distinctly.</li>
 <li>Aitken <span class="math inline">\(\omega_k\)</span> versus iteration for <span class="math inline">\(H=100\)</span>.</li>
-<li>A compact table of contraction estimates, subsolve counts, final block residuals, and monolithic errors.</li>
 </ol>
-<p>Answer: Why can both subsolvers be stable while the coupled iteration is slow or unstable? When does over-relaxation help? What does Aitken infer from residual history? Why is the monolithic solve a valuable algorithmic reference but not necessarily the preferred production architecture?</p>
-<div id="00fe0d63" class="cell">
+<p>Why can both subsolvers be stable while the coupled iteration is slow or unstable? When does over-relaxation help? What does Aitken infer from residual history? Why is the monolithic solve a valuable algorithmic reference but not necessarily the preferred production architecture?</p>
+<div id="d2f58826" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-15T19:29:59.617715Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-15T19:29:59.617645Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-15T19:29:59.944376Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-15T19:29:59.944197Z&quot;}}" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: Generate all plots, the summary table, and concise interpretation.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>converged_H_aitken <span class="op">=</span> <span class="bu">sorted</span>(H <span class="cf">for</span> H <span class="kw">in</span> H_VALUES <span class="cf">if</span> run_cache[(H, <span class="st">"aitken"</span>)][<span class="st">"converged"</span>])</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>strongest_H <span class="op">=</span> <span class="bu">max</span>(converged_H_aitken) <span class="cf">if</span> converged_H_aitken <span class="cf">else</span> <span class="bu">max</span>(H_VALUES)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>strong_run <span class="op">=</span> run_cache[(strongest_H, <span class="st">"aitken"</span>)]</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>Tf_mono_strong, Ts_mono_strong, _ <span class="op">=</span> monolithic[strongest_H]</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>x_strong <span class="op">=</span> problems[strongest_H][<span class="st">"x"</span>]</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="dv">8</span>))</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> axes[<span class="dv">0</span>, <span class="dv">0</span>]</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>ax.plot(x_strong, strong_run[<span class="st">"Tf"</span>], label<span class="op">=</span><span class="st">"$T_f$ (partitioned, Aitken)"</span>, color<span class="op">=</span><span class="st">"tab:blue"</span>)</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>ax.plot(x_strong, strong_run[<span class="st">"Ts"</span>], label<span class="op">=</span><span class="st">"$T_s$ (partitioned, Aitken)"</span>, color<span class="op">=</span><span class="st">"tab:red"</span>)</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>ax.plot(x_strong, Tf_mono_strong, <span class="st">"--"</span>, label<span class="op">=</span><span class="st">"$T_f$ (monolithic)"</span>, color<span class="op">=</span><span class="st">"navy"</span>)</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>ax.plot(x_strong, Ts_mono_strong, <span class="st">"--"</span>, label<span class="op">=</span><span class="st">"$T_s$ (monolithic)"</span>, color<span class="op">=</span><span class="st">"darkred"</span>)</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"x (dimensionless)"</span>)</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"Temperature (dimensionless)"</span>)</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="ss">f"Converged state at H=</span><span class="sc">{</span>strongest_H<span class="sc">:.0f}</span><span class="ss">"</span>)</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>ax.legend(fontsize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> axes[<span class="dv">0</span>, <span class="dv">1</span>]</span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name, _policy <span class="kw">in</span> policies:</span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>    hist <span class="op">=</span> run_cache[(<span class="fl">100.0</span>, name)][<span class="st">"history"</span>]</span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>    ax.semilogy(hist[<span class="st">"iter"</span>], hist[<span class="st">"coupling_res"</span>], label<span class="op">=</span>name)</span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>ax.axhline(TOL, color<span class="op">=</span><span class="st">"black"</span>, linestyle<span class="op">=</span><span class="st">":"</span>, linewidth<span class="op">=</span><span class="dv">1</span>, label<span class="op">=</span><span class="st">"tolerance"</span>)</span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Iteration"</span>)</span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="vs">r"Coupling residual </span><span class="dv">$</span><span class="ch">\|</span><span class="vs">r</span><span class="dv">^</span><span class="vs">k</span><span class="ch">\|</span><span class="vs">_2/</span><span class="dv">\s</span><span class="vs">qrt{N}</span><span class="dv">$</span><span class="vs">"</span>)</span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Coupling residual history at H=100"</span>)</span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>ax.legend(fontsize<span class="op">=</span><span class="dv">7</span>, ncol<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> axes[<span class="dv">1</span>, <span class="dv">0</span>]</span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name, _policy <span class="kw">in</span> policies:</span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>    ok_H <span class="op">=</span> [H <span class="cf">for</span> H <span class="kw">in</span> H_VALUES <span class="cf">if</span> run_cache[(H, name)][<span class="st">"converged"</span>]]</span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>    failed_H <span class="op">=</span> [H <span class="cf">for</span> H <span class="kw">in</span> H_VALUES <span class="cf">if</span> <span class="kw">not</span> run_cache[(H, name)][<span class="st">"converged"</span>]]</span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a>    ok_iters <span class="op">=</span> [run_cache[(H, name)][<span class="st">"iterations"</span>] <span class="cf">for</span> H <span class="kw">in</span> ok_H]</span>
+<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a>    line, <span class="op">=</span> ax.plot(ok_H, ok_iters, marker<span class="op">=</span><span class="st">"o"</span>, label<span class="op">=</span>name)</span>
+<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> failed_H:</span>
+<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a>        fail_iters <span class="op">=</span> [run_cache[(H, name)][<span class="st">"iterations"</span>] <span class="cf">for</span> H <span class="kw">in</span> failed_H]</span>
+<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a>        ax.plot(failed_H, fail_iters, marker<span class="op">=</span><span class="st">"x"</span>, linestyle<span class="op">=</span><span class="st">"none"</span>,</span>
+<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a>                 color<span class="op">=</span>line.get_color(), markersize<span class="op">=</span><span class="dv">9</span>, markeredgewidth<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"H (dimensionless coupling strength)"</span>)</span>
+<span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"Iterations to convergence"</span>)</span>
+<span id="cb9-41"><a href="#cb9-41" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Iteration count vs. coupling strength (x marks a failed run)"</span>)</span>
+<span id="cb9-42"><a href="#cb9-42" aria-hidden="true" tabindex="-1"></a>ax.legend(fontsize<span class="op">=</span><span class="dv">7</span>, ncol<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb9-43"><a href="#cb9-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-44"><a href="#cb9-44" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> axes[<span class="dv">1</span>, <span class="dv">1</span>]</span>
+<span id="cb9-45"><a href="#cb9-45" aria-hidden="true" tabindex="-1"></a>hist_aitken <span class="op">=</span> run_cache[(<span class="fl">100.0</span>, <span class="st">"aitken"</span>)][<span class="st">"history"</span>]</span>
+<span id="cb9-46"><a href="#cb9-46" aria-hidden="true" tabindex="-1"></a>ax.plot(hist_aitken[<span class="st">"iter"</span>], hist_aitken[<span class="st">"omega"</span>], marker<span class="op">=</span><span class="st">"."</span>)</span>
+<span id="cb9-47"><a href="#cb9-47" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Iteration"</span>)</span>
+<span id="cb9-48"><a href="#cb9-48" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="vs">r"Aitken </span><span class="dv">$</span><span class="er">\</span><span class="vs">omega_k</span><span class="dv">$</span><span class="vs">"</span>)</span>
+<span id="cb9-49"><a href="#cb9-49" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Aitken relaxation factor at H=100"</span>)</span>
+<span id="cb9-50"><a href="#cb9-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-51"><a href="#cb9-51" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()</span>
+<span id="cb9-52"><a href="#cb9-52" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="20261013-partitioned-cht-coupling_files/figure-html/cell-8-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
 </div>
 </section>
-<section id="verification-and-success-criteria" class="level2">
-<h2 class="anchored" data-anchor-id="verification-and-success-criteria">7. Verification and success criteria</h2>
+<section id="automatic-checks" class="level2">
+<h2 class="anchored" data-anchor-id="automatic-checks">6. Automatic checks</h2>
 <p>Assert all of the following:</p>
 <ul>
 <li>Every assembled block has the expected shape and finite entries; factorizations are reused.</li>
@@ -414,15 +1145,82 @@ window.Quarto = {
 <li>A discrete global heat balance is reported. With insulated solid ends, total generated heat must equal coolant enthalpy rise to the tolerance implied by your boundary discretization.</li>
 </ul>
 <p>Verification is performed on one fixed grid and checks algebra, coupling consistency, and conservation - not observed spatial order.</p>
-<div id="a01bac72" class="cell">
+<div id="a3852bd2" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-15T19:29:59.945670Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-15T19:29:59.945609Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-15T19:29:59.949212Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-15T19:29:59.948991Z&quot;}}" data-execution_count="8">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: Implement automatic checks tied to the actual results.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> H <span class="kw">in</span> H_VALUES:</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    problem <span class="op">=</span> problems[H]</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> mat_name <span class="kw">in</span> (<span class="st">"Af"</span>, <span class="st">"Cfs"</span>, <span class="st">"Csf"</span>, <span class="st">"As"</span>):</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>        mat <span class="op">=</span> problem[mat_name]</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">assert</span> mat.shape <span class="op">==</span> (N, N)</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">assert</span> np.<span class="bu">all</span>(np.isfinite(mat.data))</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> problem[<span class="st">"Af"</span>].nnz <span class="op">&lt;=</span> <span class="dv">2</span> <span class="op">*</span> N</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> problem[<span class="st">"As"</span>].nnz <span class="op">&lt;=</span> <span class="dv">3</span> <span class="op">*</span> N</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> problem[<span class="st">"Af_lu"</span>] <span class="kw">is</span> problem[<span class="st">"Af_lu"</span>]  <span class="co"># factorization is stored once per H, reused below</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> problem[<span class="st">"As_lu"</span>] <span class="kw">is</span> problem[<span class="st">"As_lu"</span>]</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> H <span class="kw">in</span> H_VALUES:</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>    mono_block_res <span class="op">=</span> monolithic[H][<span class="dv">2</span>]</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> mono_block_res <span class="op">&lt;</span> <span class="fl">1.0e-11</span>, (H, mono_block_res)</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> row <span class="kw">in</span> results:</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>    out <span class="op">=</span> run_cache[(row[<span class="st">"H"</span>], row[<span class="st">"policy"</span>])]</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> out[<span class="st">"fluid_solves"</span>] <span class="op">==</span> out[<span class="st">"solid_solves"</span>] <span class="op">==</span> out[<span class="st">"iterations"</span>]</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> row[<span class="st">"converged"</span>]:</span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>        <span class="cf">assert</span> row[<span class="st">"coupling_res"</span>] <span class="op">&lt;</span> <span class="fl">1.0e-10</span>, row</span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>        <span class="cf">assert</span> row[<span class="st">"block_res"</span>] <span class="op">&lt;</span> <span class="fl">1.0e-10</span>, row</span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>        <span class="cf">assert</span> row[<span class="st">"rel_error"</span>] <span class="op">&lt;</span> <span class="fl">1.0e-8</span>, row</span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> H <span class="kw">in</span> H_VALUES:</span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>    omegas <span class="op">=</span> np.asarray(run_cache[(H, <span class="st">"aitken"</span>)][<span class="st">"history"</span>][<span class="st">"omega"</span>])</span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> np.<span class="bu">all</span>(np.isfinite(omegas))</span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> np.<span class="bu">all</span>(omegas <span class="op">&gt;=</span> <span class="fl">0.05</span> <span class="op">-</span> <span class="fl">1.0e-12</span>) <span class="kw">and</span> np.<span class="bu">all</span>(omegas <span class="op">&lt;=</span> <span class="fl">1.5</span> <span class="op">+</span> <span class="fl">1.0e-12</span>)</span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> run_cache[(<span class="fl">100.0</span>, <span class="st">"aitken"</span>)][<span class="st">"converged"</span>]</span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a>unrelaxed_100 <span class="op">=</span> run_cache[(<span class="fl">100.0</span>, <span class="st">"unrelaxed"</span>)]</span>
+<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a>aitken_100 <span class="op">=</span> run_cache[(<span class="fl">100.0</span>, <span class="st">"aitken"</span>)]</span>
+<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a>unrelaxed_iters_100 <span class="op">=</span> unrelaxed_100[<span class="st">"iterations"</span>] <span class="cf">if</span> unrelaxed_100[<span class="st">"converged"</span>] <span class="cf">else</span> MAXITER</span>
+<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> aitken_100[<span class="st">"iterations"</span>] <span class="op">&lt;</span> unrelaxed_iters_100</span>
+<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a><span class="co"># Discrete global heat balance: with insulated solid ends, total generated heat</span></span>
+<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a><span class="co"># must equal the coolant enthalpy rise (Section 2 boundary treatment is exactly</span></span>
+<span id="cb10-37"><a href="#cb10-37" aria-hidden="true" tabindex="-1"></a><span class="co"># conservative, so the mismatch here is purely the first-order upwind fluid error).</span></span>
+<span id="cb10-38"><a href="#cb10-38" aria-hidden="true" tabindex="-1"></a>heat_balance <span class="op">=</span> []</span>
+<span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> H <span class="kw">in</span> H_VALUES:</span>
+<span id="cb10-40"><a href="#cb10-40" aria-hidden="true" tabindex="-1"></a>    problem <span class="op">=</span> problems[H]</span>
+<span id="cb10-41"><a href="#cb10-41" aria-hidden="true" tabindex="-1"></a>    out <span class="op">=</span> run_cache[(H, <span class="st">"aitken"</span>)]</span>
+<span id="cb10-42"><a href="#cb10-42" aria-hidden="true" tabindex="-1"></a>    generated <span class="op">=</span> np.trapezoid(problem[<span class="st">"qv"</span>], problem[<span class="st">"x"</span>])</span>
+<span id="cb10-43"><a href="#cb10-43" aria-hidden="true" tabindex="-1"></a>    enthalpy_rise <span class="op">=</span> CF <span class="op">*</span> (out[<span class="st">"Tf"</span>][<span class="op">-</span><span class="dv">1</span>] <span class="op">-</span> out[<span class="st">"Tf"</span>][<span class="dv">0</span>])</span>
+<span id="cb10-44"><a href="#cb10-44" aria-hidden="true" tabindex="-1"></a>    rel_balance_error <span class="op">=</span> <span class="bu">abs</span>(enthalpy_rise <span class="op">-</span> generated) <span class="op">/</span> generated</span>
+<span id="cb10-45"><a href="#cb10-45" aria-hidden="true" tabindex="-1"></a>    heat_balance.append((H, generated, enthalpy_rise, rel_balance_error, out[<span class="st">"converged"</span>]))</span>
+<span id="cb10-46"><a href="#cb10-46" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> out[<span class="st">"converged"</span>]:</span>
+<span id="cb10-47"><a href="#cb10-47" aria-hidden="true" tabindex="-1"></a>        <span class="cf">assert</span> rel_balance_error <span class="op">&lt;</span> <span class="fl">5.0e-2</span>, (H, rel_balance_error)</span>
+<span id="cb10-48"><a href="#cb10-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-49"><a href="#cb10-49" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> H, generated, enthalpy_rise, rel_balance_error, converged <span class="kw">in</span> heat_balance:</span>
+<span id="cb10-50"><a href="#cb10-50" aria-hidden="true" tabindex="-1"></a>    status <span class="op">=</span> <span class="st">"converged"</span> <span class="cf">if</span> converged <span class="cf">else</span> <span class="st">"not converged (reported, not asserted)"</span></span>
+<span id="cb10-51"><a href="#cb10-51" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"H=</span><span class="sc">{</span>H<span class="sc">:&gt;6.0f}</span><span class="ss">: generated heat=</span><span class="sc">{</span>generated<span class="sc">:.6f}</span><span class="ss">, enthalpy rise=</span><span class="sc">{</span>enthalpy_rise<span class="sc">:.6f}</span><span class="ss">, "</span></span>
+<span id="cb10-52"><a href="#cb10-52" aria-hidden="true" tabindex="-1"></a>          <span class="ss">f"relative balance error=</span><span class="sc">{</span>rel_balance_error<span class="sc">:.3e}</span><span class="ss"> [</span><span class="sc">{</span>status<span class="sc">}</span><span class="ss">]"</span>)</span>
+<span id="cb10-53"><a href="#cb10-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-54"><a href="#cb10-54" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"All automatic success checks passed."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
+<div class="cell-output cell-output-stdout">
+<pre><code>H=     5: generated heat=2.700715, enthalpy rise=2.699509, relative balance error=4.466e-04 [converged]
+H=    25: generated heat=2.700715, enthalpy rise=2.692532, relative balance error=3.030e-03 [converged]
+H=   100: generated heat=2.700715, enthalpy rise=2.685919, relative balance error=5.478e-03 [converged]
+H=   500: generated heat=2.700715, enthalpy rise=2.676179, relative balance error=9.085e-03 [not converged (reported, not asserted)]
+All automatic success checks passed.</code></pre>
+</div>
 </div>
 </section>
-<section id="stretch-goal-and-references" class="level2">
-<h2 class="anchored" data-anchor-id="stretch-goal-and-references">8. Stretch goal and references</h2>
+<section id="discussion-and-next-steps" class="level2">
+<h2 class="anchored" data-anchor-id="discussion-and-next-steps">7. Discussion and next steps</h2>
+<p>Answer, using the results and plots above:</p>
+<ol type="1">
+<li>Why can both subsolvers be unconditionally stable on their own while the coupled iteration is slow or unstable?</li>
+<li>When does over-relaxation (<span class="math inline">\(\omega&gt;1\)</span>) help, and when does under-relaxation (<span class="math inline">\(\omega&lt;1\)</span>) help instead?</li>
+<li>What does Aitken infer from the residual history that a fixed relaxation factor cannot?</li>
+<li>Why is the monolithic solve a valuable algorithmic reference but not necessarily the preferred production architecture for coupling independently developed solvers?</li>
+</ol>
 <p><strong>Stretch goal (15-25 minutes):</strong> Replace scalar Aitken relaxation with Anderson acceleration of depth 3 for the solid interface vector. Compare iteration count and stored-vector cost at <span class="math inline">\(H=500\)</span>. Keep the same physics matrices and grid. Alternatively, reverse the exchange order and explain the change in convergence.</p>
 <section id="references" class="level3">
 <h3 class="anchored" data-anchor-id="references">References</h3>

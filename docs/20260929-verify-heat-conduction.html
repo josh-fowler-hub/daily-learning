@@ -82,7 +82,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-6c0ad46e1861a38265c10768182fb462.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-dad9a4322ad7fa4720762ae757f50ef1.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="dark">
+<link href="site_libs/bootstrap/bootstrap-0a289de8f5facb2eb205fb6a6c1f6796.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="dark">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -225,16 +225,16 @@ window.Quarto = {
   <li><a href="#verifying-one-dimensional-heat-conduction" id="toc-verifying-one-dimensional-heat-conduction" class="nav-link active" data-scroll-target="#verifying-one-dimensional-heat-conduction">Verifying one-dimensional heat conduction</a>
   <ul class="collapse">
   <li><a href="#a-manufactured-solution-mesh-refinement-and-an-energy-check" id="toc-a-manufactured-solution-mesh-refinement-and-an-energy-check" class="nav-link" data-scroll-target="#a-manufactured-solution-mesh-refinement-and-an-energy-check">A manufactured solution, mesh refinement, and an energy check</a></li>
-  <li><a href="#governing-equation-and-manufactured-solution" id="toc-governing-equation-and-manufactured-solution" class="nav-link" data-scroll-target="#governing-equation-and-manufactured-solution">1. Governing equation and manufactured solution</a></li>
-  <li><a href="#discretization-and-boundary-conditions" id="toc-discretization-and-boundary-conditions" class="nav-link" data-scroll-target="#discretization-and-boundary-conditions">2. Discretization and boundary conditions</a></li>
-  <li><a href="#error-observed-order-and-energy-balance" id="toc-error-observed-order-and-energy-balance" class="nav-link" data-scroll-target="#error-observed-order-and-energy-balance">3. Error, observed order, and energy balance</a>
+  <li><a href="#governing-model-and-reference-solution" id="toc-governing-model-and-reference-solution" class="nav-link" data-scroll-target="#governing-model-and-reference-solution">1. Governing model and reference solution</a></li>
+  <li><a href="#discretization-and-conditions" id="toc-discretization-and-conditions" class="nav-link" data-scroll-target="#discretization-and-conditions">2. Discretization and conditions</a></li>
+  <li><a href="#error-measures-and-expected-behavior" id="toc-error-measures-and-expected-behavior" class="nav-link" data-scroll-target="#error-measures-and-expected-behavior">3. Error measures and expected behavior</a>
   <ul class="collapse">
   <li><a href="#flux-signs-and-exact-heat-generation" id="toc-flux-signs-and-exact-heat-generation" class="nav-link" data-scroll-target="#flux-signs-and-exact-heat-generation">Flux signs and exact heat generation</a></li>
   </ul></li>
-  <li><a href="#temperature-and-local-error" id="toc-temperature-and-local-error" class="nav-link" data-scroll-target="#temperature-and-local-error">4. Temperature and local error</a></li>
-  <li><a href="#mesh-convergence" id="toc-mesh-convergence" class="nav-link" data-scroll-target="#mesh-convergence">5. Mesh convergence</a></li>
+  <li><a href="#results-and-convergence" id="toc-results-and-convergence" class="nav-link" data-scroll-target="#results-and-convergence">4. Results and convergence</a></li>
+  <li><a href="#solution-and-diagnostic-plots" id="toc-solution-and-diagnostic-plots" class="nav-link" data-scroll-target="#solution-and-diagnostic-plots">5. Solution and diagnostic plots</a></li>
   <li><a href="#automatic-checks" id="toc-automatic-checks" class="nav-link" data-scroll-target="#automatic-checks">6. Automatic checks</a></li>
-  <li><a href="#discussion-of-results" id="toc-discussion-of-results" class="nav-link" data-scroll-target="#discussion-of-results">7. Discussion of results</a>
+  <li><a href="#discussion-and-next-steps" id="toc-discussion-and-next-steps" class="nav-link" data-scroll-target="#discussion-and-next-steps">7. Discussion and next steps</a>
   <ul class="collapse">
   <li><a href="#why-a-small-matrix-residual-is-insufficient" id="toc-why-a-small-matrix-residual-is-insufficient" class="nav-link" data-scroll-target="#why-a-small-matrix-residual-is-insufficient">Why a small matrix residual is insufficient</a></li>
   <li><a href="#scope-of-the-conclusion" id="toc-scope-of-the-conclusion" class="nav-link" data-scroll-target="#scope-of-the-conclusion">Scope of the conclusion</a></li>
@@ -260,14 +260,14 @@ window.Quarto = {
 <p>Run the cells from top to bottom with a Python kernel containing NumPy, Matplotlib, and IPython. All solver code is included here.</p>
 <p><strong>Notation:</strong> <code>T</code> is always the <strong>numerical solution</strong>. <code>T_exact</code> is the <strong>analytic reference</strong> evaluated at the same nodes. Their difference is the numerical error.</p>
 </section>
-<section id="governing-equation-and-manufactured-solution" class="level2">
-<h2 class="anchored" data-anchor-id="governing-equation-and-manufactured-solution">1. Governing equation and manufactured solution</h2>
+<section id="governing-model-and-reference-solution" class="level2">
+<h2 class="anchored" data-anchor-id="governing-model-and-reference-solution">1. Governing model and reference solution</h2>
 <p>For a constant-area slab with constant conductivity, no advection, and no radiation,</p>
 <p><span class="math display">\[-k\frac{d^2T}{dx^2}=q(x),\qquad 0&lt;x&lt;L,\]</span> <span class="math display">\[L=0.10\ \mathrm{m},\qquad k=10\ \mathrm{W\,m^{-1}\,K^{-1}},\qquad T(0)=T(L)=300\ \mathrm{K}.\]</span></p>
 <p>Choose the analytic temperature first, then derive the source that makes it an exact solution:</p>
 <p><span class="math display">\[T^*(x)=T_b+A_T\sin\left(\frac{\pi x}{L}\right),\qquad T_b=300\ \mathrm{K},\quad A_T=10\ \mathrm{K},\]</span> <span class="math display">\[\frac{d^2T^*}{dx^2}=-A_T\left(\frac{\pi}{L}\right)^2\sin\left(\frac{\pi x}{L}\right),\]</span> <span class="math display">\[\boxed{q(x)=kA_T\left(\frac{\pi}{L}\right)^2\sin\left(\frac{\pi x}{L}\right)}.\]</span></p>
 <p>The source has units <span class="math inline">\(\mathrm{W\,m^{-3}}\)</span>. It is evaluated from this continuous expression, independently of the numerical stencil. That independence is essential: using the same discrete stencil to manufacture the source could conceal discretization error.</p>
-<div id="d9d8cb50" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-29T19:38:24.398455Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-29T19:38:24.398455Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-29T19:38:25.496847Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-29T19:38:25.496344Z&quot;}}" data-execution_count="1">
+<div id="d9d8cb50" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-15T19:00:07.755932Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-15T19:00:07.755863Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-15T19:00:07.908036Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-15T19:00:07.907547Z&quot;}}" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
@@ -291,8 +291,8 @@ window.Quarto = {
 </details>
 </div>
 </section>
-<section id="discretization-and-boundary-conditions" class="level2">
-<h2 class="anchored" data-anchor-id="discretization-and-boundary-conditions">2. Discretization and boundary conditions</h2>
+<section id="discretization-and-conditions" class="level2">
+<h2 class="anchored" data-anchor-id="discretization-and-conditions">2. Discretization and conditions</h2>
 <p>Use <span class="math inline">\(N\)</span> equal intervals, <span class="math inline">\(N+1\)</span> nodes, and spacing <span class="math inline">\(h=L/N\)</span>. At an interior node,</p>
 <p><span class="math display">\[T''(x_i)=\frac{T_{i-1}-2T_i+T_{i+1}}{h^2}+\mathcal{O}(h^2).\]</span></p>
 <p>Thus the linear system uses</p>
@@ -300,7 +300,7 @@ window.Quarto = {
 <p>Only interior temperatures are unknown. Known endpoint values move to the right-hand side:</p>
 <p><span class="math display">\[b_1=q(x_1)+\frac{kT_0}{h^2},\qquad b_{N-1}=q(x_{N-1})+\frac{kT_N}{h^2}.\]</span></p>
 <p>The matrix already contains <span class="math inline">\(h^{-2}\)</span>, so the source must <strong>not</strong> be divided by <span class="math inline">\(h^2\)</span> again. Add boundary contributions after filling the source vector so they cannot be overwritten.</p>
-<div id="dfd0c7ee" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-29T19:38:25.498348Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-29T19:38:25.498348Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-29T19:38:25.501006Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-29T19:38:25.501006Z&quot;}}" data-execution_count="2">
+<div id="dfd0c7ee" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-15T19:00:07.909164Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-15T19:00:07.909084Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-15T19:00:07.911032Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-15T19:00:07.910747Z&quot;}}" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> solve_temperature(N):</span>
@@ -318,8 +318,8 @@ window.Quarto = {
 </details>
 </div>
 </section>
-<section id="error-observed-order-and-energy-balance" class="level2">
-<h2 class="anchored" data-anchor-id="error-observed-order-and-energy-balance">3. Error, observed order, and energy balance</h2>
+<section id="error-measures-and-expected-behavior" class="level2">
+<h2 class="anchored" data-anchor-id="error-measures-and-expected-behavior">3. Error measures and expected behavior</h2>
 <p>The maximum nodal error is</p>
 <p><span class="math display">\[E(N)=\max_i|T_i-T^*(x_i)|.\]</span></p>
 <p>If <span class="math inline">\(E\approx Ch^p\)</span>, halving <span class="math inline">\(h\)</span> gives</p>
@@ -335,7 +335,7 @@ T'(L)\approx\frac{3T_N-4T_{N-1}+T_{N-2}}{2h}.\]</span></p>
 <p>The relative imbalance is</p>
 <p><span class="math display">\[\boxed{\epsilon_Q=\frac{|j_h(L)-j_h(0)-Q_A|}{|Q_A|}}.\]</span></p>
 <p>The source must be subtracted: a ratio of outward flux to generation approaches one, while an imbalance approaches zero. We use the analytic integral to avoid adding quadrature error to this check.</p>
-<div id="cee2e161" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-29T19:38:25.502009Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-29T19:38:25.502009Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-29T19:38:25.506475Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-29T19:38:25.506475Z&quot;}}" data-execution_count="3">
+<div id="cee2e161" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-15T19:00:07.911605Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-15T19:00:07.911507Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-15T19:00:07.915035Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-15T19:00:07.914865Z&quot;}}" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> boundary_fluxes(T, h):</span>
@@ -409,10 +409,10 @@ T'(L)\approx\frac{3T_N-4T_{N-1}+T_{N-2}}{2h}.\]</span></p>
 </div>
 </section>
 </section>
-<section id="temperature-and-local-error" class="level2">
-<h2 class="anchored" data-anchor-id="temperature-and-local-error">4. Temperature and local error</h2>
+<section id="results-and-convergence" class="level2">
+<h2 class="anchored" data-anchor-id="results-and-convergence">4. Results and convergence</h2>
 <p>The temperature curves nearly overlap. The separate error panel makes their differences visible; the error is plotted as solved minus exact temperature.</p>
-<div id="4ca01430" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-29T19:38:25.507980Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-29T19:38:25.507481Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-29T19:38:25.716864Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-29T19:38:25.716359Z&quot;}}" data-execution_count="4">
+<div id="4ca01430" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-15T19:00:07.915571Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-15T19:00:07.915510Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-15T19:00:08.024546Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-15T19:00:08.024246Z&quot;}}" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="dv">4</span>), layout<span class="op">=</span><span class="st">'constrained'</span>)</span>
@@ -437,10 +437,10 @@ T'(L)\approx\frac{3T_N-4T_{N-1}+T_{N-2}}{2h}.\]</span></p>
 </div>
 </div>
 </section>
-<section id="mesh-convergence" class="level2">
-<h2 class="anchored" data-anchor-id="mesh-convergence">5. Mesh convergence</h2>
+<section id="solution-and-diagnostic-plots" class="level2">
+<h2 class="anchored" data-anchor-id="solution-and-diagnostic-plots">5. Solution and diagnostic plots</h2>
 <p>For a second-order method, doubling the number of intervals should reduce error by about four. The dashed reference below is anchored to the coarsest temperature error and follows <span class="math inline">\(N^{-2}\)</span>. The energy panel uses a separate scale because it measures a different quantity.</p>
-<div id="35dc5454" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-29T19:38:25.717863Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-29T19:38:25.717863Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-29T19:38:26.008027Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-29T19:38:26.007523Z&quot;}}" data-execution_count="5">
+<div id="35dc5454" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-15T19:00:08.025374Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-15T19:00:08.025305Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-15T19:00:08.264471Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-15T19:00:08.264112Z&quot;}}" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>counts <span class="op">=</span> np.array(meshes)</span>
@@ -472,7 +472,7 @@ T'(L)\approx\frac{3T_N-4T_{N-1}+T_{N-2}}{2h}.\]</span></p>
 <section id="automatic-checks" class="level2">
 <h2 class="anchored" data-anchor-id="automatic-checks">6. Automatic checks</h2>
 <p>These checks enforce the stated targets and basic properties of this symmetric manufactured problem.</p>
-<div id="9accec99" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-29T19:38:26.009029Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-29T19:38:26.009029Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-29T19:38:26.015174Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-29T19:38:26.015174Z&quot;}}" data-execution_count="6">
+<div id="9accec99" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-15T19:00:08.265168Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-15T19:00:08.265106Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-15T19:00:08.267820Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-15T19:00:08.267627Z&quot;}}" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="bu">all</span>(<span class="fl">1.9</span> <span class="op">&lt;=</span> r[<span class="st">'order'</span>] <span class="op">&lt;=</span> <span class="fl">2.1</span> <span class="cf">for</span> r <span class="kw">in</span> results[:<span class="op">-</span><span class="dv">1</span>])</span>
@@ -489,8 +489,8 @@ T'(L)\approx\frac{3T_N-4T_{N-1}+T_{N-2}}{2h}.\]</span></p>
 </div>
 </div>
 </section>
-<section id="discussion-of-results" class="level2">
-<h2 class="anchored" data-anchor-id="discussion-of-results">7. Discussion of results</h2>
+<section id="discussion-and-next-steps" class="level2">
+<h2 class="anchored" data-anchor-id="discussion-and-next-steps">7. Discussion and next steps</h2>
 <p>For the default parameters:</p>
 <ul>
 <li><strong>Second-order behavior is observed.</strong> The maximum errors are approximately 0.082654, 0.020587, and 0.005142 K. Each refinement reduces error by about four; the observed orders of 2.0053 and 2.0013 meet the 1.9–2.1 target.</li>
@@ -509,6 +509,7 @@ T'(L)\approx\frac{3T_N-4T_{N-1}+T_{N-2}}{2h}.\]</span></p>
 <section id="try-next" class="level3">
 <h3 class="anchored" data-anchor-id="try-next">Try next</h3>
 <p>Add 80 to <code>meshes</code> and rerun all cells. Predict the temperature error and energy imbalance before running: second-order behavior suggests roughly one-quarter of their 40-interval values. The discussion above records the default three-mesh run; the table and plots update when the inputs change.</p>
+<p><strong>Reading:</strong> K. Salari and P. Knupp, <em>Code Verification by the Method of Manufactured Solutions</em>, Sandia National Laboratories report SAND2000-1444, 2000. <a href="https://www.osti.gov/servlets/purl/759450">Free PDF</a>. Sections 2-3 give the manufactured-solution procedure and the mesh-refinement order check used here.</p>
 
 
 </section>

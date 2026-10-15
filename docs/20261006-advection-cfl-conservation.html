@@ -82,7 +82,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-6c0ad46e1861a38265c10768182fb462.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-dad9a4322ad7fa4720762ae757f50ef1.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="dark">
+<link href="site_libs/bootstrap/bootstrap-0a289de8f5facb2eb205fb6a6c1f6796.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="dark">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -229,9 +229,11 @@ window.Quarto = {
   <li><a href="#governing-model-and-reference-solution" id="toc-governing-model-and-reference-solution" class="nav-link" data-scroll-target="#governing-model-and-reference-solution">1. Governing model and reference solution</a></li>
   <li><a href="#discretization-and-conditions" id="toc-discretization-and-conditions" class="nav-link" data-scroll-target="#discretization-and-conditions">2. Discretization and conditions</a></li>
   <li><a href="#error-measures-and-expected-behavior" id="toc-error-measures-and-expected-behavior" class="nav-link" data-scroll-target="#error-measures-and-expected-behavior">3. Error measures and expected behavior</a></li>
-  <li><a href="#results-and-diagnostics" id="toc-results-and-diagnostics" class="nav-link" data-scroll-target="#results-and-diagnostics">4. Results and diagnostics</a></li>
-  <li><a href="#solution-and-diagnostic-plots" id="toc-solution-and-diagnostic-plots" class="nav-link" data-scroll-target="#solution-and-diagnostic-plots">5. Solution and diagnostic plots</a></li>
+  <li><a href="#results-and-convergence" id="toc-results-and-convergence" class="nav-link" data-scroll-target="#results-and-convergence">4. Results and convergence</a></li>
+  <li><a href="#solution-and-diagnostic-plots" id="toc-solution-and-diagnostic-plots" class="nav-link" data-scroll-target="#solution-and-diagnostic-plots">5. Solution and diagnostic plots</a>
+  <ul class="collapse">
   <li><a href="#interactive-plotly-explorer" id="toc-interactive-plotly-explorer" class="nav-link" data-scroll-target="#interactive-plotly-explorer">Interactive Plotly explorer</a></li>
+  </ul></li>
   <li><a href="#automatic-checks" id="toc-automatic-checks" class="nav-link" data-scroll-target="#automatic-checks">6. Automatic checks</a></li>
   <li><a href="#discussion-and-next-steps" id="toc-discussion-and-next-steps" class="nav-link" data-scroll-target="#discussion-and-next-steps">7. Discussion and next steps</a>
   <ul class="collapse">
@@ -265,7 +267,7 @@ window.Quarto = {
 <p>Store true cell averages. For the sine signal, derive the cell integral analytically (the sine amplitude is multiplied by sinc(dx), with NumPy’s normalized sinc convention). The top-hat edges align with this mesh, so its initial cell averages are exactly zero or one.</p>
 <p>Run to T = 1, one complete transit around the ring. The exact final cell-average vector equals the initial vector. If an unstable run terminates early, do not compare its vector with the T = 1 reference. Record the actual stop time and reason.</p>
 <p>Before implementation, predict which method will be bounded, diffusive, oscillatory, or unstable for C in {0.5, 1.0, 1.25}.</p>
-<div id="af03a541" class="cell" data-execution_count="34">
+<div id="af03a541" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-15T18:53:26.713786Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-15T18:53:26.713707Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-15T18:53:26.882213Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-15T18:53:26.881746Z&quot;}}" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pathlib <span class="im">import</span> Path</span>
@@ -316,7 +318,7 @@ window.Quarto = {
 <p><strong>Tasks:</strong> Implement separate flux and stepping functions. Use old-state arrays when calculating the full flux vector; avoid updating cells in place. Show on paper why the flux differences telescope in the global sum. Derive the update weights and explain the upwind convex-combination condition.</p>
 <p>Use dt = C dx/a, with a shortened final step only if necessary to hit T exactly. Log the actual CFL and use the actual dt in the Lax-Wendroff flux. The specified cases divide T into an integer number of nominal steps, apart from floating-point roundoff.</p>
 <p>For runs exceeding max(abs(q)) = 1e6, or producing nonfinite values, stop deliberately and record the failure. Retain the finite history up to that point. This guard protects the experiment; it is not a limiter or a stability fix.</p>
-<div id="5091accd" class="cell" data-execution_count="35">
+<div id="5091accd" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-15T18:53:26.883501Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-15T18:53:26.883400Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-15T18:53:26.887497Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-15T18:53:26.887158Z&quot;}}" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> set_up_initial_conditions(cell_edges, profile):</span>
@@ -419,7 +421,7 @@ A_{\rm range}=\max_iq_i-\min_iq_i.\]</span> Include the last-to-first periodic j
 <p>For the top hat, record undershoot max(0,-min(q)) and overshoot max(0,max(q)-1). A conservative method need not preserve bounds, and boundedness is not the same as nondiffusive transport.</p>
 <p><strong>Predict and check:</strong> Upwind at C = 0.5 smears a discontinuity. Lax-Wendroff can maintain smooth signal amplitude better but ring near discontinuities. At C = 1 both schemes shift exactly one cell per step. C = 1.25 lies outside their linear stability ranges for this equation. The top hat excites short-wave content needed to expose instability; a smooth low-frequency signal may hide it over a short run.</p>
 <p>Optional final-return discrepancy may be reported, but it is not the learning objective. Do not compute Richardson extrapolation, GCI, or mesh-convergence orders.</p>
-<div id="d80e0bd2" class="cell" data-execution_count="36">
+<div id="d80e0bd2" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-15T18:53:26.888299Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-15T18:53:26.888230Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-15T18:53:26.946129Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-15T18:53:26.945871Z&quot;}}" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>METHOD_VALUES <span class="op">=</span> (<span class="st">"upwind"</span>, <span class="st">"lax-wendroff"</span>)</span>
@@ -452,11 +454,11 @@ Completed top-hat profile runs.</code></pre>
 </div>
 </div>
 </section>
-<section id="results-and-diagnostics" class="level2">
-<h2 class="anchored" data-anchor-id="results-and-diagnostics">4. Results and diagnostics</h2>
+<section id="results-and-convergence" class="level2">
+<h2 class="anchored" data-anchor-id="results-and-convergence">4. Results and convergence</h2>
 <p>Display one table with profile, method, requested CFL, expected stability behavior, actual terminal time, stop reason, maximum mass drift, initial/final TV, min/max values, and smooth-signal amplitude ratio when applicable.</p>
 <p>Explain which stable case is most diffusive and which creates new extrema. Record whether the unstable top-hat runs trigger the guard or finish with substantial amplification. Do not interpret tiny relative mass drift after catastrophic growth as useful accuracy.</p>
-<div id="7b30674c" class="cell" data-execution_count="37">
+<div id="7b30674c" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-15T18:53:26.946768Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-15T18:53:26.946699Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-15T18:53:26.960467Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-15T18:53:26.960242Z&quot;}}" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> first_mode_amplitude(q, cell_centers):</span>
@@ -675,7 +677,7 @@ Completed top-hat profile runs.</code></pre>
 <h2 class="anchored" data-anchor-id="solution-and-diagnostic-plots">5. Solution and diagnostic plots</h2>
 <p>Create three static figures: 1. Smooth final profiles for both methods at C = 0.5 and 1.0, over the exact final cell averages. 2. Top-hat final profiles for both methods at C = 0.5 and 1.0; zoom near an edge to distinguish diffusion from ringing. 3. Time histories of mass drift, total variation, and max(abs(q)) for top-hat cases including C = 1.25. Use a logarithmic vertical scale for amplification where appropriate.</p>
 <p>The interactive explorer below lets you select the profile, method, and CFL to inspect the final solution and its diagnostic histories. Unstable histories stop at their actual recorded times. The static figures remain available for side-by-side comparison.</p>
-<div id="a8a36fd0" class="cell" data-execution_count="38">
+<div id="a8a36fd0" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-15T18:53:26.961497Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-15T18:53:26.961409Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-15T18:53:27.488343Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-15T18:53:27.487967Z&quot;}}" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>smooth_initial <span class="op">=</span> set_up_initial_conditions(CELL_EDGES, <span class="st">"smooth"</span>)</span>
@@ -743,13 +745,12 @@ Completed top-hat profile runs.</code></pre>
 </div>
 </div>
 </div>
-</section>
-<section id="interactive-plotly-explorer" class="level2">
-<h2 class="anchored" data-anchor-id="interactive-plotly-explorer">Interactive Plotly explorer</h2>
+<section id="interactive-plotly-explorer" class="level3">
+<h3 class="anchored" data-anchor-id="interactive-plotly-explorer">Interactive Plotly explorer</h3>
 <p>Select a profile, method, and CFL from the Plotly dropdown. Unstable cases show their actual stopping time; their solution profile uses a signed logarithmic scale so both signs of the growth remain visible.</p>
 <iframe src="20261006-advection-interactive.html" title="Interactive advection solution and diagnostics" width="100%" height="820" style="border: 0;" loading="lazy">
 </iframe>
-<div id="81d68ac7" class="cell" data-execution_count="39">
+<div id="81d68ac7" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-15T18:53:27.489212Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-15T18:53:27.489142Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-15T18:53:27.566567Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-15T18:53:27.566273Z&quot;}}" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>fig <span class="op">=</span> make_subplots(</span>
@@ -936,11 +937,12 @@ Completed top-hat profile runs.</code></pre>
 </details>
 </div>
 </section>
+</section>
 <section id="automatic-checks" class="level2">
 <h2 class="anchored" data-anchor-id="automatic-checks">6. Automatic checks</h2>
 <p>Test properties with evidence independent of the flux implementation: - A constant field survives one step to absolute tolerance 1e-14. - At C = 1, both methods match a cyclic shift of an arbitrary vector to 1e-13 in one step. - Every stable run (C &lt;= 1) preserves mass to absolute drift &lt;= 1e-12. - For upwind C &lt;= 1, bounds remain within the initial bounds plus tolerance 1e-12, and TV never exceeds its initial value by more than 1e-10. - At C = 1 and T = 1, both final states match initial states to 1e-11. - Each top-hat run at C = 1.25 triggers the guard or has maximum amplitude at least ten times its initial maximum by T = 1.</p>
 <p>Do not impose positivity or TVD checks on Lax-Wendroff as though they were guaranteed properties. Do not assert mass tolerance after catastrophic growth: cancellation and roundoff can dominate then.</p>
-<div id="0602af89" class="cell" data-execution_count="40">
+<div id="0602af89" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-15T18:53:27.567350Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-15T18:53:27.567282Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-15T18:53:27.573788Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-15T18:53:27.573501Z&quot;}}" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>tolerance <span class="op">=</span> <span class="fl">1e-12</span></span>

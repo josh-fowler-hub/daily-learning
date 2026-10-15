@@ -82,7 +82,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-6c0ad46e1861a38265c10768182fb462.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-dad9a4322ad7fa4720762ae757f50ef1.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="dark">
+<link href="site_libs/bootstrap/bootstrap-0a289de8f5facb2eb205fb6a6c1f6796.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="dark">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -225,11 +225,11 @@ window.Quarto = {
   <li><a href="#separate-solver-error-from-mesh-error" id="toc-separate-solver-error-from-mesh-error" class="nav-link active" data-scroll-target="#separate-solver-error-from-mesh-error">Separate solver error from mesh error</a>
   <ul class="collapse">
   <li><a href="#iterative-convergence-discretization-and-an-error-budget" id="toc-iterative-convergence-discretization-and-an-error-budget" class="nav-link" data-scroll-target="#iterative-convergence-discretization-and-an-error-budget">Iterative convergence, discretization, and an error budget</a></li>
-  <li><a href="#governing-equation-and-manufactured-solution" id="toc-governing-equation-and-manufactured-solution" class="nav-link" data-scroll-target="#governing-equation-and-manufactured-solution">1. Governing equation and manufactured solution</a></li>
-  <li><a href="#discretization-and-boundary-conditions" id="toc-discretization-and-boundary-conditions" class="nav-link" data-scroll-target="#discretization-and-boundary-conditions">2. Discretization and boundary conditions</a></li>
-  <li><a href="#error-measures-and-solver-stopping" id="toc-error-measures-and-solver-stopping" class="nav-link" data-scroll-target="#error-measures-and-solver-stopping">3. Error measures and solver stopping</a></li>
-  <li><a href="#numerical-experiment-and-convergence" id="toc-numerical-experiment-and-convergence" class="nav-link" data-scroll-target="#numerical-experiment-and-convergence">4. Numerical experiment and convergence</a></li>
-  <li><a href="#solution-signed-errors-and-residual-history" id="toc-solution-signed-errors-and-residual-history" class="nav-link" data-scroll-target="#solution-signed-errors-and-residual-history">5. Solution, signed errors, and residual history</a></li>
+  <li><a href="#governing-model-and-reference-solution" id="toc-governing-model-and-reference-solution" class="nav-link" data-scroll-target="#governing-model-and-reference-solution">1. Governing model and reference solution</a></li>
+  <li><a href="#discretization-and-conditions" id="toc-discretization-and-conditions" class="nav-link" data-scroll-target="#discretization-and-conditions">2. Discretization and conditions</a></li>
+  <li><a href="#error-measures-and-expected-behavior" id="toc-error-measures-and-expected-behavior" class="nav-link" data-scroll-target="#error-measures-and-expected-behavior">3. Error measures and expected behavior</a></li>
+  <li><a href="#results-and-convergence" id="toc-results-and-convergence" class="nav-link" data-scroll-target="#results-and-convergence">4. Results and convergence</a></li>
+  <li><a href="#solution-and-diagnostic-plots" id="toc-solution-and-diagnostic-plots" class="nav-link" data-scroll-target="#solution-and-diagnostic-plots">5. Solution and diagnostic plots</a></li>
   <li><a href="#automatic-checks" id="toc-automatic-checks" class="nav-link" data-scroll-target="#automatic-checks">6. Automatic checks</a></li>
   <li><a href="#discussion-and-next-steps" id="toc-discussion-and-next-steps" class="nav-link" data-scroll-target="#discussion-and-next-steps">7. Discussion and next steps</a>
   <ul class="collapse">
@@ -257,8 +257,8 @@ window.Quarto = {
 <p>Run the cells from top to bottom with a Python kernel containing NumPy, Matplotlib, and IPython. All solver code is included here.</p>
 <p><strong>Notation:</strong> <span class="math inline">\(\theta_J\)</span> is the Jacobi iterate, <span class="math inline">\(\theta_D\)</span> is the direct solution of the discrete system, and <span class="math inline">\(\theta^*\)</span> is the analytic solution. Their differences isolate iterative, discretization, and total error.</p>
 </section>
-<section id="governing-equation-and-manufactured-solution" class="level2">
-<h2 class="anchored" data-anchor-id="governing-equation-and-manufactured-solution">1. Governing equation and manufactured solution</h2>
+<section id="governing-model-and-reference-solution" class="level2">
+<h2 class="anchored" data-anchor-id="governing-model-and-reference-solution">1. Governing model and reference solution</h2>
 <p>For a constant-area slab with constant conductivity and no advection or radiation,</p>
 <p><span class="math display">\[-k\frac{d^2T}{dx^2}=q'''(x),\qquad 0&lt;x&lt;L,\]</span> <span class="math display">\[L=0.10\,\mathrm{m},\qquad k=10\,\mathrm{W\,m^{-1}\,K^{-1}},\qquad T(0)=T(L)=300\,\mathrm{K}.\]</span></p>
 <p>Introduce the dimensionless coordinate and temperature,</p>
@@ -268,7 +268,7 @@ window.Quarto = {
 <p>Substitution into the dimensional equation gives</p>
 <p><span class="math display">\[q'''(x)=k(10\,\mathrm{K})\left(\frac{\pi}{L}\right)^2\sin\left(\frac{\pi x}{L}\right),\]</span></p>
 <p>with units <span class="math inline">\(\mathrm{W\,m^{-3}}\)</span>. The source comes from the continuous manufactured solution, independently of the numerical stencil.</p>
-<div id="d933064f" class="cell" data-execution_count="7">
+<div id="d933064f" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-15T18:52:03.163675Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-15T18:52:03.163595Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-15T18:52:03.342658Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-15T18:52:03.342135Z&quot;}}" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
@@ -288,14 +288,14 @@ window.Quarto = {
 </details>
 </div>
 </section>
-<section id="discretization-and-boundary-conditions" class="level2">
-<h2 class="anchored" data-anchor-id="discretization-and-boundary-conditions">2. Discretization and boundary conditions</h2>
+<section id="discretization-and-conditions" class="level2">
+<h2 class="anchored" data-anchor-id="discretization-and-conditions">2. Discretization and conditions</h2>
 <p>Use <span class="math inline">\(N\)</span> equal intervals, <span class="math inline">\(N+1\)</span> nodes, and spacing <span class="math inline">\(h=1/N\)</span> in the dimensionless coordinate. At each interior node,</p>
 <p><span class="math display">\[-\frac{\theta_{i-1}-2\theta_i+\theta_{i+1}}{h^2}=\pi^2\sin(\pi\xi_i).\]</span></p>
 <p>The interior linear system is <span class="math inline">\(A\theta_{\mathrm{int}}=b\)</span>, with diagonal entries <span class="math inline">\(2/h^2\)</span>, adjacent entries <span class="math inline">\(-1/h^2\)</span>, and</p>
 <p><span class="math display">\[b_i=\pi^2\sin(\pi\xi_i).\]</span></p>
 <p>Only the <span class="math inline">\(N-1\)</span> interior temperatures are unknown; both boundary values are fixed at zero. The mesh spacing used in the matrix must match the coordinates returned for the <span class="math inline">\(N+1\)</span> nodes.</p>
-<div id="3fc3a5b5" class="cell" data-execution_count="8">
+<div id="3fc3a5b5" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-15T18:52:03.344045Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-15T18:52:03.343852Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-15T18:52:03.347444Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-15T18:52:03.347090Z&quot;}}" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> exact_solution(xi):</span>
@@ -342,8 +342,8 @@ window.Quarto = {
 </details>
 </div>
 </section>
-<section id="error-measures-and-solver-stopping" class="level2">
-<h2 class="anchored" data-anchor-id="error-measures-and-solver-stopping">3. Error measures and solver stopping</h2>
+<section id="error-measures-and-expected-behavior" class="level2">
+<h2 class="anchored" data-anchor-id="error-measures-and-expected-behavior">3. Error measures and expected behavior</h2>
 <p>Compare three solutions on the same mesh: the Jacobi iterate <span class="math inline">\(\theta_J\)</span>, the direct linear-system solution <span class="math inline">\(\theta_D\)</span>, and the analytic solution <span class="math inline">\(\theta^*\)</span>. Define</p>
 <p><span class="math display">\[e_{\mathrm{iter}}=\|\theta_J-\theta_D\|_\infty,\qquad e_{\mathrm{disc}}=\|\theta_D-\theta^*\|_\infty,\]</span> <span class="math display">\[e_{\mathrm{total}}=\|\theta_J-\theta^*\|_\infty.\]</span></p>
 <p>The signed vectors satisfy</p>
@@ -351,7 +351,7 @@ window.Quarto = {
 <p>Opposing components can cancel, so the total error need not equal the sum of the component norms. For the direct-solve discretization error, second-order behavior predicts</p>
 <p><span class="math display">\[p=\frac{\log[E(N)/E(2N)]}{\log 2}\approx 2.\]</span></p>
 <p>A normalized residual measures how closely an iterate solves the discrete equations; by itself it does not measure either discretization error or solution error.</p>
-<div id="783a3683" class="cell" data-execution_count="9">
+<div id="783a3683" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-15T18:52:03.348254Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-15T18:52:03.348196Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-15T18:52:03.349818Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-15T18:52:03.349639Z&quot;}}" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> signed_error_vectors(iterative, direct, exact):</span>
@@ -375,11 +375,11 @@ window.Quarto = {
 </details>
 </div>
 </section>
-<section id="numerical-experiment-and-convergence" class="level2">
-<h2 class="anchored" data-anchor-id="numerical-experiment-and-convergence">4. Numerical experiment and convergence</h2>
+<section id="results-and-convergence" class="level2">
+<h2 class="anchored" data-anchor-id="results-and-convergence">4. Results and convergence</h2>
 <p>Run Jacobi on <span class="math inline">\(N=20\)</span> and <span class="math inline">\(N=40\)</span> intervals with three residual tolerances. For each mesh, compare every iterate with both the direct solution and the analytic solution.</p>
 <p><strong>Deliverable:</strong> a six-row table containing residual, update count, convergence status, all three error measures, and the iterative-to-discretization error ratio. Check that halving <span class="math inline">\(h\)</span> reduces the direct-solve error by roughly four, then compare the strict-tolerance iterative error with the discretization error.</p>
-<div id="6b8fb7a2" class="cell" data-execution_count="10">
+<div id="6b8fb7a2" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-15T18:52:03.350580Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-15T18:52:03.350524Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-15T18:52:03.404569Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-15T18:52:03.404109Z&quot;}}" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>results <span class="op">=</span> []</span>
@@ -532,10 +532,10 @@ N=40: strict-tolerance target PASS</code></pre>
 </div>
 </div>
 </section>
-<section id="solution-signed-errors-and-residual-history" class="level2">
-<h2 class="anchored" data-anchor-id="solution-signed-errors-and-residual-history">5. Solution, signed errors, and residual history</h2>
+<section id="solution-and-diagnostic-plots" class="level2">
+<h2 class="anchored" data-anchor-id="solution-and-diagnostic-plots">5. Solution and diagnostic plots</h2>
 <p>Inspect the analytic solution, direct solution, and strict-tolerance Jacobi iterate on the finest mesh. The second panel separates signed iterative and discretization errors and shows their sum; the third panel shows how the normalized residual changes with updates.</p>
-<div id="529d4eab" class="cell" data-execution_count="11">
+<div id="529d4eab" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-15T18:52:03.405450Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-15T18:52:03.405370Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-15T18:52:03.720690Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-15T18:52:03.720397Z&quot;}}" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>intervals <span class="op">=</span> MESHES[<span class="op">-</span><span class="dv">1</span>]</span>
@@ -583,7 +583,7 @@ N=40: strict-tolerance target PASS</code></pre>
 <section id="automatic-checks" class="level2">
 <h2 class="anchored" data-anchor-id="automatic-checks">6. Automatic checks</h2>
 <p>Enforce second-order direct-solve behavior, strict-tolerance solver accuracy, fixed boundaries, symmetry, and the signed-error identity.</p>
-<div id="c0fd643f" class="cell" data-execution_count="12">
+<div id="c0fd643f" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-15T18:52:03.721537Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-15T18:52:03.721455Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-15T18:52:03.725164Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-15T18:52:03.724915Z&quot;}}" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="bu">all</span>(row[<span class="st">"converged"</span>] <span class="cf">for</span> row <span class="kw">in</span> results)</span>

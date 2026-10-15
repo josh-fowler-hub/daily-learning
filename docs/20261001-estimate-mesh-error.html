@@ -82,7 +82,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-6c0ad46e1861a38265c10768182fb462.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-dad9a4322ad7fa4720762ae757f50ef1.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="dark">
+<link href="site_libs/bootstrap/bootstrap-0a289de8f5facb2eb205fb6a6c1f6796.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="dark">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -225,7 +225,7 @@ window.Quarto = {
   <li><a href="#estimate-mesh-error-before-using-a-result" id="toc-estimate-mesh-error-before-using-a-result" class="nav-link active" data-scroll-target="#estimate-mesh-error-before-using-a-result">Estimate mesh error before using a result</a>
   <ul class="collapse">
   <li><a href="#richardson-extrapolation-and-the-grid-convergence-index" id="toc-richardson-extrapolation-and-the-grid-convergence-index" class="nav-link" data-scroll-target="#richardson-extrapolation-and-the-grid-convergence-index">Richardson extrapolation and the grid convergence index</a></li>
-  <li><a href="#governing-equation-and-reference-solution" id="toc-governing-equation-and-reference-solution" class="nav-link" data-scroll-target="#governing-equation-and-reference-solution">1. Governing equation and reference solution</a>
+  <li><a href="#governing-model-and-reference-solution" id="toc-governing-model-and-reference-solution" class="nav-link" data-scroll-target="#governing-model-and-reference-solution">1. Governing model and reference solution</a>
   <ul class="collapse">
   <li><a href="#worked-source-and-flux-balance" id="toc-worked-source-and-flux-balance" class="nav-link" data-scroll-target="#worked-source-and-flux-balance">Worked source and flux balance</a></li>
   </ul></li>
@@ -233,7 +233,7 @@ window.Quarto = {
   <ul class="collapse">
   <li><a href="#assembled-system" id="toc-assembled-system" class="nav-link" data-scroll-target="#assembled-system">Assembled system</a></li>
   </ul></li>
-  <li><a href="#richardson-extrapolation-and-error-estimate" id="toc-richardson-extrapolation-and-error-estimate" class="nav-link" data-scroll-target="#richardson-extrapolation-and-error-estimate">3. Richardson extrapolation and error estimate</a></li>
+  <li><a href="#error-measures-and-expected-behavior" id="toc-error-measures-and-expected-behavior" class="nav-link" data-scroll-target="#error-measures-and-expected-behavior">3. Error measures and expected behavior</a></li>
   <li><a href="#results-and-convergence" id="toc-results-and-convergence" class="nav-link" data-scroll-target="#results-and-convergence">4. Results and convergence</a></li>
   <li><a href="#solution-and-diagnostic-plots" id="toc-solution-and-diagnostic-plots" class="nav-link" data-scroll-target="#solution-and-diagnostic-plots">5. Solution and diagnostic plots</a></li>
   <li><a href="#automatic-checks" id="toc-automatic-checks" class="nav-link" data-scroll-target="#automatic-checks">6. Automatic checks</a></li>
@@ -266,8 +266,8 @@ window.Quarto = {
 <p><strong>Time:</strong> 40 minutes of practice and 25 minutes of reading. Run cells from top to bottom with NumPy, Matplotlib, and IPython.</p>
 <p><strong>Notation:</strong> <span class="math inline">\(T_N\)</span> is the numerical temperature field on an <span class="math inline">\(N\)</span>-interval mesh. <span class="math inline">\(f_N=T_N(L/2)-300\,\mathrm{K}\)</span> is the computed centerline temperature rise; the exact rise is 10 K. Keep signed mesh differences for extrapolation and use absolute values for error magnitudes.</p>
 </section>
-<section id="governing-equation-and-reference-solution" class="level2">
-<h2 class="anchored" data-anchor-id="governing-equation-and-reference-solution">1. Governing equation and reference solution</h2>
+<section id="governing-model-and-reference-solution" class="level2">
+<h2 class="anchored" data-anchor-id="governing-model-and-reference-solution">1. Governing model and reference solution</h2>
 <p><strong>Educational steady slab:</strong></p>
 <p><span class="math display">\[L=0.10\,\mathrm{m},\qquad k=10\,\mathrm{W\,m^{-1}\,K^{-1}},\qquad T(0)=T(L)=300\,\mathrm{K}.\]</span></p>
 <p>There is no advection or radiation. Solve</p>
@@ -285,7 +285,7 @@ window.Quarto = {
 =\int_0^L q'''(x)\,dx
 =2000\pi\,\mathrm{W\,m^{-2}}.\]</span></p>
 <p>Each even <span class="math inline">\(N\)</span> has an integer node index <span class="math inline">\(i=N/2\)</span>, and <span class="math inline">\(x_i=ih=(N/2)(L/N)=L/2\)</span>. No interpolation is needed to compare the same centerline quantity across meshes.</p>
-<div id="322816cd" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-02T02:11:46.926384Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-02T02:11:46.926243Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-02T02:11:47.132160Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-02T02:11:47.131529Z&quot;}}" data-execution_count="1">
+<div id="322816cd" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-15T18:52:05.025779Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-15T18:52:05.025716Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-15T18:52:05.189828Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-15T18:52:05.189398Z&quot;}}" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
@@ -324,7 +324,7 @@ window.Quarto = {
 <section id="assembled-system" class="level3">
 <h3 class="anchored" data-anchor-id="assembled-system">Assembled system</h3>
 <p>With conductivity retained in the matrix, <span class="math inline">\(A_{ii}=2k/h^2\)</span> and <span class="math inline">\(A_{i,i\pm1}=-k/h^2\)</span>. The right-hand side begins with <span class="math inline">\(b_i=q'''(x_i)\)</span>, then receives <span class="math inline">\(kT(0)/h^2\)</span> in its first entry and <span class="math inline">\(kT(L)/h^2\)</span> in its last entry. Consequently, both <span class="math inline">\(AT\)</span> and <span class="math inline">\(b\)</span> have units of <span class="math inline">\(\mathrm{W\,m^{-3}}\)</span>. Omitting <span class="math inline">\(k\)</span> from the matrix while retaining it in the source would solve a differently scaled problem.</p>
-<div id="60c8b216" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-02T02:11:47.133401Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-02T02:11:47.133227Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-02T02:11:47.137018Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-02T02:11:47.136562Z&quot;}}" data-execution_count="2">
+<div id="60c8b216" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-15T18:52:05.191252Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-15T18:52:05.191157Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-15T18:52:05.193081Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-15T18:52:05.192930Z&quot;}}" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> solve(N):</span>
@@ -348,8 +348,8 @@ window.Quarto = {
 </div>
 </section>
 </section>
-<section id="richardson-extrapolation-and-error-estimate" class="level2">
-<h2 class="anchored" data-anchor-id="richardson-extrapolation-and-error-estimate">3. Richardson extrapolation and error estimate</h2>
+<section id="error-measures-and-expected-behavior" class="level2">
+<h2 class="anchored" data-anchor-id="error-measures-and-expected-behavior">3. Error measures and expected behavior</h2>
 <p>Assume the centerline result has a leading mesh error proportional to <span class="math inline">\(h^p\)</span>. The refinement ratio is <span class="math inline">\(r=2\)</span>. Use the three computed rises <span class="math inline">\(f_{10},f_{20},f_{40}\)</span> to estimate the observed order</p>
 <p><span class="math display">\[p=\log_2\left|\frac{f_{10}-f_{20}}{f_{20}-f_{40}}\right|.\]</span></p>
 <p>Preserve the sign of the fine-grid difference in the extrapolation:</p>
@@ -358,7 +358,7 @@ window.Quarto = {
 <p><span class="math display">\[G=\frac{1.25|f_{40}-f_{20}|}{2^p-1},\qquad \frac{G}{|f_{40}|}\text{ is a fraction.}\]</span></p>
 <p>Report <span class="math inline">\(f_{\mathrm{ext}}\)</span> and <span class="math inline">\(G\)</span> in kelvin, label <span class="math inline">\(G\)</span> as an estimated fine-grid error, and compare it with the exact fine-grid error <span class="math inline">\(|f_{40}-10\,\mathrm{K}|\)</span>. Treat <span class="math inline">\(G\)</span> as a numerical estimate, not a guaranteed confidence interval.</p>
 <p><strong>Calculation:</strong> obtain the three quantities from the results below. Keep signed differences for <span class="math inline">\(f_{\mathrm{ext}}\)</span>; use absolute values only where shown.</p>
-<div id="e93e2c60" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-02T02:11:47.137987Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-02T02:11:47.137850Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-02T02:11:47.141650Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-02T02:11:47.141167Z&quot;}}" data-execution_count="3">
+<div id="e93e2c60" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-15T18:52:05.194032Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-15T18:52:05.193975Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-15T18:52:05.196352Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-15T18:52:05.196091Z&quot;}}" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>mesh_results <span class="op">=</span> {}</span>
@@ -392,7 +392,7 @@ window.Quarto = {
 <p>Compare the centerline rise on all three meshes. Keep the mesh-spacing and temperature units visible, and distinguish the observed order, extrapolated rise, and GCI estimate in your report.</p>
 <p><strong>Report:</strong> a reproducible three-mesh table; <span class="math inline">\(p\)</span>, <span class="math inline">\(f_{\mathrm{ext}}\)</span>, <span class="math inline">\(G\)</span> in kelvin, and <span class="math inline">\(G/|f_{40}|\)</span> as a fraction; plus two sentences describing limitations of the GCI estimate.</p>
 <p><strong>Check:</strong> observed order in <span class="math inline">\([1.9,2.1]\)</span>, extrapolated rise within 0.001 K of 10 K, and compare the estimated <span class="math inline">\(G\)</span> with the exact fine-grid error.</p>
-<div id="a5671bf4" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-02T02:11:47.142679Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-02T02:11:47.142529Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-02T02:11:47.147709Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-02T02:11:47.147375Z&quot;}}" data-execution_count="4">
+<div id="a5671bf4" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-15T18:52:05.197136Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-15T18:52:05.197076Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-15T18:52:05.199943Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-15T18:52:05.199712Z&quot;}}" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>table <span class="op">=</span> [</span>
@@ -471,7 +471,7 @@ window.Quarto = {
 <section id="solution-and-diagnostic-plots" class="level2">
 <h2 class="anchored" data-anchor-id="solution-and-diagnostic-plots">5. Solution and diagnostic plots</h2>
 <p>Plot the three numerical temperature fields together with the analytic solution. Add a second panel for the pointwise error <span class="math inline">\(T_N-T^*\)</span> so mesh differences remain visible even when the temperature curves nearly overlap.</p>
-<div id="8c059e24" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-02T02:11:47.148721Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-02T02:11:47.148586Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-02T02:11:47.285225Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-02T02:11:47.284542Z&quot;}}" data-execution_count="5">
+<div id="8c059e24" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-15T18:52:05.200623Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-15T18:52:05.200565Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-15T18:52:05.317800Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-15T18:52:05.317550Z&quot;}}" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>x_exact <span class="op">=</span> np.linspace(<span class="fl">0.0</span>, L, <span class="dv">401</span>)</span>
@@ -504,7 +504,7 @@ window.Quarto = {
 <section id="automatic-checks" class="level2">
 <h2 class="anchored" data-anchor-id="automatic-checks">6. Automatic checks</h2>
 <p>Check that each mesh includes the shared center node, boundary values stay fixed, the fields are symmetric, and the centerline rise converges monotonically. The Richardson/GCI calculations enforce the stated accuracy targets.</p>
-<div id="0e581695" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-02T02:11:47.286765Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-02T02:11:47.286626Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-02T02:11:47.294279Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-02T02:11:47.293485Z&quot;}}" data-execution_count="6">
+<div id="0e581695" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-15T18:52:05.318467Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-15T18:52:05.318402Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-15T18:52:05.322136Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-15T18:52:05.321922Z&quot;}}" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> N <span class="kw">in</span> MESHES:</span>
