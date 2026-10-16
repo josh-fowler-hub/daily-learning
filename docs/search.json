@@ -564,7 +564,7 @@
     "href": "20260930-mathematical-statements.html",
     "title": "Lesson 002: Mathematical statements and comparisons",
     "section": "",
-    "text": "Code\n---\ntitle: \"Mathematical statements and comparisons\"\ndate: 2026-09-30\ncategories: [CSE foundations, aerospace]\ndescription: \"Course v1.1 lesson 2; rebuilt October 15, 2026.\"\n---\nLearning goal: Mathematical statements and comparisons.\nPrerequisites: Lesson 1.\nTime: 15-30 minutes. Status: Complete"
+    "text": "Code\n---\ntitle: \"Mathematical statements and comparisons\"\ndate: 2026-09-30\ncategories: [Logic, Julia, Programming]\ndescription: \"Course v1.1 lesson 2; rebuilt October 15, 2026.\"\n---\nLearning goal: Mathematical statements and comparisons.\nPrerequisites: Lesson 1.\nTime: 15-30 minutes. Status: Complete"
   },
   {
     "objectID": "20260930-mathematical-statements.html#concept-and-notation",
