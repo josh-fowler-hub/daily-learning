@@ -2,6 +2,7 @@
   {
     "listing": "/index.html",
     "items": [
+      "/20260930-mathematical-statements.html",
       "/20261015-function-plot-consolidation.html",
       "/20261014-graphs-axes-slope.html",
       "/20261013-function-value-tables.html",
@@ -13,7 +14,6 @@
       "/20261005-expressions-and-operations.html",
       "/20261002-computational-question-review.html",
       "/20261001-quantities-symbols-units.html",
-      "/20260930-mathematical-statements.html",
       "/20260929-notebook-workflow.html"
     ]
   }

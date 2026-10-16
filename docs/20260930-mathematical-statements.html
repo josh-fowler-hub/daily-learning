@@ -6,10 +6,8 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2026-09-30">
-<meta name="description" content="Course v1.1 lesson 2; rebuilt October 15, 2026.">
 
-<title>Mathematical statements and comparisons – Daily Learning &amp; Refreshers</title>
+<title>Lesson 002: Mathematical statements and comparisons – Daily Learning &amp; Refreshers</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -111,6 +109,35 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
@@ -157,29 +184,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <div class="quarto-title-block"><div><h1 class="title">Mathematical statements and comparisons</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li></ul></div></div>
-                  <div>
-        <div class="description">
-          Course v1.1 lesson 2; rebuilt October 15, 2026.
-        </div>
-      </div>
-                          <div class="quarto-categories">
-                <div class="quarto-category">CSE foundations</div>
-                <div class="quarto-category">aerospace</div>
-              </div>
-                  </div>
+      <div class="quarto-title-block"><div><h1 class="title">Lesson 002: Mathematical statements and comparisons</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li></ul></div></div>
+                      </div>
   </div>
     
   
   <div class="quarto-title-meta">
 
       
-      <div>
-      <div class="quarto-title-meta-heading">Published</div>
-      <div class="quarto-title-meta-contents">
-        <p class="date">September 30, 2026</p>
-      </div>
-    </div>
     
       
     </div>
@@ -193,16 +205,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#lesson-002-mathematical-statements-and-comparisons" id="toc-lesson-002-mathematical-statements-and-comparisons" class="nav-link active" data-scroll-target="#lesson-002-mathematical-statements-and-comparisons">Lesson 002: Mathematical statements and comparisons</a>
-  <ul class="collapse">
-  <li><a href="#concept-and-notation" id="toc-concept-and-notation" class="nav-link" data-scroll-target="#concept-and-notation">1. Concept and notation</a></li>
+  <li><a href="#concept-and-notation" id="toc-concept-and-notation" class="nav-link active" data-scroll-target="#concept-and-notation">1. Concept and notation</a></li>
   <li><a href="#worked-example-different-from-the-exercise" id="toc-worked-example-different-from-the-exercise" class="nav-link" data-scroll-target="#worked-example-different-from-the-exercise">2. Worked example (different from the exercise)</a></li>
   <li><a href="#required-exercise" id="toc-required-exercise" class="nav-link" data-scroll-target="#required-exercise">3. Required exercise</a></li>
   <li><a href="#checks-and-interpretation" id="toc-checks-and-interpretation" class="nav-link" data-scroll-target="#checks-and-interpretation">4. Checks and interpretation</a></li>
   <li><a href="#reflection" id="toc-reflection" class="nav-link" data-scroll-target="#reflection">5. Reflection</a></li>
   <li><a href="#optional-stretch" id="toc-optional-stretch" class="nav-link" data-scroll-target="#optional-stretch">6. Optional stretch</a></li>
   <li><a href="#reading-and-continuity" id="toc-reading-and-continuity" class="nav-link" data-scroll-target="#reading-and-continuity">7. Reading and continuity</a></li>
-  </ul></li>
   </ul>
 </nav>
     </div>
@@ -213,30 +222,49 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 
-<section id="lesson-002-mathematical-statements-and-comparisons" class="level1">
-<h1>Lesson 002: Mathematical statements and comparisons</h1>
-<p><strong>Learning goal:</strong> Mathematical statements and comparisons.</p>
-<p><strong>Prerequisites:</strong> Lesson 1.</p>
-<p><strong>Time:</strong> 15-30 minutes. <strong>Status:</strong> assigned; completion and mastery not assessed.</p>
-<p>Rebuilt October 15, 2026. The filename date retains the original assignment date. This replaces the old advanced exercise in the active course; old files remain optional archive material.</p>
-<section id="concept-and-notation" class="level2">
-<h2 class="anchored" data-anchor-id="concept-and-notation">1. Concept and notation</h2>
-<p>A mathematical statement makes a claim that can be evaluated. Equality says two values are the same; less-than and greater-than compare their order. Here comparisons are reasoned about in words; Python Boolean expressions and branching will be introduced later. Distinguish a statement from a question or instruction.</p>
-<div id="322816cd" class="cell">
+<div id="c5776347" class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Read the explanation before writing exercise code.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="op">---</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>title<span class="op">:</span> <span class="st">"Mathematical statements and comparisons"</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>date<span class="op">:</span> <span class="fl">2026</span><span class="op">-</span><span class="fl">09</span><span class="op">-</span><span class="fl">30</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>categories<span class="op">:</span> [CSE foundations, aerospace]</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>description<span class="op">:</span> <span class="st">"Course v1.1 lesson 2; rebuilt October 15, 2026."</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="op">---</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
+</div>
+<p><strong>Learning goal:</strong> Mathematical statements and comparisons.</p>
+<p><strong>Prerequisites:</strong> Lesson 1.</p>
+<p><strong>Time:</strong> 15-30 minutes. <strong>Status:</strong> Complete</p>
+<section id="concept-and-notation" class="level2">
+<h2 class="anchored" data-anchor-id="concept-and-notation">1. Concept and notation</h2>
+<p>A mathematical statement makes a claim that can be evaluated. Equality says two values are the same; less-than and greater-than compare their order. Here comparisons are reasoned about in words; Boolean expressions and branching will be introduced later. Distinguish a statement from a question or instruction.</p>
+<div id="322816cd" class="cell" data-execution_count="1">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Read the explanation before writing exercise code.</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">println</span>(<span class="st">"This is an example of a statement."</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">println</span>(<span class="st">"X is greater than Y."</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="fu">println</span>(<span class="st">"This is an exaqmple of a question."</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="fu">println</span>(<span class="st">"Is X greater than Y?"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>This is an example of a statement.
+X is greater than Y.
+This is an exaqmple of a question.
+Is X greater than Y?</code></pre>
+</div>
 </div>
 </section>
 <section id="worked-example-different-from-the-exercise" class="level2">
 <h2 class="anchored" data-anchor-id="worked-example-different-from-the-exercise">2. Worked example (different from the exercise)</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>The sentence <span class="st">"4 is greater than 2"</span> <span class="kw">is</span> a true comparison. <span class="st">"Measure the length"</span> <span class="kw">is</span> an instruction, <span class="kw">not</span> a true<span class="op">-</span><span class="kw">or</span><span class="op">-</span>false claim.</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>The sentence <span class="st">"4 is greater than 2"</span> <span class="kw">is</span> a true comparison. <span class="st">"Measure the length"</span> <span class="kw">is</span> an instruction, <span class="kw">not</span> a true<span class="op">-</span><span class="kw">or</span><span class="op">-</span>false claim.</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Explain the example in words before proceeding.</p>
-<div id="60c8b216" class="cell">
+<div id="60c8b216" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Optional: reproduce the separate worked example here.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 4 is greater than 2 is a statement. It is a fact that can be proven true or false. In this case, it is true.</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Measure the length is an example of an instruction. It is a command to do something, but it is not a statement that can be proven true or false.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 </section>
@@ -248,22 +276,100 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>Give a simple equality and an ordering statement of your own.</li>
 <li>Use print to display one sentence explaining why evidence matters.</li>
 </ol>
-<div id="e93e2c60" class="cell">
+<div id="e93e2c60" class="cell" data-execution_count="24">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: written classifications in Markdown; use print only for the requested explanatory sentence.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> statement</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    text<span class="op">::</span><span class="dt">String</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    truth_value<span class="op">::</span><span class="dt">Union{Bool, Nothing}</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>evaluations <span class="op">=</span> (</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"7 equals 7"</span> <span class="op">=&gt;</span> <span class="fu">statement</span>(<span class="st">"7 equals 7"</span>, <span class="cn">true</span>),</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"3 is greater than 8"</span> <span class="op">=&gt;</span> <span class="fu">statement</span>(<span class="st">"3 is greater than 8"</span>, <span class="cn">false</span>),</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Find the height of the building"</span> <span class="op">=&gt;</span> <span class="fu">statement</span>(<span class="st">"Find the height of the building"</span>, <span class="cn">nothing</span>)</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (evaluation, result) <span class="kw">in</span> evaluations</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    result <span class="op">=</span> result.truth_value <span class="op">===</span> <span class="cn">nothing</span> ? <span class="st">"not a statement"</span> <span class="op">:</span> (result.truth_value ? <span class="st">"true"</span> <span class="op">:</span> <span class="st">"false"</span>)</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> result <span class="op">==</span> <span class="st">"not a statement"</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>        <span class="fu">println</span>(<span class="st">"</span><span class="sc">$</span>evaluation<span class="st"> is </span><span class="sc">$</span>result<span class="st">."</span>)</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>        <span class="fu">println</span>(<span class="st">"</span><span class="sc">$</span>evaluation<span class="st"> is a statement and it is </span><span class="sc">$</span>result<span class="st">."</span>)</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">end</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
+<div class="cell-output cell-output-stdout">
+<pre><code>7 equals 7 is a statement and it is true.
+3 is greater than 8 is a statement and it is false.
+Find the height of the building is not a statement.</code></pre>
 </div>
+</div>
+<p>This is how you write LaTeX in Markdown:</p>
+<ol type="1">
+<li><span class="math inline">\(=\)</span>: $=$</li>
+<li><span class="math inline">\(\lt\)</span>: $$</li>
+<li><span class="math inline">\(\gt\)</span>: $$</li>
+<li><span class="math inline">\(\le\)</span>: $$</li>
+<li><span class="math inline">\(\ge\)</span>: $$</li>
+</ol>
 </section>
 <section id="checks-and-interpretation" class="level2">
 <h2 class="anchored" data-anchor-id="checks-and-interpretation">4. Checks and interpretation</h2>
-<p>Each classification has a reason; equality is distinguished from an instruction; no Python assignment is mistaken for mathematical proof.</p>
+<p>Each classification has a reason; equality is distinguished from an instruction</p>
 <p>Write why each check is appropriate. Use only taught constructs; plain calculations and written checks are sufficient.</p>
-<div id="a5671bf4" class="cell">
+<div id="a5671bf4" class="cell" data-execution_count="33">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: checks and written interpretation.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Here is another example of a check.</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">checkindex</span>(index<span class="op">::</span><span class="dt">Int</span>, array<span class="op">::</span><span class="dt">Vector{Int}</span>)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> index <span class="op">&lt;</span> <span class="fl">1</span> <span class="op">||</span> index <span class="op">&gt;</span> <span class="fu">length</span>(array)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>        <span class="fu">error</span>(<span class="st">"Index </span><span class="sc">$</span>index<span class="st"> is out of bounds for array of length </span><span class="sc">$</span>(<span class="fu">length</span>(array))<span class="st">."</span>)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="cn">nothing</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="st">"Index is within bounds."</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">end</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>bvec <span class="op">=</span> [<span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">5</span>]</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">6</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>    str <span class="op">=</span> <span class="fu">checkindex</span>(i, bvec)</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> str <span class="op">!==</span> <span class="cn">nothing</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>        <span class="fu">println</span>(str)</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>        <span class="cf">continue</span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">end</span></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Index is within bounds.
+Index is within bounds.
+Index is within bounds.
+Index is within bounds.
+Index is within bounds.</code></pre>
+</div>
+<div class="cell-output cell-output-error">
+<pre><code>ErrorException: Index 6 is out of bounds for array of length 5.
+Index 6 is out of bounds for array of length 5.
+
+
+
+Stacktrace:
+
+ [1] error(s::String)
+
+   @ Base ./error.jl:44
+
+ [2] checkindex
+
+   @ ~/Code/Projects/daily-learning/jl_notebook_cell_df34fa98e69747e1a8f8a730347b8e2f_Y101sZmlsZQ==.jl:5 [inlined]
+
+ [3] top-level scope
+
+   @ ~/Code/Projects/daily-learning/jl_notebook_cell_df34fa98e69747e1a8f8a730347b8e2f_Y101sZmlsZQ==.jl:15</code></pre>
+</div>
 </div>
 </section>
 <section id="reflection" class="level2">
@@ -272,18 +378,42 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div id="8c059e24" class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: your reflection; no advance solution is supplied.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Nothing to do here today</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 </section>
 <section id="optional-stretch" class="level2">
 <h2 class="anchored" data-anchor-id="optional-stretch">6. Optional stretch</h2>
 <p>Write two different statements that cannot both be true and explain why.</p>
-<div id="0e581695" class="cell">
+<div id="0e581695" class="cell" data-execution_count="36">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: optional stretch after core work.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> <span class="fl">5</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> <span class="fl">10</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>z <span class="op">=</span> <span class="fl">7</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">are_both_statements_true</span>(statement1<span class="op">::</span><span class="dt">Expr</span>, statement2<span class="op">::</span><span class="dt">Expr</span>)</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    statement1value <span class="op">=</span> <span class="fu">eval</span>(statement1)</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    statement2value <span class="op">=</span> <span class="fu">eval</span>(statement2)</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    exercise_passed <span class="op">=</span> <span class="cn">false</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (statement1value <span class="op">&amp;&amp;</span> !statement2value) <span class="op">||</span> (statement2value <span class="op">&amp;&amp;</span> !statement1value)</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>        <span class="fu">println</span>(<span class="st">"Exercise passed."</span>)</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>        exercise_passed <span class="op">=</span> <span class="cn">true</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">end</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> exercise_passed</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>statement1 <span class="op">=</span> <span class="op">:</span>(x <span class="op">&lt;</span> y)</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>statement2 <span class="op">=</span> <span class="op">:</span>(y <span class="op">&lt;</span> x)</span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a><span class="fu">are_both_statements_true</span>(statement1, statement2)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Exercise passed.</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<pre><code>true</code></pre>
+</div>
 </div>
 </section>
 <section id="reading-and-continuity" class="level2">
@@ -292,7 +422,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Curriculum: CSE-Aerospace-Course-Plan.md. Next: Lesson 003. This historical rebuild contains no invented dated news brief.</p>
 
 
-</section>
 </section>
 
 </main> <!-- /main -->
