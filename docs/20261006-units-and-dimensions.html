@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="dcterms.date" content="2026-10-06">
-<meta name="description" content="Course v1.1 lesson 6; rebuilt October 15, 2026.">
+<meta name="description" content="Course v1.1 lesson 6">
 
 <title>Units and dimensional consistency – Daily Learning &amp; Refreshers</title>
 <style>
@@ -111,6 +111,35 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
@@ -160,12 +189,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <div class="quarto-title-block"><div><h1 class="title">Units and dimensional consistency</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li></ul></div></div>
                   <div>
         <div class="description">
-          Course v1.1 lesson 6; rebuilt October 15, 2026.
+          Course v1.1 lesson 6
         </div>
       </div>
                           <div class="quarto-categories">
-                <div class="quarto-category">CSE foundations</div>
-                <div class="quarto-category">aerospace</div>
+                <div class="quarto-category">Julia</div>
+                <div class="quarto-category">Programming</div>
+                <div class="quarto-category">Units</div>
               </div>
                   </div>
   </div>
@@ -217,27 +247,42 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h1>Lesson 006: Units and dimensional consistency</h1>
 <p><strong>Learning goal:</strong> Units and dimensional consistency.</p>
 <p><strong>Prerequisites:</strong> Lesson 5.</p>
-<p><strong>Time:</strong> 15-30 minutes. <strong>Status:</strong> assigned; completion and mastery not assessed.</p>
-<p>Rebuilt October 15, 2026. The filename date retains the original assignment date. This replaces the old advanced exercise in the active course; old files remain optional archive material.</p>
+<p><strong>Time:</strong> 15-30 minutes. <strong>Status:</strong> Complete</p>
 <section id="concept-and-notation" class="level2">
 <h2 class="anchored" data-anchor-id="concept-and-notation">1. Concept and notation</h2>
 <p>A physical quantity is a numerical value paired with a unit. Add only compatible dimensions. Multiplying speed (m/s) by time (s) gives distance (m). Conversion factors are ratios equal to one.</p>
 <div id="322816cd" class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Read the explanation before writing exercise code.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>speed <span class="op">=</span> <span class="fl">200</span> <span class="co"># m/s</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> <span class="fl">300</span> <span class="co"># s</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>distance <span class="op">=</span> speed<span class="op">*</span>t</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">m_to_km</span>(d) <span class="op">=</span> d<span class="op">/</span><span class="fl">1000</span> <span class="co"># 1000 m is equal to 1 km</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">println</span>(<span class="st">"The distance traveled is </span><span class="sc">$</span>distance<span class="st"> m, or </span><span class="sc">$</span>(<span class="fu">m_to_km</span>(distance))<span class="st"> km."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
+<div class="cell-output cell-output-stdout">
+<pre><code>The distance traveled is 60000 m, or 60.0 km.</code></pre>
+</div>
 </div>
 </section>
 <section id="worked-example-different-from-the-exercise" class="level2">
 <h2 class="anchored" data-anchor-id="worked-example-different-from-the-exercise">2. Worked example (different from the exercise)</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>A speed of <span class="dv">20</span> m<span class="op">/</span>s sustained <span class="cf">for</span> <span class="dv">3</span> s gives <span class="dv">60</span> m. A length of <span class="dv">2</span> km <span class="kw">is</span> <span class="dv">2</span><span class="op">*</span><span class="dv">1000</span> <span class="op">=</span> <span class="dv">2000</span> m.</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Explain the example in words before proceeding.</p>
+<p>A speed of 20 m/s sustained for 3 s gives 60 m. A length of 2 km is 2*1000 = 2000 m.</p>
 <div id="60c8b216" class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Optional: reproduce the separate worked example here.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>v <span class="op">=</span> <span class="fl">20</span> <span class="co"># m/s</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> <span class="fl">3</span> <span class="co"># s</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> v<span class="op">*</span>t</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="fu">println</span>(<span class="st">"A speed of </span><span class="sc">$</span>v<span class="st"> [m/s] sustained for </span><span class="sc">$</span>t<span class="st"> [s] results in a travel of </span><span class="sc">$</span>d<span class="st"> [m] or </span><span class="sc">$</span>(<span class="fu">m_to_km</span>(d))<span class="st"> [km]."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
+<div class="cell-output cell-output-stdout">
+<pre><code>A speed of 20 [m/s] sustained for 3 [s] results in a travel of 60 [m] or 0.06 [km].</code></pre>
+</div>
 </div>
 </section>
 <section id="required-exercise" class="level2">
@@ -245,15 +290,57 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <ol type="1">
 <li>Convert 3.5 km to meters and 250 cm to meters.</li>
 <li>Compute distance at 12 m/s for 8 s, showing cancellation of units.</li>
-<li>Decide whether 5 m + 2 s is meaningful and explain.</li>
 <li>Convert 72 km/h to m/s using 1000 m/km and 3600 s/h.</li>
 </ol>
-<div id="e93e2c60" class="cell">
+<div id="e93e2c60" class="cell" data-execution_count="19">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="dv">20</span><span class="op">*</span><span class="dv">3</span>, <span class="st">"m"</span>)</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: compute conversions and document unit cancellation.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">km_to_m</span>(dkm) <span class="op">=</span> <span class="fl">1000</span><span class="op">*</span>dkm</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cm_to_m</span>(dcm) <span class="op">=</span> dcm<span class="op">/</span><span class="fl">100</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">s_to_h</span>(ts) <span class="op">=</span> ts<span class="op">/</span><span class="fl">3600</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="fu">h_to_s</span>(th) <span class="op">=</span> th<span class="op">*</span><span class="fl">3600</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>dkm <span class="op">=</span> <span class="fl">3.5</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>dm1 <span class="op">=</span> <span class="fu">km_to_m</span>(dkm)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>dcm <span class="op">=</span> <span class="fl">250</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>dm2 <span class="op">=</span> <span class="fu">cm_to_m</span>(dcm)</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>disty <span class="op">=</span> <span class="st">"text/markdown"</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="fu">display</span>(disty, <span class="st">"### Exercise Answers"</span>)</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="fu">display</span>(disty, <span class="st">"1. </span><span class="sc">$</span>dkm<span class="st"> [km] is equal to </span><span class="sc">$</span>dm1<span class="st"> [m], and </span><span class="sc">$</span>dcm<span class="st"> cm is equal to </span><span class="sc">$</span>dm2<span class="st"> [m]"</span>)</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>v <span class="op">=</span> <span class="fl">12</span> <span class="co"># m/s</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> <span class="fl">8</span> <span class="co"># s</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> v<span class="op">*</span>t</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a><span class="fu">display</span>(disty, <span class="st">"2. \$</span><span class="sc">$</span>v<span class="st"> </span><span class="sc">\\</span><span class="st">frac{m}{s} </span><span class="sc">\\</span><span class="st">cdot </span><span class="sc">$</span>t<span class="sc">\\</span><span class="st">,s = </span><span class="sc">$</span>d<span class="st"> </span><span class="sc">\\</span><span class="st">frac{m </span><span class="sc">\\</span><span class="st">cdot s}{s} = </span><span class="sc">$</span>d<span class="sc">\\</span><span class="st">,m\$"</span>)</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>vkmh <span class="op">=</span> <span class="fl">72</span></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>vms <span class="op">=</span> <span class="fu">km_to_m</span>(<span class="fu">s_to_h</span>(vkmh))</span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a><span class="fu">display</span>(disty, <span class="st">"3. </span><span class="sc">$</span>vkmh<span class="st"> [km/h] is equal to </span><span class="sc">$</span>vms<span class="st"> [m/s] **Note:** `s_to_h` is used because h is in the denominator of the units."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
+<section id="exercise-answers" class="level3 cell-output cell-output-display cell-output-markdown">
+<h3 class="anchored" data-anchor-id="exercise-answers">Exercise Answers</h3>
+</section>
+<div class="cell-output cell-output-display cell-output-markdown">
+<ol type="1">
+<li>3.5 [km] is equal to 3500.0 [m], and 250 cm is equal to 2.5 [m]</li>
+</ol>
+</div>
+<div class="cell-output cell-output-display cell-output-markdown">
+<ol start="2" type="1">
+<li><span class="math inline">\(12 \frac{m}{s} \cdot 8\,s = 96 \frac{m \cdot s}{s} = 96\,m\)</span></li>
+</ol>
+</div>
+<div class="cell-output cell-output-display cell-output-markdown">
+<ol start="3" type="1">
+<li>72 [km/h] is equal to 20.0 [m/s] <strong>Note:</strong> <code>s_to_h</code> is used because h is in the denominator of the units.</li>
+</ol>
+</div>
 </div>
 </section>
 <section id="checks-and-interpretation" class="level2">
@@ -263,7 +350,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div id="a5671bf4" class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: checks and written interpretation.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Nothing today</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 </section>
@@ -273,24 +360,35 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div id="8c059e24" class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: your reflection; no advance solution is supplied.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Nothing here today</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 </section>
 <section id="optional-stretch" class="level2">
 <h2 class="anchored" data-anchor-id="optional-stretch">6. Optional stretch</h2>
 <p>Express the same duration in seconds, minutes and hours.</p>
-<div id="0e581695" class="cell">
+<div id="0e581695" class="cell" data-execution_count="23">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: optional stretch after core work.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">days_to_hours</span>(days) <span class="op">=</span> days<span class="op">*</span><span class="fl">24</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">hours_to_minutes</span>(hours) <span class="op">=</span> hours<span class="op">*</span><span class="fl">60</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="fu">minutes_to_seconds</span>(minutes) <span class="op">=</span> minutes<span class="op">*</span><span class="fl">60</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>days <span class="op">=</span> <span class="fl">3</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>hours <span class="op">=</span> <span class="fu">days_to_hours</span>(days)</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>minutes <span class="op">=</span> <span class="fu">hours_to_minutes</span>(hours)</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>seconds <span class="op">=</span> <span class="fu">minutes_to_seconds</span>(minutes)</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="fu">println</span>(<span class="st">"</span><span class="sc">$</span>days<span class="st"> days = </span><span class="sc">$</span>hours<span class="st"> hours = </span><span class="sc">$</span>minutes<span class="st"> minutes = </span><span class="sc">$</span>seconds<span class="st"> seconds"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
+<div class="cell-output cell-output-stdout">
+<pre><code>3 days = 72 hours = 4320 minutes = 259200 seconds</code></pre>
+</div>
 </div>
 </section>
 <section id="reading-and-continuity" class="level2">
 <h2 class="anchored" data-anchor-id="reading-and-continuity">7. Reading and continuity</h2>
 <p>Required reading: explanation and worked example above. Optional accessible background: <a href="https://openstax.org/details/books/algebra-and-trigonometry-2e">OpenStax Algebra and Trigonometry 2e</a> and <a href="https://docs.python.org/3/tutorial/introduction.html">Python introductory tutorial</a>. Read only the relevant arithmetic/function material, not advanced sections.</p>
-<p>Curriculum: CSE-Aerospace-Course-Plan.md. Next: Lesson 007. This historical rebuild contains no invented dated news brief.</p>
 
 
 </section>
