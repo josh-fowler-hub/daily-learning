@@ -2,6 +2,11 @@
   {
     "listing": "/index.html",
     "items": [
+      "/20260929-notebook-workflow.html",
+      "/20260930-mathematical-statements.html",
+      "/20261001-quantities-symbols-units.html",
+      "/20261020-percent-changes.html",
+      "/20261019-ratios-and-proportionality.html",
       "/20261015-function-plot-consolidation.html",
       "/20261014-graphs-axes-slope.html",
       "/20261013-function-value-tables.html",
@@ -11,10 +16,7 @@
       "/20261007-variables-and-quantities.html",
       "/20261006-units-and-dimensions.html",
       "/20261005-expressions-and-operations.html",
-      "/20261002-computational-question-review.html",
-      "/20261001-quantities-symbols-units.html",
-      "/20260930-mathematical-statements.html",
-      "/20260929-notebook-workflow.html"
+      "/20261002-computational-question-review.html"
     ]
   }
 ]

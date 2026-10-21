@@ -6,10 +6,8 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2026-09-29">
-<meta name="description" content="Course v1.1 lesson 1; rebuilt October 15, 2026.">
 
-<title>Notebook workflow and reproducibility – Daily Learning &amp; Refreshers</title>
+<title>Lesson 001: Notebook workflow and reproducibility – Daily Learning &amp; Refreshers</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -157,30 +155,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <div class="quarto-title-block"><div><h1 class="title">Notebook workflow and reproducibility</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li></ul></div></div>
-                  <div>
-        <div class="description">
-          Course v1.1 lesson 1; rebuilt October 15, 2026.
-        </div>
-      </div>
-                          <div class="quarto-categories">
-                <div class="quarto-category">Programming</div>
-                <div class="quarto-category">Julia</div>
-                <div class="quarto-category">Notebooks</div>
-              </div>
-                  </div>
+      <div class="quarto-title-block"><div><h1 class="title">Lesson 001: Notebook workflow and reproducibility</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li></ul></div></div>
+                      </div>
   </div>
     
   
   <div class="quarto-title-meta">
 
       
-      <div>
-      <div class="quarto-title-meta-heading">Published</div>
-      <div class="quarto-title-meta-contents">
-        <p class="date">September 29, 2026</p>
-      </div>
-    </div>
     
       
     </div>
@@ -194,16 +176,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#lesson-001-notebook-workflow-and-reproducibility" id="toc-lesson-001-notebook-workflow-and-reproducibility" class="nav-link active" data-scroll-target="#lesson-001-notebook-workflow-and-reproducibility">Lesson 001: Notebook workflow and reproducibility</a>
-  <ul class="collapse">
-  <li><a href="#concept-and-notation" id="toc-concept-and-notation" class="nav-link" data-scroll-target="#concept-and-notation">1. Concept and notation</a></li>
+  <li><a href="#concept-and-notation" id="toc-concept-and-notation" class="nav-link active" data-scroll-target="#concept-and-notation">1. Concept and notation</a></li>
   <li><a href="#worked-example-different-from-the-exercise" id="toc-worked-example-different-from-the-exercise" class="nav-link" data-scroll-target="#worked-example-different-from-the-exercise">2. Worked example (different from the exercise)</a></li>
   <li><a href="#required-exercise" id="toc-required-exercise" class="nav-link" data-scroll-target="#required-exercise">3. Required exercise</a></li>
   <li><a href="#checks-and-interpretation" id="toc-checks-and-interpretation" class="nav-link" data-scroll-target="#checks-and-interpretation">4. Checks and interpretation</a></li>
   <li><a href="#reflection" id="toc-reflection" class="nav-link" data-scroll-target="#reflection">5. Reflection</a></li>
   <li><a href="#optional-stretch" id="toc-optional-stretch" class="nav-link" data-scroll-target="#optional-stretch">6. Optional stretch</a></li>
   <li><a href="#reading-and-continuity" id="toc-reading-and-continuity" class="nav-link" data-scroll-target="#reading-and-continuity">7. Reading and continuity</a></li>
-  </ul></li>
   </ul>
 </nav>
     </div>
@@ -214,8 +193,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 
-<section id="lesson-001-notebook-workflow-and-reproducibility" class="level1">
-<h1>Lesson 001: Notebook workflow and reproducibility</h1>
+<div id="f97bf8fb" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="op">---</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>title<span class="op">:</span> <span class="st">"Notebook workflow and reproducibility"</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>date<span class="op">:</span> <span class="fl">2026</span><span class="op">-</span><span class="fl">09</span><span class="op">-</span><span class="fl">29</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>categories<span class="op">:</span> [Programming, Julia, Notebooks]</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>description<span class="op">:</span> <span class="st">"Course v1.1 lesson 1; rebuilt October 15, 2026."</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="op">---</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
 <p><strong>Learning goal:</strong> Notebook workflow and reproducibility.</p>
 <p><strong>Prerequisites:</strong> None.</p>
 <p><strong>Time:</strong> 15-30 minutes. <strong>Status:</strong> Complete</p>
@@ -225,11 +213,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div id="322816cd" class="cell" data-execution_count="113">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Read the explanation before writing exercise code.</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># This is a comment and will not be executed. You can write comments in your code to explain what it does.</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">println</span>(<span class="st">"Hello, world!"</span>)  <span class="co"># This will print "Hello, world!" to the console.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Read the explanation before writing exercise code.</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># This is a comment and will not be executed. You can write comments in your code to explain what it does.</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="fu">println</span>(<span class="st">"Hello, world!"</span>)  <span class="co"># This will print "Hello, world!" to the console.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Hello, world!</code></pre>
@@ -238,26 +226,26 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="worked-example-different-from-the-exercise" class="level2">
 <h2 class="anchored" data-anchor-id="worked-example-different-from-the-exercise">2. Worked example (different from the exercise)</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">println</span>(<span class="st">"Example output"</span>) displays the text Example output. A Markdown cell can explain why the output matters.</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">println</span>(<span class="st">"Example output"</span>) displays the text Example output. A Markdown cell can explain why the output matters.</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="60c8b216" class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Optional: reproduce the separate worked example here.</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co"># You can also use Markdown to format text in your notebook. For example, you can create headings, lists, and links.</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co"># and you can include LaTeX equations, images, and more.</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="fu">println</span>(<span class="st">"This is a simple Julia notebook workflow example. You can write code, comments, and explanations in the same document. It is especially useful for documenting your learning process and sharing it with others."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Optional: reproduce the separate worked example here.</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co"># You can also use Markdown to format text in your notebook. For example, you can create headings, lists, and links.</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co"># and you can include LaTeX equations, images, and more.</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="fu">println</span>(<span class="st">"This is a simple Julia notebook workflow example. You can write code, comments, and explanations in the same document. It is especially useful for documenting your learning process and sharing it with others."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>This is a simple Julia notebook workflow example. You can write code, comments, and explanations in the same document. It is especially useful for documenting your learning process and sharing it with others.</code></pre>
 </div>
 </div>
 <p>For example:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Column One <span class="pp">|</span> Column Two <span class="pp">|</span> Column 3 <span class="pp">|</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span>:-:<span class="pp">|</span>:-:<span class="pp">|</span>:-:<span class="pp">|</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Row 1 <span class="pp">|</span> Column 2 <span class="pp">|</span> - <span class="pp">|</span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Row 2 <span class="pp">|</span> - <span class="pp">|</span> Column 3 <span class="pp">|</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Column One <span class="pp">|</span> Column Two <span class="pp">|</span> Column 3 <span class="pp">|</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span>:-:<span class="pp">|</span>:-:<span class="pp">|</span>:-:<span class="pp">|</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Row 1 <span class="pp">|</span> Column 2 <span class="pp">|</span> - <span class="pp">|</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Row 2 <span class="pp">|</span> - <span class="pp">|</span> Column 3 <span class="pp">|</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Will produce:</p>
 <table class="caption-top table">
 <thead>
@@ -292,7 +280,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div id="e93e2c60" class="cell" data-execution_count="115">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">println</span>(<span class="st">"This is a code cell."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">println</span>(<span class="st">"This is a code cell."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>This is a code cell.</code></pre>
@@ -307,21 +295,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div id="a5671bf4" class="cell" data-execution_count="116">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># You will see that checks implemented in the notebook, here is an example of a simple check:</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> [<span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">5</span>, <span class="op">-</span><span class="fl">1</span>]  <span class="co"># This is a vector of numbers.</span></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">ensure_positivity_sqrt</span>(x)</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> x <span class="op">&lt;</span> <span class="fl">0</span></span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>        <span class="fu">error</span>(<span class="st">"x must be non-negative"</span>)</span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span></span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="fu">sqrt</span>(x)</span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">end</span></span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> x</span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">println</span>(<span class="st">"The square root of </span><span class="sc">$</span>i<span class="st"> is </span><span class="sc">$</span>(<span class="fu">ensure_positivity_sqrt</span>(i))<span class="st">"</span>)</span>
-<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># You will see that checks implemented in the notebook, here is an example of a simple check:</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> [<span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">5</span>, <span class="op">-</span><span class="fl">1</span>]  <span class="co"># This is a vector of numbers.</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">ensure_positivity_sqrt</span>(x)</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> x <span class="op">&lt;</span> <span class="fl">0</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>        <span class="fu">error</span>(<span class="st">"x must be non-negative"</span>)</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="fu">sqrt</span>(x)</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">end</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> x</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">println</span>(<span class="st">"The square root of </span><span class="sc">$</span>i<span class="st"> is </span><span class="sc">$</span>(<span class="fu">ensure_positivity_sqrt</span>(i))<span class="st">"</span>)</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>The square root of 1 is 1.0
@@ -358,7 +346,7 @@ Stacktrace:
 <div id="8c059e24" class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Normally there would be a reflection here, but since this is a simple example, we will skip that part.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Normally there would be a reflection here, but since this is a simple example, we will skip that part.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 </section>
@@ -368,17 +356,15 @@ Stacktrace:
 <div id="0e581695" class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Normally there would be an optional extension of the lesson here, but since this is a simple example, we will skip that part.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Normally there would be an optional extension of the lesson here, but since this is a simple example, we will skip that part.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 </section>
 <section id="reading-and-continuity" class="level2">
 <h2 class="anchored" data-anchor-id="reading-and-continuity">7. Reading and continuity</h2>
 <p>Required reading: explanation and worked example above. Optional accessible background: <a href="https://openstax.org/details/books/algebra-and-trigonometry-2e">OpenStax Algebra and Trigonometry 2e</a> and <a href="https://docs.python.org/3/tutorial/introduction.html">Python introductory tutorial</a>, as well as <a href="https://docs.julialang.org/">Julia documentation</a>. Read only the relevant arithmetic/function material, not advanced sections.</p>
-<p>Curriculum: CSE-Aerospace-Course-Plan.md. Next: Lesson 002. This historical rebuild contains no invented dated news brief.</p>
 
 
-</section>
 </section>
 
 </main> <!-- /main -->
