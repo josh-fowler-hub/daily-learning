@@ -301,382 +301,60 @@
     "text": "Open references\nOpenStax Algebra and Trigonometry 2e: https://openstax.org/details/books/algebra-and-trigonometry-2e OpenStax Calculus Volume 1: https://openstax.org/details/books/calculus-volume-1 Python introductory tutorial: https://docs.python.org/3/tutorial/introduction.html NASA Glenn Beginner’s Guide to Aeronautics: https://www.grc.nasa.gov/www/k-12/airplane/ Notebook template: https://github.com/josh-fowler-hub/daily-learning/blob/main/problem-template.ipynb"
   },
   {
-    "objectID": "20261001-quantities-symbols-units.html",
-    "href": "20261001-quantities-symbols-units.html",
-    "title": "Lesson 003: Quantities, symbols and units",
+    "objectID": "20261014-graphs-axes-slope.html",
+    "href": "20261014-graphs-axes-slope.html",
+    "title": "Graphs, axes and slope",
     "section": "",
-    "text": "Code\n---\ntitle: \"Quantities, symbols and units\"\ndate: 2026-10-01\ncategories: [Julia, Programming, Units]\ndescription: \"Course v1.1 lesson 3; rebuilt October 15, 2026.\"\n---\n\n\nBase.Meta.ParseError: ParseError:\n# Error @ /home/jfowler/Code/Projects/daily-learning/jl_notebook_cell_df34fa98e69747e1a8f8a730347b8e2f_W0sZmlsZQ==.jl:1:1\n---\n└┘ ── not a unary operator\nParseError:\n\n# Error @ /home/jfowler/Code/Projects/daily-learning/jl_notebook_cell_df34fa98e69747e1a8f8a730347b8e2f_W0sZmlsZQ==.jl:1:1\n\n---\n\n└┘ ── not a unary operator\n\n\n\nStacktrace:\n\n [1] top-level scope\n\n   @ ~/Code/Projects/daily-learning/jl_notebook_cell_df34fa98e69747e1a8f8a730347b8e2f_W0sZmlsZQ==.jl:1\nLearning goal: Quantities, symbols and units.\nPrerequisites: Lessons 1-2.\nTime: 15-30 minutes. Status: Complete"
+    "text": "Learning goal: Graphs, axes and slope.\nPrerequisites: Lessons 5-11.\nTime: 15-30 minutes. Status: assigned; completion and mastery not assessed.\nRebuilt October 15, 2026. The filename date retains the original assignment date. This replaces the old advanced exercise in the active course; old files remain optional archive material.\n\n\nA graph displays paired values on labeled axes. Slope is output change divided by input change. For d(t)=v*t it has speed units. Matplotlib draws data; an ordinary straight connecting line is not a newly solved physical model.\n\n\nCode\n# Read the explanation before writing exercise code.\n\n\n\n\n\nimport matplotlib.pyplot as plt\nplt.plot([0,1,2], [0,2,4], marker=\"o\")\nplt.xlabel(\"Input x\")\nplt.ylabel(\"Output f(x)\")\nplt.show()\nExplain the example in words before proceeding.\n\n\nCode\n# Optional: reproduce the separate worked example here.\n\n\n\n\n\n\nPlot the preceding distance table with time (s) horizontally and distance (m) vertically.\nCompute slope between two pairs using arithmetic.\nExplain the intercept and slope physically.\nAdd a second table for 6 m/s on the same axes and a legend.\n\n\n\nCode\nimport matplotlib.pyplot as plt\n# TODO: build taught tables, plot, label axes, add legend and display.\n\n\n\n\n\nEvery axis has a quantity/unit; markers coincide with table entries; slope agrees with speed; both lines start at the declared initial distance.\nWrite why each check is appropriate. Use only taught constructs; plain calculations and written checks are sufficient.\n\n\nCode\n# TODO: checks and written interpretation.\n\n\n\n\n\nWhat does the result mean? Which assumption limits the model? Which earlier idea did you reuse?\n\n\nCode\n# TODO: your reflection; no advance solution is supplied.\n\n\n\n\n\nUse d(t)=10+12*t and explain the changed intercept.\n\n\nCode\n# TODO: optional stretch after core work.\n\n\n\n\n\nRequired reading: explanation and worked example above. Optional accessible background: OpenStax Algebra and Trigonometry 2e and Python introductory tutorial. Read only the relevant arithmetic/function material, not advanced sections.\nCurriculum: CSE-Aerospace-Course-Plan.md. Next: Lesson 013. This historical rebuild contains no invented dated news brief."
   },
   {
-    "objectID": "20261001-quantities-symbols-units.html#concept-and-notation",
-    "href": "20261001-quantities-symbols-units.html#concept-and-notation",
-    "title": "Lesson 003: Quantities, symbols and units",
-    "section": "1. Concept and notation",
-    "text": "1. Concept and notation\nA quantity describes something measurable, a symbol names it, a value gives its size, and a unit supplies the scale. For example, t may denote time, 4 is a numerical value, and s means seconds. Writing t=4 s states a physical quantity; writing 4 alone leaves its physical meaning unspecified. No unit conversions are required yet.\n\n\nCode\n# Read the explanation before writing exercise code.\nt = 4\n\n\n4"
-  },
-  {
-    "objectID": "20261001-quantities-symbols-units.html#worked-example-different-from-the-exercise",
-    "href": "20261001-quantities-symbols-units.html#worked-example-different-from-the-exercise",
-    "title": "Lesson 003: Quantities, symbols and units",
-    "section": "2. Worked example (different from the exercise)",
-    "text": "2. Worked example (different from the exercise)\nIn \"length L = 6 m\", length is the quantity, L is its symbol, 6 is the numerical value, and m is the unit.\nExplain the example in words before proceeding.\n\n\nCode\n# Optional: reproduce the separate worked example here.\nL = 6 # meters\n\n\n6"
-  },
-  {
-    "objectID": "20261001-quantities-symbols-units.html#required-exercise",
-    "href": "20261001-quantities-symbols-units.html#required-exercise",
-    "title": "Lesson 003: Quantities, symbols and units",
-    "section": "3. Required exercise",
-    "text": "3. Required exercise\n\nAnnotate time t=12 s, mass m=3 kg, and temperature T=290 K using the four categories.\nExplain why a bare input of 25 is ambiguous.\nGive one aerospace-relevant quantity and a plausible unit without looking up a real vehicle.\nUse print to display a clearly labeled quantity as text.\n\n\n\nCode\nt = 12 # seconds\nm = 3 # kg\nT = 290 # K\n\ndisty = \"text/markdown\"\n\ndisplay(disty, \"## 3.1 Variables with Units\")\ndisplay(disty, \"### 3.1.1 Variables\")\ndisplay(disty, \"- \\$t = $t\\\\, \\\\left[s\\\\right]\\$\")\ndisplay(disty, \"- \\$m = $m\\\\, \\\\left[kg\\\\right]\\$\")\ndisplay(disty, \"- \\$T = $T\\\\, \\\\left[K\\\\right]\\$\")\n\ndisplay(disty, \"### 3.1.2 Explanation\")\ndisplay(disty, \"25 what? \\$25 \\\\left[K\\\\right]\\$ is very different from \\$25^{\\\\circ}\\\\left[C\\\\right]\\$ and \\$25^{\\\\circ}\\\\left[F\\\\right]\\$\")\n\ndisplay(disty, \"### 3.1.3 Example\")\ndisplay(disty, \"Stagnation Temperature \\$\\\\left[K\\\\right]\\$\")\n\ndisplay(disty, \"### 3.1.4 Print\")\nprintln(\"See above for examples using Markdown/LaTeX, here  it would be T = $T [K]\")\n\n\n3.1 Variables with Units\n\n\n3.1.1 Variables\n\n\n\n\\(t = 12\\, \\left[s\\right]\\)\n\n\n\n\n\\(m = 3\\, \\left[kg\\right]\\)\n\n\n\n\n\\(T = 290\\, \\left[K\\right]\\)\n\n\n\n3.1.2 Explanation\n\n\n25 what? \\(25 \\left[K\\right]\\) is very different from \\(25^{\\circ}\\left[C\\right]\\) and \\(25^{\\circ}\\left[F\\right]\\)\n\n\n3.1.3 Example\n\n\nStagnation Temperature \\(\\left[K\\right]\\)\n\n\n3.1.4 Print\n\n\nSee above for examples using Markdown/LaTeX, here  it would be T = 290 [K]"
-  },
-  {
-    "objectID": "20261001-quantities-symbols-units.html#variables-with-units",
-    "href": "20261001-quantities-symbols-units.html#variables-with-units",
-    "title": "Lesson 003: Quantities, symbols and units",
-    "section": "3.1 Variables with Units",
-    "text": "3.1 Variables with Units"
-  },
-  {
-    "objectID": "20261001-quantities-symbols-units.html#checks-and-interpretation",
-    "href": "20261001-quantities-symbols-units.html#checks-and-interpretation",
-    "title": "Lesson 003: Quantities, symbols and units",
-    "section": "4. Checks and interpretation",
-    "text": "4. Checks and interpretation\nEvery example identifies quantity, symbol, value and unit; invented data are labeled fictional; no assumption that a symbol uniquely determines its physical meaning.\nWrite why each check is appropriate. Use only taught constructs; plain calculations and written checks are sufficient.\n\n\nCode\nimport Base: @doc\n\ndisplay(disty, \"### Example\")\n\n\"\"\"\n    valid_cooling(Tw, Tb)\n\nCheck whether a valid cooling configuration exists.\n\n# Arguments\n- Tw :: Float64 =&gt; Wall Temperature\n- Tb :: Float64 =&gt; Bulk Temperature\n\n# Outputs\n- result::Bool\n\n# Examples\n```julia-repl\njulia&gt; valid_cooling(250, 275)\nfalse\n```\n\"\"\"\nfunction valid_cooling(Tw::Float64, Tb::Float64)\n    if Tw &lt;= Tb\n        return false\n    else\n        return true\n    end\nend\n\nTw  = 250 # K\ndisplay(disty, \"Wall Temperature: \\$T_w = $Tw \\\\left[K\\\\right]\\$\")\nTb = 275 # K\ndisplay(disty, \"Bulk Temperature: \\$T_b = $Tb \\\\left[K\\\\right]\\$\")\n\ndisplay(disty, \"We require that \\$T_w \\\\ge T_b\\$ for cooling.\")\ndisplay(disty, \"Let's check it with the function valid_cooling:\")\ndisplay(disty, @doc valid_cooling)\n\n\nExample\n\n\nWall Temperature: \\(T_w = 250 \\left[K\\right]\\)\n\n\nBulk Temperature: \\(T_b = 275 \\left[K\\right]\\)\n\n\nWe require that \\(T_w \\ge T_b\\) for cooling.\n\n\nLet’s check it with the function valid_cooling:\n\n\nvalid_cooling(Tw, Tb)\nCheck whether a valid cooling configuration exists.\n\nArguments\n\nTw :: Float64 =&gt; Wall Temperature\nTb :: Float64 =&gt; Bulk Temperature\n\n\n\nOutputs\n\nresult::Bool\n\n\n\nExamples\njulia&gt; valid_cooling(250, 275)\nfalse"
-  },
-  {
-    "objectID": "20261001-quantities-symbols-units.html#reflection",
-    "href": "20261001-quantities-symbols-units.html#reflection",
-    "title": "Lesson 003: Quantities, symbols and units",
-    "section": "5. Reflection",
-    "text": "5. Reflection\nWhat does the result mean? Which assumption limits the model? Which earlier idea did you reuse?\n\n\nCode\n# Nothing here today"
-  },
-  {
-    "objectID": "20261001-quantities-symbols-units.html#optional-stretch",
-    "href": "20261001-quantities-symbols-units.html#optional-stretch",
-    "title": "Lesson 003: Quantities, symbols and units",
-    "section": "6. Optional stretch",
-    "text": "6. Optional stretch\nNothing Here today\n\n\nCode\n# Nothing here today"
-  },
-  {
-    "objectID": "20261001-quantities-symbols-units.html#reading-and-continuity",
-    "href": "20261001-quantities-symbols-units.html#reading-and-continuity",
-    "title": "Lesson 003: Quantities, symbols and units",
-    "section": "7. Reading and continuity",
-    "text": "7. Reading and continuity\nRequired reading: explanation and worked example above. Optional accessible background: OpenStax Algebra and Trigonometry 2e and Python introductory tutorial and Julia documentation. Read only the relevant arithmetic/function material, not advanced sections."
-  },
-  {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "Daily Learning & Refreshers",
+    "objectID": "20261014-graphs-axes-slope.html#concept-and-notation",
+    "href": "20261014-graphs-axes-slope.html#concept-and-notation",
+    "title": "Graphs, axes and slope",
     "section": "",
-    "text": "A collection of focused technical notebooks that revisit advanced concepts, connect theory with implementation, and provide worked examples for others to follow. This project is a way to keep my knowledge sharp, explore questions in greater depth, and share the reasoning behind the results. The notebooks emphasize computational fluid dynamics, numerical methods, and scientific computing."
+    "text": "A graph displays paired values on labeled axes. Slope is output change divided by input change. For d(t)=v*t it has speed units. Matplotlib draws data; an ordinary straight connecting line is not a newly solved physical model.\n\n\nCode\n# Read the explanation before writing exercise code."
   },
   {
-    "objectID": "index.html#what-youll-find",
-    "href": "index.html#what-youll-find",
-    "title": "Daily Learning & Refreshers",
-    "section": "What you’ll find",
-    "text": "What you’ll find\nEach entry explores a specific question or method through a combination of mathematical development, Python implementation, and interpretation. Depending on the topic, that may include:\n\nDerivations of governing equations and numerical schemes.\nExperiments with accuracy, stability, and convergence.\nComparisons with analytical solutions or established benchmarks.\nDiscussion of assumptions, limitations, and common pitfalls.\n\nThe goal is to make the reasoning clear enough that you can follow it, reproduce the results, and extend the example yourself.\nIt is important to note that some of these exercises may not be finished, as this is a work in progress."
-  },
-  {
-    "objectID": "index.html#who-these-notebooks-are-for",
-    "href": "index.html#who-these-notebooks-are-for",
-    "title": "Daily Learning & Refreshers",
-    "section": "Who these notebooks are for",
-    "text": "Who these notebooks are for\nThese are refreshers and deeper explorations rather than introductory lessons. They generally assume familiarity with calculus, differential equations, basic numerical methods, and Python. Each notebook identifies any additional prerequisites. You can browse by topic or follow the entries chronologically. Most are intended to stand on their own; related entries link to one another when additional context helps."
-  },
-  {
-    "objectID": "index.html#explore-the-collection",
-    "href": "index.html#explore-the-collection",
-    "title": "Daily Learning & Refreshers",
-    "section": "Explore the collection",
-    "text": "Explore the collection\nBrowse the notebooks · Visit my portfolio · View the source on GitHub"
-  },
-  {
-    "objectID": "index.html#practice-index",
-    "href": "index.html#practice-index",
-    "title": "Daily Learning & Refreshers",
-    "section": "Practice Index",
-    "text": "Practice Index\n\n\n   \n    \n    \n      Order By\n      Default\n      \n        Date - Oldest\n      \n      \n        Date - Newest\n      \n      \n        Title\n      \n    \n  \n    \n      \n      \n    \n\n\n\n\n\n\nTitle\n\n\n\nDate\n\n\n\nCategories\n\n\n\n\n\n\n\n\nLesson 001: Notebook workflow and reproducibility\n\n\n \n\n\n \n\n\n\n\n\n\nLesson 002: Mathematical statements and comparisons\n\n\n \n\n\n \n\n\n\n\n\n\nLesson 003: Quantities, symbols and units\n\n\n \n\n\n \n\n\n\n\n\n\nPercent changes and reference values\n\n\nOct 20, 2026\n\n\nCSE foundations\n\n\n\n\n\n\nRatios and proportionality\n\n\nOct 19, 2026\n\n\nCSE foundations\n\n\n\n\n\n\nConsolidation - tabulate and plot a function\n\n\nOct 15, 2026\n\n\nCSE foundations, aerospace\n\n\n\n\n\n\nGraphs, axes and slope\n\n\nOct 14, 2026\n\n\nCSE foundations, aerospace\n\n\n\n\n\n\nTables of function values\n\n\nOct 13, 2026\n\n\nCSE foundations, aerospace\n\n\n\n\n\n\nFunctions as input-output rules\n\n\nOct 12, 2026\n\n\nCSE foundations, aerospace\n\n\n\n\n\n\nReview - explain and check a calculation\n\n\nOct 9, 2026\n\n\nCSE foundations, aerospace\n\n\n\n\n\n\nConsolidation - speed, time and distance\n\n\nOct 8, 2026\n\n\nCSE foundations, aerospace\n\n\n\n\n\n\nVariables and named quantities\n\n\nOct 7, 2026\n\n\nCSE foundations, aerospace\n\n\n\n\n\n\nUnits and dimensional consistency\n\n\nOct 6, 2026\n\n\nCSE foundations, aerospace\n\n\n\n\n\n\nExpressions and order of operations\n\n\nOct 5, 2026\n\n\nCSE foundations, aerospace\n\n\n\n\n\n\nReview: describe a computational question\n\n\nOct 2, 2026\n\n\nCSE foundations, aerospace\n\n\n\n\n\n\nNo matching items"
-  },
-  {
-    "objectID": "20261008-distance-consolidation.html",
-    "href": "20261008-distance-consolidation.html",
-    "title": "Consolidation - speed, time and distance",
+    "objectID": "20261014-graphs-axes-slope.html#worked-example-different-from-the-exercise",
+    "href": "20261014-graphs-axes-slope.html#worked-example-different-from-the-exercise",
+    "title": "Graphs, axes and slope",
     "section": "",
-    "text": "Learning goal: Consolidation - speed, time and distance.\nPrerequisites: Lessons 5-7.\nTime: 15-30 minutes. Status: assigned; completion and mastery not assessed.\nRebuilt October 15, 2026. The filename date retains the original assignment date. This replaces the old advanced exercise in the active course; old files remain optional archive material.\n\n\nCombine taught arithmetic, units and variables. A supplied model d=v*t assumes constant speed in each segment; it does not describe acceleration or a real aircraft performance envelope.\n\n\nCode\n# Read the explanation before writing exercise code.\n\n\n\n\n\nTwo segments at 5 m/s for 2 s and 10 m/s for 3 s cover 10+30=40 m.\nExplain the example in words before proceeding.\n\n\nCode\n# Optional: reproduce the separate worked example here.\n\n\n\n\n\n\nModel a fictional vehicle traveling 10 m/s for 4 s, then 15 m/s for 6 s.\nCompute each distance, total distance and total time.\nCompute trip-average speed as total distance divided by total time.\nExplain why the arithmetic mean of the two speeds is generally different.\n\n\n\nCode\n# TODO: named inputs, two distances, totals, average, and units.\n\n\n\n\n\nBoth segment units cancel correctly; total distance equals the sum; average speed multiplied by total duration recovers total distance.\nWrite why each check is appropriate. Use only taught constructs; plain calculations and written checks are sufficient.\n\n\nCode\n# TODO: checks and written interpretation.\n\n\n\n\n\nWhat does the result mean? Which assumption limits the model? Which earlier idea did you reuse?\n\n\nCode\n# TODO: your reflection; no advance solution is supplied.\n\n\n\n\n\nMake segment durations equal and compare the two averages.\n\n\nCode\n# TODO: optional stretch after core work.\n\n\n\n\n\nRequired reading: explanation and worked example above. Optional accessible background: OpenStax Algebra and Trigonometry 2e and Python introductory tutorial. Read only the relevant arithmetic/function material, not advanced sections.\nCurriculum: CSE-Aerospace-Course-Plan.md. Next: Lesson 009. This historical rebuild contains no invented dated news brief."
+    "text": "import matplotlib.pyplot as plt\nplt.plot([0,1,2], [0,2,4], marker=\"o\")\nplt.xlabel(\"Input x\")\nplt.ylabel(\"Output f(x)\")\nplt.show()\nExplain the example in words before proceeding.\n\n\nCode\n# Optional: reproduce the separate worked example here."
   },
   {
-    "objectID": "20261008-distance-consolidation.html#concept-and-notation",
-    "href": "20261008-distance-consolidation.html#concept-and-notation",
-    "title": "Consolidation - speed, time and distance",
+    "objectID": "20261014-graphs-axes-slope.html#required-exercise",
+    "href": "20261014-graphs-axes-slope.html#required-exercise",
+    "title": "Graphs, axes and slope",
     "section": "",
-    "text": "Combine taught arithmetic, units and variables. A supplied model d=v*t assumes constant speed in each segment; it does not describe acceleration or a real aircraft performance envelope.\n\n\nCode\n# Read the explanation before writing exercise code."
+    "text": "Plot the preceding distance table with time (s) horizontally and distance (m) vertically.\nCompute slope between two pairs using arithmetic.\nExplain the intercept and slope physically.\nAdd a second table for 6 m/s on the same axes and a legend.\n\n\n\nCode\nimport matplotlib.pyplot as plt\n# TODO: build taught tables, plot, label axes, add legend and display."
   },
   {
-    "objectID": "20261008-distance-consolidation.html#worked-example-different-from-the-exercise",
-    "href": "20261008-distance-consolidation.html#worked-example-different-from-the-exercise",
-    "title": "Consolidation - speed, time and distance",
+    "objectID": "20261014-graphs-axes-slope.html#checks-and-interpretation",
+    "href": "20261014-graphs-axes-slope.html#checks-and-interpretation",
+    "title": "Graphs, axes and slope",
     "section": "",
-    "text": "Two segments at 5 m/s for 2 s and 10 m/s for 3 s cover 10+30=40 m.\nExplain the example in words before proceeding.\n\n\nCode\n# Optional: reproduce the separate worked example here."
+    "text": "Every axis has a quantity/unit; markers coincide with table entries; slope agrees with speed; both lines start at the declared initial distance.\nWrite why each check is appropriate. Use only taught constructs; plain calculations and written checks are sufficient.\n\n\nCode\n# TODO: checks and written interpretation."
   },
   {
-    "objectID": "20261008-distance-consolidation.html#required-exercise",
-    "href": "20261008-distance-consolidation.html#required-exercise",
-    "title": "Consolidation - speed, time and distance",
-    "section": "",
-    "text": "Model a fictional vehicle traveling 10 m/s for 4 s, then 15 m/s for 6 s.\nCompute each distance, total distance and total time.\nCompute trip-average speed as total distance divided by total time.\nExplain why the arithmetic mean of the two speeds is generally different.\n\n\n\nCode\n# TODO: named inputs, two distances, totals, average, and units."
-  },
-  {
-    "objectID": "20261008-distance-consolidation.html#checks-and-interpretation",
-    "href": "20261008-distance-consolidation.html#checks-and-interpretation",
-    "title": "Consolidation - speed, time and distance",
-    "section": "",
-    "text": "Both segment units cancel correctly; total distance equals the sum; average speed multiplied by total duration recovers total distance.\nWrite why each check is appropriate. Use only taught constructs; plain calculations and written checks are sufficient.\n\n\nCode\n# TODO: checks and written interpretation."
-  },
-  {
-    "objectID": "20261008-distance-consolidation.html#reflection",
-    "href": "20261008-distance-consolidation.html#reflection",
-    "title": "Consolidation - speed, time and distance",
+    "objectID": "20261014-graphs-axes-slope.html#reflection",
+    "href": "20261014-graphs-axes-slope.html#reflection",
+    "title": "Graphs, axes and slope",
     "section": "",
     "text": "What does the result mean? Which assumption limits the model? Which earlier idea did you reuse?\n\n\nCode\n# TODO: your reflection; no advance solution is supplied."
   },
   {
-    "objectID": "20261008-distance-consolidation.html#optional-stretch",
-    "href": "20261008-distance-consolidation.html#optional-stretch",
-    "title": "Consolidation - speed, time and distance",
+    "objectID": "20261014-graphs-axes-slope.html#optional-stretch",
+    "href": "20261014-graphs-axes-slope.html#optional-stretch",
+    "title": "Graphs, axes and slope",
     "section": "",
-    "text": "Make segment durations equal and compare the two averages.\n\n\nCode\n# TODO: optional stretch after core work."
+    "text": "Use d(t)=10+12*t and explain the changed intercept.\n\n\nCode\n# TODO: optional stretch after core work."
   },
   {
-    "objectID": "20261008-distance-consolidation.html#reading-and-continuity",
-    "href": "20261008-distance-consolidation.html#reading-and-continuity",
-    "title": "Consolidation - speed, time and distance",
+    "objectID": "20261014-graphs-axes-slope.html#reading-and-continuity",
+    "href": "20261014-graphs-axes-slope.html#reading-and-continuity",
+    "title": "Graphs, axes and slope",
     "section": "",
-    "text": "Required reading: explanation and worked example above. Optional accessible background: OpenStax Algebra and Trigonometry 2e and Python introductory tutorial. Read only the relevant arithmetic/function material, not advanced sections.\nCurriculum: CSE-Aerospace-Course-Plan.md. Next: Lesson 009. This historical rebuild contains no invented dated news brief."
-  },
-  {
-    "objectID": "20261009-calculation-review.html",
-    "href": "20261009-calculation-review.html",
-    "title": "Review - explain and check a calculation",
-    "section": "",
-    "text": "Learning goal: Review - explain and check a calculation.\nPrerequisites: Lessons 5-8.\nTime: 15-30 minutes. Status: assigned; completion and mastery not assessed.\nRebuilt October 15, 2026. The filename date retains the original assignment date. This replaces the old advanced exercise in the active course; old files remain optional archive material.\n\n\nA useful computational result states inputs, model, assumptions, units and a check. A check establishes limited evidence, not truth for every possible input. No new Python construct is required.\n\n\nCode\n# Read the explanation before writing exercise code.\n\n\n\n\n\nFor 4 m/s over 5 s, d=20 m. Dividing 20 m by 5 s recovers 4 m/s; this checks arithmetic consistency.\nExplain the example in words before proceeding.\n\n\nCode\n# Optional: reproduce the separate worked example here.\n\n\n\n\n\n\nWithout copying prior work, compute distance for 18 m/s over 7 s.\nReverse the relation to recover time.\nCompare (8+2)5 with 8+25 and explain.\nDiagnose a claimed distance of 108 km for 30 m/s over 60 s.\nWrite a five-sentence explanation of inputs, model, units, answer and limitation.\n\n\n\nCode\n# TODO: independent computations and reverse checks.\n\n\n\n\n\nExplain each operation without relying on output alone; identify the unit-conversion mistake; distinguish consistency from physical validation.\nWrite why each check is appropriate. Use only taught constructs; plain calculations and written checks are sufficient.\n\n\nCode\n# TODO: checks and written interpretation.\n\n\n\n\n\nWhat does the result mean? Which assumption limits the model? Which earlier idea did you reuse?\n\n\nCode\n# TODO: your reflection; no advance solution is supplied.\n\n\n\n\n\nCreate one intentionally incorrect calculation and explain how a check exposes it.\n\n\nCode\n# TODO: optional stretch after core work.\n\n\n\n\n\nRequired reading: explanation and worked example above. Optional accessible background: OpenStax Algebra and Trigonometry 2e and Python introductory tutorial. Read only the relevant arithmetic/function material, not advanced sections.\nCurriculum: CSE-Aerospace-Course-Plan.md. Next: Lesson 010. This historical rebuild contains no invented dated news brief."
-  },
-  {
-    "objectID": "20261009-calculation-review.html#concept-and-notation",
-    "href": "20261009-calculation-review.html#concept-and-notation",
-    "title": "Review - explain and check a calculation",
-    "section": "",
-    "text": "A useful computational result states inputs, model, assumptions, units and a check. A check establishes limited evidence, not truth for every possible input. No new Python construct is required.\n\n\nCode\n# Read the explanation before writing exercise code."
-  },
-  {
-    "objectID": "20261009-calculation-review.html#worked-example-different-from-the-exercise",
-    "href": "20261009-calculation-review.html#worked-example-different-from-the-exercise",
-    "title": "Review - explain and check a calculation",
-    "section": "",
-    "text": "For 4 m/s over 5 s, d=20 m. Dividing 20 m by 5 s recovers 4 m/s; this checks arithmetic consistency.\nExplain the example in words before proceeding.\n\n\nCode\n# Optional: reproduce the separate worked example here."
-  },
-  {
-    "objectID": "20261009-calculation-review.html#required-exercise",
-    "href": "20261009-calculation-review.html#required-exercise",
-    "title": "Review - explain and check a calculation",
-    "section": "",
-    "text": "Without copying prior work, compute distance for 18 m/s over 7 s.\nReverse the relation to recover time.\nCompare (8+2)5 with 8+25 and explain.\nDiagnose a claimed distance of 108 km for 30 m/s over 60 s.\nWrite a five-sentence explanation of inputs, model, units, answer and limitation.\n\n\n\nCode\n# TODO: independent computations and reverse checks."
-  },
-  {
-    "objectID": "20261009-calculation-review.html#checks-and-interpretation",
-    "href": "20261009-calculation-review.html#checks-and-interpretation",
-    "title": "Review - explain and check a calculation",
-    "section": "",
-    "text": "Explain each operation without relying on output alone; identify the unit-conversion mistake; distinguish consistency from physical validation.\nWrite why each check is appropriate. Use only taught constructs; plain calculations and written checks are sufficient.\n\n\nCode\n# TODO: checks and written interpretation."
-  },
-  {
-    "objectID": "20261009-calculation-review.html#reflection",
-    "href": "20261009-calculation-review.html#reflection",
-    "title": "Review - explain and check a calculation",
-    "section": "",
-    "text": "What does the result mean? Which assumption limits the model? Which earlier idea did you reuse?\n\n\nCode\n# TODO: your reflection; no advance solution is supplied."
-  },
-  {
-    "objectID": "20261009-calculation-review.html#optional-stretch",
-    "href": "20261009-calculation-review.html#optional-stretch",
-    "title": "Review - explain and check a calculation",
-    "section": "",
-    "text": "Create one intentionally incorrect calculation and explain how a check exposes it.\n\n\nCode\n# TODO: optional stretch after core work."
-  },
-  {
-    "objectID": "20261009-calculation-review.html#reading-and-continuity",
-    "href": "20261009-calculation-review.html#reading-and-continuity",
-    "title": "Review - explain and check a calculation",
-    "section": "",
-    "text": "Required reading: explanation and worked example above. Optional accessible background: OpenStax Algebra and Trigonometry 2e and Python introductory tutorial. Read only the relevant arithmetic/function material, not advanced sections.\nCurriculum: CSE-Aerospace-Course-Plan.md. Next: Lesson 010. This historical rebuild contains no invented dated news brief."
-  },
-  {
-    "objectID": "20261015-function-plot-consolidation.html",
-    "href": "20261015-function-plot-consolidation.html",
-    "title": "Consolidation - tabulate and plot a function",
-    "section": "",
-    "text": "Learning goal: Consolidation - tabulate and plot a function.\nPrerequisites: Lessons 5-12.\nTime: 15-30 minutes. Status: assigned; completion and mastery not assessed.\nRebuilt October 15, 2026. The filename date retains the original assignment date. This replaces the old advanced exercise in the active course; old files remain optional archive material.\n\n\nCombine the taught sequence without introducing new physics. Compare two fictional vehicles under constant-speed models. A visual intersection means equal positions at the same time; it does not by itself identify a crossing time exactly.\n\n\nCode\n# Read the explanation before writing exercise code.\n\n\n\n\n\nFor positions a(t)=2+3*t and b(t)=8+t, at t=0 the positions are 2 and 8. At t=4 they are 14 and 12. The ordering has changed; locating the intersection precisely is a later algebra lesson.\nExplain the example in words before proceeding.\n\n\nCode\n# Optional: reproduce the separate worked example here.\n\n\n\n\n\n\nDefine A(t)=5+8t and B(t)=20+3t in meters for t in seconds.\nTabulate t=0,1,2,3,4,5 using explicit calls.\nPlot both with labels and legend.\nIdentify a sampled time with equal positions and check by substitution.\nDescribe initial positions, speeds and the meaning of the intersection.\n\n\n\nCode\nimport matplotlib.pyplot as plt\n# TODO: functions, explicit tables, plots and substitution checks.\n\n\n\n\n\nTables and plots agree; units are consistent; the sampled equality is checked with both functions; interpretation covers intercept, slope and intersection.\nWrite why each check is appropriate. Use only taught constructs; plain calculations and written checks are sufficient.\n\n\nCode\n# TODO: checks and written interpretation.\n\n\n\n\n\nWhat does the result mean? Which assumption limits the model? Which earlier idea did you reuse?\n\n\nCode\n# TODO: your reflection; no advance solution is supplied.\n\n\n\n\n\nChoose another initial position and describe how the graph changes without introducing a new numerical method.\n\n\nCode\n# TODO: optional stretch after core work.\n\n\n\n\n\nRequired reading: explanation and worked example above. Optional accessible background: OpenStax Algebra and Trigonometry 2e and Python introductory tutorial. Read only the relevant arithmetic/function material, not advanced sections.\nCurriculum: CSE-Aerospace-Course-Plan.md. Next: Lesson 014. This historical rebuild contains no invented dated news brief."
-  },
-  {
-    "objectID": "20261015-function-plot-consolidation.html#concept-and-notation",
-    "href": "20261015-function-plot-consolidation.html#concept-and-notation",
-    "title": "Consolidation - tabulate and plot a function",
-    "section": "",
-    "text": "Combine the taught sequence without introducing new physics. Compare two fictional vehicles under constant-speed models. A visual intersection means equal positions at the same time; it does not by itself identify a crossing time exactly.\n\n\nCode\n# Read the explanation before writing exercise code."
-  },
-  {
-    "objectID": "20261015-function-plot-consolidation.html#worked-example-different-from-the-exercise",
-    "href": "20261015-function-plot-consolidation.html#worked-example-different-from-the-exercise",
-    "title": "Consolidation - tabulate and plot a function",
-    "section": "",
-    "text": "For positions a(t)=2+3*t and b(t)=8+t, at t=0 the positions are 2 and 8. At t=4 they are 14 and 12. The ordering has changed; locating the intersection precisely is a later algebra lesson.\nExplain the example in words before proceeding.\n\n\nCode\n# Optional: reproduce the separate worked example here."
-  },
-  {
-    "objectID": "20261015-function-plot-consolidation.html#required-exercise",
-    "href": "20261015-function-plot-consolidation.html#required-exercise",
-    "title": "Consolidation - tabulate and plot a function",
-    "section": "",
-    "text": "Define A(t)=5+8t and B(t)=20+3t in meters for t in seconds.\nTabulate t=0,1,2,3,4,5 using explicit calls.\nPlot both with labels and legend.\nIdentify a sampled time with equal positions and check by substitution.\nDescribe initial positions, speeds and the meaning of the intersection.\n\n\n\nCode\nimport matplotlib.pyplot as plt\n# TODO: functions, explicit tables, plots and substitution checks."
-  },
-  {
-    "objectID": "20261015-function-plot-consolidation.html#checks-and-interpretation",
-    "href": "20261015-function-plot-consolidation.html#checks-and-interpretation",
-    "title": "Consolidation - tabulate and plot a function",
-    "section": "",
-    "text": "Tables and plots agree; units are consistent; the sampled equality is checked with both functions; interpretation covers intercept, slope and intersection.\nWrite why each check is appropriate. Use only taught constructs; plain calculations and written checks are sufficient.\n\n\nCode\n# TODO: checks and written interpretation."
-  },
-  {
-    "objectID": "20261015-function-plot-consolidation.html#reflection",
-    "href": "20261015-function-plot-consolidation.html#reflection",
-    "title": "Consolidation - tabulate and plot a function",
-    "section": "",
-    "text": "What does the result mean? Which assumption limits the model? Which earlier idea did you reuse?\n\n\nCode\n# TODO: your reflection; no advance solution is supplied."
-  },
-  {
-    "objectID": "20261015-function-plot-consolidation.html#optional-stretch",
-    "href": "20261015-function-plot-consolidation.html#optional-stretch",
-    "title": "Consolidation - tabulate and plot a function",
-    "section": "",
-    "text": "Choose another initial position and describe how the graph changes without introducing a new numerical method.\n\n\nCode\n# TODO: optional stretch after core work."
-  },
-  {
-    "objectID": "20261015-function-plot-consolidation.html#reading-and-continuity",
-    "href": "20261015-function-plot-consolidation.html#reading-and-continuity",
-    "title": "Consolidation - tabulate and plot a function",
-    "section": "",
-    "text": "Required reading: explanation and worked example above. Optional accessible background: OpenStax Algebra and Trigonometry 2e and Python introductory tutorial. Read only the relevant arithmetic/function material, not advanced sections.\nCurriculum: CSE-Aerospace-Course-Plan.md. Next: Lesson 014. This historical rebuild contains no invented dated news brief."
-  },
-  {
-    "objectID": "20260929-notebook-workflow.html",
-    "href": "20260929-notebook-workflow.html",
-    "title": "Lesson 001: Notebook workflow and reproducibility",
-    "section": "",
-    "text": "Code\n---\ntitle: \"Notebook workflow and reproducibility\"\ndate: 2026-09-29\ncategories: [Programming, Julia, Notebooks]\ndescription: \"Course v1.1 lesson 1; rebuilt October 15, 2026.\"\n---\nLearning goal: Notebook workflow and reproducibility.\nPrerequisites: None.\nTime: 15-30 minutes. Status: Complete"
-  },
-  {
-    "objectID": "20260929-notebook-workflow.html#concept-and-notation",
-    "href": "20260929-notebook-workflow.html#concept-and-notation",
-    "title": "Lesson 001: Notebook workflow and reproducibility",
-    "section": "1. Concept and notation",
-    "text": "1. Concept and notation\nA notebook contains explanatory text cells and executable code cells. A kernel stores state between executions. Run top-to-bottom to reproduce a result; a comment beginning with # is documentation, not an instruction to Python. print displays an object.\n\n\nCode\n# Read the explanation before writing exercise code.\n\n# This is a comment and will not be executed. You can write comments in your code to explain what it does.\n\nprintln(\"Hello, world!\")  # This will print \"Hello, world!\" to the console.\n\n\nHello, world!"
-  },
-  {
-    "objectID": "20260929-notebook-workflow.html#worked-example-different-from-the-exercise",
-    "href": "20260929-notebook-workflow.html#worked-example-different-from-the-exercise",
-    "title": "Lesson 001: Notebook workflow and reproducibility",
-    "section": "2. Worked example (different from the exercise)",
-    "text": "2. Worked example (different from the exercise)\nprintln(\"Example output\") displays the text Example output. A Markdown cell can explain why the output matters.\n\n\nCode\n# Optional: reproduce the separate worked example here.\n\n# You can also use Markdown to format text in your notebook. For example, you can create headings, lists, and links.\n# and you can include LaTeX equations, images, and more.\n\nprintln(\"This is a simple Julia notebook workflow example. You can write code, comments, and explanations in the same document. It is especially useful for documenting your learning process and sharing it with others.\")\n\n\nThis is a simple Julia notebook workflow example. You can write code, comments, and explanations in the same document. It is especially useful for documenting your learning process and sharing it with others.\n\n\nFor example:\n| Column One | Column Two | Column 3 |\n|:-:|:-:|:-:|\n| Row 1 | Column 2 | - |\n| Row 2 | - | Column 3 |\nWill produce:\n\n\n\nColumn One\nColumn Two\nColumn 3\n\n\n\n\nRow 1\nColumn 2\n-\n\n\nRow 2\n-\nColumn 3"
-  },
-  {
-    "objectID": "20260929-notebook-workflow.html#required-exercise",
-    "href": "20260929-notebook-workflow.html#required-exercise",
-    "title": "Lesson 001: Notebook workflow and reproducibility",
-    "section": "3. Required exercise",
-    "text": "3. Required exercise\n\nIdentify a Markdown cell and a code cell.\nAdd a code comment explaining the output.\nRestart the kernel and run top-to-bottom.\nExplain the difference between editing a cell and executing it.\n\n\n\nCode\nprintln(\"This is a code cell.\")\n\n\nThis is a code cell.\n\n\nThis is a Markdown Cell"
-  },
-  {
-    "objectID": "20260929-notebook-workflow.html#checks-and-interpretation",
-    "href": "20260929-notebook-workflow.html#checks-and-interpretation",
-    "title": "Lesson 001: Notebook workflow and reproducibility",
-    "section": "4. Checks and interpretation",
-    "text": "4. Checks and interpretation\nYour sentence appears after execution; comments do not appear as extra output; restart-and-run produces the same result. No equations or numerical methods are needed.\nWrite why each check is appropriate. Use only taught constructs; plain calculations and written checks are sufficient.\n\n\nCode\n# You will see that checks implemented in the notebook, here is an example of a simple check:\n\nx = [1, 2, 3, 4, 5, -1]  # This is a vector of numbers.\n\nfunction ensure_positivity_sqrt(x)\n    if x &lt; 0\n        error(\"x must be non-negative\")\n    else\n        return sqrt(x)\n    end\nend\n\nfor i in x\n    println(\"The square root of $i is $(ensure_positivity_sqrt(i))\")\nend\n\n\nThe square root of 1 is 1.0\nThe square root of 2 is 1.4142135623730951\nThe square root of 3 is 1.7320508075688772\nThe square root of 4 is 2.0\nThe square root of 5 is 2.23606797749979\n\n\nErrorException: x must be non-negative\nx must be non-negative\n\n\n\nStacktrace:\n\n [1] error(s::String)\n\n   @ Base ./error.jl:44\n\n [2] ensure_positivity_sqrt(x::Int64)\n\n   @ Main ~/Code/Projects/daily-learning/jl_notebook_cell_df34fa98e69747e1a8f8a730347b8e2f_Y403sZmlsZQ==.jl:7\n\n [3] top-level scope\n\n   @ ~/Code/Projects/daily-learning/jl_notebook_cell_df34fa98e69747e1a8f8a730347b8e2f_Y403sZmlsZQ==.jl:14"
-  },
-  {
-    "objectID": "20260929-notebook-workflow.html#reflection",
-    "href": "20260929-notebook-workflow.html#reflection",
-    "title": "Lesson 001: Notebook workflow and reproducibility",
-    "section": "5. Reflection",
-    "text": "5. Reflection\nWhat does the result mean? Which assumption limits the model? Which earlier idea did you reuse?\n\n\nCode\n# Normally there would be a reflection here, but since this is a simple example, we will skip that part."
-  },
-  {
-    "objectID": "20260929-notebook-workflow.html#optional-stretch",
-    "href": "20260929-notebook-workflow.html#optional-stretch",
-    "title": "Lesson 001: Notebook workflow and reproducibility",
-    "section": "6. Optional stretch",
-    "text": "6. Optional stretch\nAdd a Markdown statement distinguishing an input from an output.\n\n\nCode\n# Normally there would be an optional extension of the lesson here, but since this is a simple example, we will skip that part."
-  },
-  {
-    "objectID": "20260929-notebook-workflow.html#reading-and-continuity",
-    "href": "20260929-notebook-workflow.html#reading-and-continuity",
-    "title": "Lesson 001: Notebook workflow and reproducibility",
-    "section": "7. Reading and continuity",
-    "text": "7. Reading and continuity\nRequired reading: explanation and worked example above. Optional accessible background: OpenStax Algebra and Trigonometry 2e and Python introductory tutorial, as well as Julia documentation. Read only the relevant arithmetic/function material, not advanced sections."
-  },
-  {
-    "objectID": "20260930-mathematical-statements.html",
-    "href": "20260930-mathematical-statements.html",
-    "title": "Lesson 002: Mathematical statements and comparisons",
-    "section": "",
-    "text": "Code\n---\ntitle: \"Mathematical statements and comparisons\"\ndate: 2026-09-30\ncategories: [Logic, Julia, Programming]\ndescription: \"Course v1.1 lesson 2; rebuilt October 15, 2026.\"\n---\nLearning goal: Mathematical statements and comparisons.\nPrerequisites: Lesson 1.\nTime: 15-30 minutes. Status: Complete"
-  },
-  {
-    "objectID": "20260930-mathematical-statements.html#concept-and-notation",
-    "href": "20260930-mathematical-statements.html#concept-and-notation",
-    "title": "Lesson 002: Mathematical statements and comparisons",
-    "section": "1. Concept and notation",
-    "text": "1. Concept and notation\nA mathematical statement makes a claim that can be evaluated. Equality says two values are the same; less-than and greater-than compare their order. Here comparisons are reasoned about in words; Boolean expressions and branching will be introduced later. Distinguish a statement from a question or instruction.\n\n\nCode\n# Read the explanation before writing exercise code.\nprintln(\"This is an example of a statement.\")\nprintln(\"X is greater than Y.\")\nprintln(\"This is an exaqmple of a question.\")\nprintln(\"Is X greater than Y?\")\n\n\nThis is an example of a statement.\nX is greater than Y.\nThis is an exaqmple of a question.\nIs X greater than Y?"
-  },
-  {
-    "objectID": "20260930-mathematical-statements.html#worked-example-different-from-the-exercise",
-    "href": "20260930-mathematical-statements.html#worked-example-different-from-the-exercise",
-    "title": "Lesson 002: Mathematical statements and comparisons",
-    "section": "2. Worked example (different from the exercise)",
-    "text": "2. Worked example (different from the exercise)\nThe sentence \"4 is greater than 2\" is a true comparison. \"Measure the length\" is an instruction, not a true-or-false claim.\nExplain the example in words before proceeding.\n\n\nCode\n# 4 is greater than 2 is a statement. It is a fact that can be proven true or false. In this case, it is true.\n# Measure the length is an example of an instruction. It is a command to do something, but it is not a statement that can be proven true or false."
-  },
-  {
-    "objectID": "20260930-mathematical-statements.html#required-exercise",
-    "href": "20260930-mathematical-statements.html#required-exercise",
-    "title": "Lesson 002: Mathematical statements and comparisons",
-    "section": "3. Required exercise",
-    "text": "3. Required exercise\n\nClassify “7 equals 7”, “3 is greater than 8”, and “Find the height” as true statement, false statement, or instruction.\nWrite the symbols =, &lt;, and &gt; in Markdown and explain each.\nGive a simple equality and an ordering statement of your own.\nUse print to display one sentence explaining why evidence matters.\n\n\n\nCode\nstruct statement\n    text::String\n    truth_value::Union{Bool, Nothing}\nend\n\nevaluations = (\n    \"7 equals 7\" =&gt; statement(\"7 equals 7\", true),\n    \"3 is greater than 8\" =&gt; statement(\"3 is greater than 8\", false),\n    \"Find the height of the building\" =&gt; statement(\"Find the height of the building\", nothing)\n)\n\nfor (evaluation, result) in evaluations\n    result = result.truth_value === nothing ? \"not a statement\" : (result.truth_value ? \"true\" : \"false\")\n    if result == \"not a statement\"\n        println(\"$evaluation is $result.\")\n    else\n        println(\"$evaluation is a statement and it is $result.\")\n    end\nend\n\n\n7 equals 7 is a statement and it is true.\n3 is greater than 8 is a statement and it is false.\nFind the height of the building is not a statement.\n\n\nThis is how you write LaTeX in Markdown:\n\n\\(=\\): $=$\n\\(\\lt\\): $$\n\\(\\gt\\): $$\n\\(\\le\\): $$\n\\(\\ge\\): $$"
-  },
-  {
-    "objectID": "20260930-mathematical-statements.html#checks-and-interpretation",
-    "href": "20260930-mathematical-statements.html#checks-and-interpretation",
-    "title": "Lesson 002: Mathematical statements and comparisons",
-    "section": "4. Checks and interpretation",
-    "text": "4. Checks and interpretation\nEach classification has a reason; equality is distinguished from an instruction\nWrite why each check is appropriate. Use only taught constructs; plain calculations and written checks are sufficient.\n\n\nCode\n# Here is another example of a check.\n\nfunction checkindex(index::Int, array::Vector{Int})\n    if index &lt; 1 || index &gt; length(array)\n        error(\"Index $index is out of bounds for array of length $(length(array)).\")\n        return nothing\n    else\n        return \"Index is within bounds.\"\n    end\nend\n\nbvec = [1, 2, 3, 4, 5]\n\nfor i in 1:6\n    str = checkindex(i, bvec)\n    if str !== nothing\n        println(str)\n        continue\n    end\nend\n\n\n\nIndex is within bounds.\nIndex is within bounds.\nIndex is within bounds.\nIndex is within bounds.\nIndex is within bounds.\n\n\nErrorException: Index 6 is out of bounds for array of length 5.\nIndex 6 is out of bounds for array of length 5.\n\n\n\nStacktrace:\n\n [1] error(s::String)\n\n   @ Base ./error.jl:44\n\n [2] checkindex\n\n   @ ~/Code/Projects/daily-learning/jl_notebook_cell_df34fa98e69747e1a8f8a730347b8e2f_Y101sZmlsZQ==.jl:5 [inlined]\n\n [3] top-level scope\n\n   @ ~/Code/Projects/daily-learning/jl_notebook_cell_df34fa98e69747e1a8f8a730347b8e2f_Y101sZmlsZQ==.jl:15"
-  },
-  {
-    "objectID": "20260930-mathematical-statements.html#reflection",
-    "href": "20260930-mathematical-statements.html#reflection",
-    "title": "Lesson 002: Mathematical statements and comparisons",
-    "section": "5. Reflection",
-    "text": "5. Reflection\nWhat does the result mean? Which assumption limits the model? Which earlier idea did you reuse?\n\n\nCode\n# Nothing to do here today"
-  },
-  {
-    "objectID": "20260930-mathematical-statements.html#optional-stretch",
-    "href": "20260930-mathematical-statements.html#optional-stretch",
-    "title": "Lesson 002: Mathematical statements and comparisons",
-    "section": "6. Optional stretch",
-    "text": "6. Optional stretch\nWrite two different statements that cannot both be true and explain why.\n\n\nCode\nx = 5\ny = 10\nz = 7\n\nfunction are_both_statements_true(statement1::Expr, statement2::Expr)\n    statement1value = eval(statement1)\n    statement2value = eval(statement2)\n    exercise_passed = false\n    if (statement1value && !statement2value) || (statement2value && !statement1value)\n        println(\"Exercise passed.\")\n        exercise_passed = true\n    end\n    return exercise_passed\nend\n\nstatement1 = :(x &lt; y)\nstatement2 = :(y &lt; x)\n\nare_both_statements_true(statement1, statement2)\n\n\nExercise passed.\n\n\ntrue"
-  },
-  {
-    "objectID": "20260930-mathematical-statements.html#reading-and-continuity",
-    "href": "20260930-mathematical-statements.html#reading-and-continuity",
-    "title": "Lesson 002: Mathematical statements and comparisons",
-    "section": "7. Reading and continuity",
-    "text": "7. Reading and continuity\nRequired reading: explanation and worked example above. Optional accessible background: OpenStax Algebra and Trigonometry 2e and Python introductory tutorial. Read only the relevant arithmetic/function material, not advanced sections."
+    "text": "Required reading: explanation and worked example above. Optional accessible background: OpenStax Algebra and Trigonometry 2e and Python introductory tutorial. Read only the relevant arithmetic/function material, not advanced sections.\nCurriculum: CSE-Aerospace-Course-Plan.md. Next: Lesson 013. This historical rebuild contains no invented dated news brief."
   },
   {
     "objectID": "20261013-function-value-tables.html",
@@ -735,60 +413,438 @@
     "text": "Required reading: explanation and worked example above. Optional accessible background: OpenStax Algebra and Trigonometry 2e and Python introductory tutorial. Read only the relevant arithmetic/function material, not advanced sections.\nCurriculum: CSE-Aerospace-Course-Plan.md. Next: Lesson 012. This historical rebuild contains no invented dated news brief."
   },
   {
-    "objectID": "20261014-graphs-axes-slope.html",
-    "href": "20261014-graphs-axes-slope.html",
-    "title": "Graphs, axes and slope",
+    "objectID": "20260930-mathematical-statements.html",
+    "href": "20260930-mathematical-statements.html",
+    "title": "Lesson 002: Mathematical statements and comparisons",
     "section": "",
-    "text": "Learning goal: Graphs, axes and slope.\nPrerequisites: Lessons 5-11.\nTime: 15-30 minutes. Status: assigned; completion and mastery not assessed.\nRebuilt October 15, 2026. The filename date retains the original assignment date. This replaces the old advanced exercise in the active course; old files remain optional archive material.\n\n\nA graph displays paired values on labeled axes. Slope is output change divided by input change. For d(t)=v*t it has speed units. Matplotlib draws data; an ordinary straight connecting line is not a newly solved physical model.\n\n\nCode\n# Read the explanation before writing exercise code.\n\n\n\n\n\nimport matplotlib.pyplot as plt\nplt.plot([0,1,2], [0,2,4], marker=\"o\")\nplt.xlabel(\"Input x\")\nplt.ylabel(\"Output f(x)\")\nplt.show()\nExplain the example in words before proceeding.\n\n\nCode\n# Optional: reproduce the separate worked example here.\n\n\n\n\n\n\nPlot the preceding distance table with time (s) horizontally and distance (m) vertically.\nCompute slope between two pairs using arithmetic.\nExplain the intercept and slope physically.\nAdd a second table for 6 m/s on the same axes and a legend.\n\n\n\nCode\nimport matplotlib.pyplot as plt\n# TODO: build taught tables, plot, label axes, add legend and display.\n\n\n\n\n\nEvery axis has a quantity/unit; markers coincide with table entries; slope agrees with speed; both lines start at the declared initial distance.\nWrite why each check is appropriate. Use only taught constructs; plain calculations and written checks are sufficient.\n\n\nCode\n# TODO: checks and written interpretation.\n\n\n\n\n\nWhat does the result mean? Which assumption limits the model? Which earlier idea did you reuse?\n\n\nCode\n# TODO: your reflection; no advance solution is supplied.\n\n\n\n\n\nUse d(t)=10+12*t and explain the changed intercept.\n\n\nCode\n# TODO: optional stretch after core work.\n\n\n\n\n\nRequired reading: explanation and worked example above. Optional accessible background: OpenStax Algebra and Trigonometry 2e and Python introductory tutorial. Read only the relevant arithmetic/function material, not advanced sections.\nCurriculum: CSE-Aerospace-Course-Plan.md. Next: Lesson 013. This historical rebuild contains no invented dated news brief."
+    "text": "Code\n---\ntitle: \"Mathematical statements and comparisons\"\ndate: 2026-09-30\ncategories: [Logic, Julia, Programming]\ndescription: \"Course v1.1 lesson 2; rebuilt October 15, 2026.\"\n---\nLearning goal: Mathematical statements and comparisons.\nPrerequisites: Lesson 1.\nTime: 15-30 minutes. Status: Complete"
   },
   {
-    "objectID": "20261014-graphs-axes-slope.html#concept-and-notation",
-    "href": "20261014-graphs-axes-slope.html#concept-and-notation",
-    "title": "Graphs, axes and slope",
-    "section": "",
-    "text": "A graph displays paired values on labeled axes. Slope is output change divided by input change. For d(t)=v*t it has speed units. Matplotlib draws data; an ordinary straight connecting line is not a newly solved physical model.\n\n\nCode\n# Read the explanation before writing exercise code."
+    "objectID": "20260930-mathematical-statements.html#concept-and-notation",
+    "href": "20260930-mathematical-statements.html#concept-and-notation",
+    "title": "Lesson 002: Mathematical statements and comparisons",
+    "section": "1. Concept and notation",
+    "text": "1. Concept and notation\nA mathematical statement makes a claim that can be evaluated. Equality says two values are the same; less-than and greater-than compare their order. Here comparisons are reasoned about in words; Boolean expressions and branching will be introduced later. Distinguish a statement from a question or instruction.\n\n\nCode\n# Read the explanation before writing exercise code.\nprintln(\"This is an example of a statement.\")\nprintln(\"X is greater than Y.\")\nprintln(\"This is an exaqmple of a question.\")\nprintln(\"Is X greater than Y?\")\n\n\nThis is an example of a statement.\nX is greater than Y.\nThis is an exaqmple of a question.\nIs X greater than Y?"
   },
   {
-    "objectID": "20261014-graphs-axes-slope.html#worked-example-different-from-the-exercise",
-    "href": "20261014-graphs-axes-slope.html#worked-example-different-from-the-exercise",
-    "title": "Graphs, axes and slope",
-    "section": "",
-    "text": "import matplotlib.pyplot as plt\nplt.plot([0,1,2], [0,2,4], marker=\"o\")\nplt.xlabel(\"Input x\")\nplt.ylabel(\"Output f(x)\")\nplt.show()\nExplain the example in words before proceeding.\n\n\nCode\n# Optional: reproduce the separate worked example here."
+    "objectID": "20260930-mathematical-statements.html#worked-example-different-from-the-exercise",
+    "href": "20260930-mathematical-statements.html#worked-example-different-from-the-exercise",
+    "title": "Lesson 002: Mathematical statements and comparisons",
+    "section": "2. Worked example (different from the exercise)",
+    "text": "2. Worked example (different from the exercise)\nThe sentence \"4 is greater than 2\" is a true comparison. \"Measure the length\" is an instruction, not a true-or-false claim.\nExplain the example in words before proceeding.\n\n\nCode\n# 4 is greater than 2 is a statement. It is a fact that can be proven true or false. In this case, it is true.\n# Measure the length is an example of an instruction. It is a command to do something, but it is not a statement that can be proven true or false."
   },
   {
-    "objectID": "20261014-graphs-axes-slope.html#required-exercise",
-    "href": "20261014-graphs-axes-slope.html#required-exercise",
-    "title": "Graphs, axes and slope",
-    "section": "",
-    "text": "Plot the preceding distance table with time (s) horizontally and distance (m) vertically.\nCompute slope between two pairs using arithmetic.\nExplain the intercept and slope physically.\nAdd a second table for 6 m/s on the same axes and a legend.\n\n\n\nCode\nimport matplotlib.pyplot as plt\n# TODO: build taught tables, plot, label axes, add legend and display."
+    "objectID": "20260930-mathematical-statements.html#required-exercise",
+    "href": "20260930-mathematical-statements.html#required-exercise",
+    "title": "Lesson 002: Mathematical statements and comparisons",
+    "section": "3. Required exercise",
+    "text": "3. Required exercise\n\nClassify “7 equals 7”, “3 is greater than 8”, and “Find the height” as true statement, false statement, or instruction.\nWrite the symbols =, &lt;, and &gt; in Markdown and explain each.\nGive a simple equality and an ordering statement of your own.\nUse print to display one sentence explaining why evidence matters.\n\n\n\nCode\nstruct statement\n    text::String\n    truth_value::Union{Bool, Nothing}\nend\n\nevaluations = (\n    \"7 equals 7\" =&gt; statement(\"7 equals 7\", true),\n    \"3 is greater than 8\" =&gt; statement(\"3 is greater than 8\", false),\n    \"Find the height of the building\" =&gt; statement(\"Find the height of the building\", nothing)\n)\n\nfor (evaluation, result) in evaluations\n    result = result.truth_value === nothing ? \"not a statement\" : (result.truth_value ? \"true\" : \"false\")\n    if result == \"not a statement\"\n        println(\"$evaluation is $result.\")\n    else\n        println(\"$evaluation is a statement and it is $result.\")\n    end\nend\n\n\n7 equals 7 is a statement and it is true.\n3 is greater than 8 is a statement and it is false.\nFind the height of the building is not a statement.\n\n\nThis is how you write LaTeX in Markdown:\n\n\\(=\\): $=$\n\\(\\lt\\): $$\n\\(\\gt\\): $$\n\\(\\le\\): $$\n\\(\\ge\\): $$"
   },
   {
-    "objectID": "20261014-graphs-axes-slope.html#checks-and-interpretation",
-    "href": "20261014-graphs-axes-slope.html#checks-and-interpretation",
-    "title": "Graphs, axes and slope",
-    "section": "",
-    "text": "Every axis has a quantity/unit; markers coincide with table entries; slope agrees with speed; both lines start at the declared initial distance.\nWrite why each check is appropriate. Use only taught constructs; plain calculations and written checks are sufficient.\n\n\nCode\n# TODO: checks and written interpretation."
+    "objectID": "20260930-mathematical-statements.html#checks-and-interpretation",
+    "href": "20260930-mathematical-statements.html#checks-and-interpretation",
+    "title": "Lesson 002: Mathematical statements and comparisons",
+    "section": "4. Checks and interpretation",
+    "text": "4. Checks and interpretation\nEach classification has a reason; equality is distinguished from an instruction\nWrite why each check is appropriate. Use only taught constructs; plain calculations and written checks are sufficient.\n\n\nCode\n# Here is another example of a check.\n\nfunction checkindex(index::Int, array::Vector{Int})\n    if index &lt; 1 || index &gt; length(array)\n        error(\"Index $index is out of bounds for array of length $(length(array)).\")\n        return nothing\n    else\n        return \"Index is within bounds.\"\n    end\nend\n\nbvec = [1, 2, 3, 4, 5]\n\nfor i in 1:6\n    str = checkindex(i, bvec)\n    if str !== nothing\n        println(str)\n        continue\n    end\nend\n\n\n\nIndex is within bounds.\nIndex is within bounds.\nIndex is within bounds.\nIndex is within bounds.\nIndex is within bounds.\n\n\nErrorException: Index 6 is out of bounds for array of length 5.\nIndex 6 is out of bounds for array of length 5.\n\n\n\nStacktrace:\n\n [1] error(s::String)\n\n   @ Base ./error.jl:44\n\n [2] checkindex\n\n   @ ~/Code/Projects/daily-learning/jl_notebook_cell_df34fa98e69747e1a8f8a730347b8e2f_Y101sZmlsZQ==.jl:5 [inlined]\n\n [3] top-level scope\n\n   @ ~/Code/Projects/daily-learning/jl_notebook_cell_df34fa98e69747e1a8f8a730347b8e2f_Y101sZmlsZQ==.jl:15"
   },
   {
-    "objectID": "20261014-graphs-axes-slope.html#reflection",
-    "href": "20261014-graphs-axes-slope.html#reflection",
-    "title": "Graphs, axes and slope",
+    "objectID": "20260930-mathematical-statements.html#reflection",
+    "href": "20260930-mathematical-statements.html#reflection",
+    "title": "Lesson 002: Mathematical statements and comparisons",
+    "section": "5. Reflection",
+    "text": "5. Reflection\nWhat does the result mean? Which assumption limits the model? Which earlier idea did you reuse?\n\n\nCode\n# Nothing to do here today"
+  },
+  {
+    "objectID": "20260930-mathematical-statements.html#optional-stretch",
+    "href": "20260930-mathematical-statements.html#optional-stretch",
+    "title": "Lesson 002: Mathematical statements and comparisons",
+    "section": "6. Optional stretch",
+    "text": "6. Optional stretch\nWrite two different statements that cannot both be true and explain why.\n\n\nCode\nx = 5\ny = 10\nz = 7\n\nfunction are_both_statements_true(statement1::Expr, statement2::Expr)\n    statement1value = eval(statement1)\n    statement2value = eval(statement2)\n    exercise_passed = false\n    if (statement1value && !statement2value) || (statement2value && !statement1value)\n        println(\"Exercise passed.\")\n        exercise_passed = true\n    end\n    return exercise_passed\nend\n\nstatement1 = :(x &lt; y)\nstatement2 = :(y &lt; x)\n\nare_both_statements_true(statement1, statement2)\n\n\nExercise passed.\n\n\ntrue"
+  },
+  {
+    "objectID": "20260930-mathematical-statements.html#reading-and-continuity",
+    "href": "20260930-mathematical-statements.html#reading-and-continuity",
+    "title": "Lesson 002: Mathematical statements and comparisons",
+    "section": "7. Reading and continuity",
+    "text": "7. Reading and continuity\nRequired reading: explanation and worked example above. Optional accessible background: OpenStax Algebra and Trigonometry 2e and Python introductory tutorial. Read only the relevant arithmetic/function material, not advanced sections."
+  },
+  {
+    "objectID": "20260929-notebook-workflow.html",
+    "href": "20260929-notebook-workflow.html",
+    "title": "Lesson 001: Notebook workflow and reproducibility",
+    "section": "",
+    "text": "Code\n---\ntitle: \"Notebook workflow and reproducibility\"\ndate: 2026-09-29\ncategories: [Programming, Julia, Notebooks]\ndescription: \"Course v1.1 lesson 1; rebuilt October 15, 2026.\"\n---\nLearning goal: Notebook workflow and reproducibility.\nPrerequisites: None.\nTime: 15-30 minutes. Status: Complete"
+  },
+  {
+    "objectID": "20260929-notebook-workflow.html#concept-and-notation",
+    "href": "20260929-notebook-workflow.html#concept-and-notation",
+    "title": "Lesson 001: Notebook workflow and reproducibility",
+    "section": "1. Concept and notation",
+    "text": "1. Concept and notation\nA notebook contains explanatory text cells and executable code cells. A kernel stores state between executions. Run top-to-bottom to reproduce a result; a comment beginning with # is documentation, not an instruction to Python. print displays an object.\n\n\nCode\n# Read the explanation before writing exercise code.\n\n# This is a comment and will not be executed. You can write comments in your code to explain what it does.\n\nprintln(\"Hello, world!\")  # This will print \"Hello, world!\" to the console.\n\n\nHello, world!"
+  },
+  {
+    "objectID": "20260929-notebook-workflow.html#worked-example-different-from-the-exercise",
+    "href": "20260929-notebook-workflow.html#worked-example-different-from-the-exercise",
+    "title": "Lesson 001: Notebook workflow and reproducibility",
+    "section": "2. Worked example (different from the exercise)",
+    "text": "2. Worked example (different from the exercise)\nprintln(\"Example output\") displays the text Example output. A Markdown cell can explain why the output matters.\n\n\nCode\n# Optional: reproduce the separate worked example here.\n\n# You can also use Markdown to format text in your notebook. For example, you can create headings, lists, and links.\n# and you can include LaTeX equations, images, and more.\n\nprintln(\"This is a simple Julia notebook workflow example. You can write code, comments, and explanations in the same document. It is especially useful for documenting your learning process and sharing it with others.\")\n\n\nThis is a simple Julia notebook workflow example. You can write code, comments, and explanations in the same document. It is especially useful for documenting your learning process and sharing it with others.\n\n\nFor example:\n| Column One | Column Two | Column 3 |\n|:-:|:-:|:-:|\n| Row 1 | Column 2 | - |\n| Row 2 | - | Column 3 |\nWill produce:\n\n\n\nColumn One\nColumn Two\nColumn 3\n\n\n\n\nRow 1\nColumn 2\n-\n\n\nRow 2\n-\nColumn 3"
+  },
+  {
+    "objectID": "20260929-notebook-workflow.html#required-exercise",
+    "href": "20260929-notebook-workflow.html#required-exercise",
+    "title": "Lesson 001: Notebook workflow and reproducibility",
+    "section": "3. Required exercise",
+    "text": "3. Required exercise\n\nIdentify a Markdown cell and a code cell.\nAdd a code comment explaining the output.\nRestart the kernel and run top-to-bottom.\nExplain the difference between editing a cell and executing it.\n\n\n\nCode\nprintln(\"This is a code cell.\")\n\n\nThis is a code cell.\n\n\nThis is a Markdown Cell"
+  },
+  {
+    "objectID": "20260929-notebook-workflow.html#checks-and-interpretation",
+    "href": "20260929-notebook-workflow.html#checks-and-interpretation",
+    "title": "Lesson 001: Notebook workflow and reproducibility",
+    "section": "4. Checks and interpretation",
+    "text": "4. Checks and interpretation\nYour sentence appears after execution; comments do not appear as extra output; restart-and-run produces the same result. No equations or numerical methods are needed.\nWrite why each check is appropriate. Use only taught constructs; plain calculations and written checks are sufficient.\n\n\nCode\n# You will see that checks implemented in the notebook, here is an example of a simple check:\n\nx = [1, 2, 3, 4, 5, -1]  # This is a vector of numbers.\n\nfunction ensure_positivity_sqrt(x)\n    if x &lt; 0\n        error(\"x must be non-negative\")\n    else\n        return sqrt(x)\n    end\nend\n\nfor i in x\n    println(\"The square root of $i is $(ensure_positivity_sqrt(i))\")\nend\n\n\nThe square root of 1 is 1.0\nThe square root of 2 is 1.4142135623730951\nThe square root of 3 is 1.7320508075688772\nThe square root of 4 is 2.0\nThe square root of 5 is 2.23606797749979\n\n\nErrorException: x must be non-negative\nx must be non-negative\n\n\n\nStacktrace:\n\n [1] error(s::String)\n\n   @ Base ./error.jl:44\n\n [2] ensure_positivity_sqrt(x::Int64)\n\n   @ Main ~/Code/Projects/daily-learning/jl_notebook_cell_df34fa98e69747e1a8f8a730347b8e2f_Y403sZmlsZQ==.jl:7\n\n [3] top-level scope\n\n   @ ~/Code/Projects/daily-learning/jl_notebook_cell_df34fa98e69747e1a8f8a730347b8e2f_Y403sZmlsZQ==.jl:14"
+  },
+  {
+    "objectID": "20260929-notebook-workflow.html#reflection",
+    "href": "20260929-notebook-workflow.html#reflection",
+    "title": "Lesson 001: Notebook workflow and reproducibility",
+    "section": "5. Reflection",
+    "text": "5. Reflection\nWhat does the result mean? Which assumption limits the model? Which earlier idea did you reuse?\n\n\nCode\n# Normally there would be a reflection here, but since this is a simple example, we will skip that part."
+  },
+  {
+    "objectID": "20260929-notebook-workflow.html#optional-stretch",
+    "href": "20260929-notebook-workflow.html#optional-stretch",
+    "title": "Lesson 001: Notebook workflow and reproducibility",
+    "section": "6. Optional stretch",
+    "text": "6. Optional stretch\nAdd a Markdown statement distinguishing an input from an output.\n\n\nCode\n# Normally there would be an optional extension of the lesson here, but since this is a simple example, we will skip that part."
+  },
+  {
+    "objectID": "20260929-notebook-workflow.html#reading-and-continuity",
+    "href": "20260929-notebook-workflow.html#reading-and-continuity",
+    "title": "Lesson 001: Notebook workflow and reproducibility",
+    "section": "7. Reading and continuity",
+    "text": "7. Reading and continuity\nRequired reading: explanation and worked example above. Optional accessible background: OpenStax Algebra and Trigonometry 2e and Python introductory tutorial, as well as Julia documentation. Read only the relevant arithmetic/function material, not advanced sections."
+  },
+  {
+    "objectID": "20261015-function-plot-consolidation.html",
+    "href": "20261015-function-plot-consolidation.html",
+    "title": "Consolidation - tabulate and plot a function",
+    "section": "",
+    "text": "Learning goal: Consolidation - tabulate and plot a function.\nPrerequisites: Lessons 5-12.\nTime: 15-30 minutes. Status: assigned; completion and mastery not assessed.\nRebuilt October 15, 2026. The filename date retains the original assignment date. This replaces the old advanced exercise in the active course; old files remain optional archive material.\n\n\nCombine the taught sequence without introducing new physics. Compare two fictional vehicles under constant-speed models. A visual intersection means equal positions at the same time; it does not by itself identify a crossing time exactly.\n\n\nCode\n# Read the explanation before writing exercise code.\n\n\n\n\n\nFor positions a(t)=2+3*t and b(t)=8+t, at t=0 the positions are 2 and 8. At t=4 they are 14 and 12. The ordering has changed; locating the intersection precisely is a later algebra lesson.\nExplain the example in words before proceeding.\n\n\nCode\n# Optional: reproduce the separate worked example here.\n\n\n\n\n\n\nDefine A(t)=5+8t and B(t)=20+3t in meters for t in seconds.\nTabulate t=0,1,2,3,4,5 using explicit calls.\nPlot both with labels and legend.\nIdentify a sampled time with equal positions and check by substitution.\nDescribe initial positions, speeds and the meaning of the intersection.\n\n\n\nCode\nimport matplotlib.pyplot as plt\n# TODO: functions, explicit tables, plots and substitution checks.\n\n\n\n\n\nTables and plots agree; units are consistent; the sampled equality is checked with both functions; interpretation covers intercept, slope and intersection.\nWrite why each check is appropriate. Use only taught constructs; plain calculations and written checks are sufficient.\n\n\nCode\n# TODO: checks and written interpretation.\n\n\n\n\n\nWhat does the result mean? Which assumption limits the model? Which earlier idea did you reuse?\n\n\nCode\n# TODO: your reflection; no advance solution is supplied.\n\n\n\n\n\nChoose another initial position and describe how the graph changes without introducing a new numerical method.\n\n\nCode\n# TODO: optional stretch after core work.\n\n\n\n\n\nRequired reading: explanation and worked example above. Optional accessible background: OpenStax Algebra and Trigonometry 2e and Python introductory tutorial. Read only the relevant arithmetic/function material, not advanced sections.\nCurriculum: CSE-Aerospace-Course-Plan.md. Next: Lesson 014. This historical rebuild contains no invented dated news brief."
+  },
+  {
+    "objectID": "20261015-function-plot-consolidation.html#concept-and-notation",
+    "href": "20261015-function-plot-consolidation.html#concept-and-notation",
+    "title": "Consolidation - tabulate and plot a function",
+    "section": "",
+    "text": "Combine the taught sequence without introducing new physics. Compare two fictional vehicles under constant-speed models. A visual intersection means equal positions at the same time; it does not by itself identify a crossing time exactly.\n\n\nCode\n# Read the explanation before writing exercise code."
+  },
+  {
+    "objectID": "20261015-function-plot-consolidation.html#worked-example-different-from-the-exercise",
+    "href": "20261015-function-plot-consolidation.html#worked-example-different-from-the-exercise",
+    "title": "Consolidation - tabulate and plot a function",
+    "section": "",
+    "text": "For positions a(t)=2+3*t and b(t)=8+t, at t=0 the positions are 2 and 8. At t=4 they are 14 and 12. The ordering has changed; locating the intersection precisely is a later algebra lesson.\nExplain the example in words before proceeding.\n\n\nCode\n# Optional: reproduce the separate worked example here."
+  },
+  {
+    "objectID": "20261015-function-plot-consolidation.html#required-exercise",
+    "href": "20261015-function-plot-consolidation.html#required-exercise",
+    "title": "Consolidation - tabulate and plot a function",
+    "section": "",
+    "text": "Define A(t)=5+8t and B(t)=20+3t in meters for t in seconds.\nTabulate t=0,1,2,3,4,5 using explicit calls.\nPlot both with labels and legend.\nIdentify a sampled time with equal positions and check by substitution.\nDescribe initial positions, speeds and the meaning of the intersection.\n\n\n\nCode\nimport matplotlib.pyplot as plt\n# TODO: functions, explicit tables, plots and substitution checks."
+  },
+  {
+    "objectID": "20261015-function-plot-consolidation.html#checks-and-interpretation",
+    "href": "20261015-function-plot-consolidation.html#checks-and-interpretation",
+    "title": "Consolidation - tabulate and plot a function",
+    "section": "",
+    "text": "Tables and plots agree; units are consistent; the sampled equality is checked with both functions; interpretation covers intercept, slope and intersection.\nWrite why each check is appropriate. Use only taught constructs; plain calculations and written checks are sufficient.\n\n\nCode\n# TODO: checks and written interpretation."
+  },
+  {
+    "objectID": "20261015-function-plot-consolidation.html#reflection",
+    "href": "20261015-function-plot-consolidation.html#reflection",
+    "title": "Consolidation - tabulate and plot a function",
     "section": "",
     "text": "What does the result mean? Which assumption limits the model? Which earlier idea did you reuse?\n\n\nCode\n# TODO: your reflection; no advance solution is supplied."
   },
   {
-    "objectID": "20261014-graphs-axes-slope.html#optional-stretch",
-    "href": "20261014-graphs-axes-slope.html#optional-stretch",
-    "title": "Graphs, axes and slope",
+    "objectID": "20261015-function-plot-consolidation.html#optional-stretch",
+    "href": "20261015-function-plot-consolidation.html#optional-stretch",
+    "title": "Consolidation - tabulate and plot a function",
     "section": "",
-    "text": "Use d(t)=10+12*t and explain the changed intercept.\n\n\nCode\n# TODO: optional stretch after core work."
+    "text": "Choose another initial position and describe how the graph changes without introducing a new numerical method.\n\n\nCode\n# TODO: optional stretch after core work."
   },
   {
-    "objectID": "20261014-graphs-axes-slope.html#reading-and-continuity",
-    "href": "20261014-graphs-axes-slope.html#reading-and-continuity",
-    "title": "Graphs, axes and slope",
+    "objectID": "20261015-function-plot-consolidation.html#reading-and-continuity",
+    "href": "20261015-function-plot-consolidation.html#reading-and-continuity",
+    "title": "Consolidation - tabulate and plot a function",
     "section": "",
-    "text": "Required reading: explanation and worked example above. Optional accessible background: OpenStax Algebra and Trigonometry 2e and Python introductory tutorial. Read only the relevant arithmetic/function material, not advanced sections.\nCurriculum: CSE-Aerospace-Course-Plan.md. Next: Lesson 013. This historical rebuild contains no invented dated news brief."
+    "text": "Required reading: explanation and worked example above. Optional accessible background: OpenStax Algebra and Trigonometry 2e and Python introductory tutorial. Read only the relevant arithmetic/function material, not advanced sections.\nCurriculum: CSE-Aerospace-Course-Plan.md. Next: Lesson 014. This historical rebuild contains no invented dated news brief."
+  },
+  {
+    "objectID": "20261009-calculation-review.html",
+    "href": "20261009-calculation-review.html",
+    "title": "Review - explain and check a calculation",
+    "section": "",
+    "text": "Learning goal: Review - explain and check a calculation.\nPrerequisites: Lessons 5-8.\nTime: 15-30 minutes. Status: assigned; completion and mastery not assessed.\nRebuilt October 15, 2026. The filename date retains the original assignment date. This replaces the old advanced exercise in the active course; old files remain optional archive material.\n\n\nA useful computational result states inputs, model, assumptions, units and a check. A check establishes limited evidence, not truth for every possible input. No new Python construct is required.\n\n\nCode\n# Read the explanation before writing exercise code.\n\n\n\n\n\nFor 4 m/s over 5 s, d=20 m. Dividing 20 m by 5 s recovers 4 m/s; this checks arithmetic consistency.\nExplain the example in words before proceeding.\n\n\nCode\n# Optional: reproduce the separate worked example here.\n\n\n\n\n\n\nWithout copying prior work, compute distance for 18 m/s over 7 s.\nReverse the relation to recover time.\nCompare (8+2)5 with 8+25 and explain.\nDiagnose a claimed distance of 108 km for 30 m/s over 60 s.\nWrite a five-sentence explanation of inputs, model, units, answer and limitation.\n\n\n\nCode\n# TODO: independent computations and reverse checks.\n\n\n\n\n\nExplain each operation without relying on output alone; identify the unit-conversion mistake; distinguish consistency from physical validation.\nWrite why each check is appropriate. Use only taught constructs; plain calculations and written checks are sufficient.\n\n\nCode\n# TODO: checks and written interpretation.\n\n\n\n\n\nWhat does the result mean? Which assumption limits the model? Which earlier idea did you reuse?\n\n\nCode\n# TODO: your reflection; no advance solution is supplied.\n\n\n\n\n\nCreate one intentionally incorrect calculation and explain how a check exposes it.\n\n\nCode\n# TODO: optional stretch after core work.\n\n\n\n\n\nRequired reading: explanation and worked example above. Optional accessible background: OpenStax Algebra and Trigonometry 2e and Python introductory tutorial. Read only the relevant arithmetic/function material, not advanced sections.\nCurriculum: CSE-Aerospace-Course-Plan.md. Next: Lesson 010. This historical rebuild contains no invented dated news brief."
+  },
+  {
+    "objectID": "20261009-calculation-review.html#concept-and-notation",
+    "href": "20261009-calculation-review.html#concept-and-notation",
+    "title": "Review - explain and check a calculation",
+    "section": "",
+    "text": "A useful computational result states inputs, model, assumptions, units and a check. A check establishes limited evidence, not truth for every possible input. No new Python construct is required.\n\n\nCode\n# Read the explanation before writing exercise code."
+  },
+  {
+    "objectID": "20261009-calculation-review.html#worked-example-different-from-the-exercise",
+    "href": "20261009-calculation-review.html#worked-example-different-from-the-exercise",
+    "title": "Review - explain and check a calculation",
+    "section": "",
+    "text": "For 4 m/s over 5 s, d=20 m. Dividing 20 m by 5 s recovers 4 m/s; this checks arithmetic consistency.\nExplain the example in words before proceeding.\n\n\nCode\n# Optional: reproduce the separate worked example here."
+  },
+  {
+    "objectID": "20261009-calculation-review.html#required-exercise",
+    "href": "20261009-calculation-review.html#required-exercise",
+    "title": "Review - explain and check a calculation",
+    "section": "",
+    "text": "Without copying prior work, compute distance for 18 m/s over 7 s.\nReverse the relation to recover time.\nCompare (8+2)5 with 8+25 and explain.\nDiagnose a claimed distance of 108 km for 30 m/s over 60 s.\nWrite a five-sentence explanation of inputs, model, units, answer and limitation.\n\n\n\nCode\n# TODO: independent computations and reverse checks."
+  },
+  {
+    "objectID": "20261009-calculation-review.html#checks-and-interpretation",
+    "href": "20261009-calculation-review.html#checks-and-interpretation",
+    "title": "Review - explain and check a calculation",
+    "section": "",
+    "text": "Explain each operation without relying on output alone; identify the unit-conversion mistake; distinguish consistency from physical validation.\nWrite why each check is appropriate. Use only taught constructs; plain calculations and written checks are sufficient.\n\n\nCode\n# TODO: checks and written interpretation."
+  },
+  {
+    "objectID": "20261009-calculation-review.html#reflection",
+    "href": "20261009-calculation-review.html#reflection",
+    "title": "Review - explain and check a calculation",
+    "section": "",
+    "text": "What does the result mean? Which assumption limits the model? Which earlier idea did you reuse?\n\n\nCode\n# TODO: your reflection; no advance solution is supplied."
+  },
+  {
+    "objectID": "20261009-calculation-review.html#optional-stretch",
+    "href": "20261009-calculation-review.html#optional-stretch",
+    "title": "Review - explain and check a calculation",
+    "section": "",
+    "text": "Create one intentionally incorrect calculation and explain how a check exposes it.\n\n\nCode\n# TODO: optional stretch after core work."
+  },
+  {
+    "objectID": "20261009-calculation-review.html#reading-and-continuity",
+    "href": "20261009-calculation-review.html#reading-and-continuity",
+    "title": "Review - explain and check a calculation",
+    "section": "",
+    "text": "Required reading: explanation and worked example above. Optional accessible background: OpenStax Algebra and Trigonometry 2e and Python introductory tutorial. Read only the relevant arithmetic/function material, not advanced sections.\nCurriculum: CSE-Aerospace-Course-Plan.md. Next: Lesson 010. This historical rebuild contains no invented dated news brief."
+  },
+  {
+    "objectID": "20261008-distance-consolidation.html",
+    "href": "20261008-distance-consolidation.html",
+    "title": "Consolidation - speed, time and distance",
+    "section": "",
+    "text": "Learning goal: Consolidation - speed, time and distance.\nPrerequisites: Lessons 5-7.\nTime: 15-30 minutes. Status: assigned; completion and mastery not assessed.\nRebuilt October 15, 2026. The filename date retains the original assignment date. This replaces the old advanced exercise in the active course; old files remain optional archive material.\n\n\nCombine taught arithmetic, units and variables. A supplied model d=v*t assumes constant speed in each segment; it does not describe acceleration or a real aircraft performance envelope.\n\n\nCode\n# Read the explanation before writing exercise code.\n\n\n\n\n\nTwo segments at 5 m/s for 2 s and 10 m/s for 3 s cover 10+30=40 m.\nExplain the example in words before proceeding.\n\n\nCode\n# Optional: reproduce the separate worked example here.\n\n\n\n\n\n\nModel a fictional vehicle traveling 10 m/s for 4 s, then 15 m/s for 6 s.\nCompute each distance, total distance and total time.\nCompute trip-average speed as total distance divided by total time.\nExplain why the arithmetic mean of the two speeds is generally different.\n\n\n\nCode\n# TODO: named inputs, two distances, totals, average, and units.\n\n\n\n\n\nBoth segment units cancel correctly; total distance equals the sum; average speed multiplied by total duration recovers total distance.\nWrite why each check is appropriate. Use only taught constructs; plain calculations and written checks are sufficient.\n\n\nCode\n# TODO: checks and written interpretation.\n\n\n\n\n\nWhat does the result mean? Which assumption limits the model? Which earlier idea did you reuse?\n\n\nCode\n# TODO: your reflection; no advance solution is supplied.\n\n\n\n\n\nMake segment durations equal and compare the two averages.\n\n\nCode\n# TODO: optional stretch after core work.\n\n\n\n\n\nRequired reading: explanation and worked example above. Optional accessible background: OpenStax Algebra and Trigonometry 2e and Python introductory tutorial. Read only the relevant arithmetic/function material, not advanced sections.\nCurriculum: CSE-Aerospace-Course-Plan.md. Next: Lesson 009. This historical rebuild contains no invented dated news brief."
+  },
+  {
+    "objectID": "20261008-distance-consolidation.html#concept-and-notation",
+    "href": "20261008-distance-consolidation.html#concept-and-notation",
+    "title": "Consolidation - speed, time and distance",
+    "section": "",
+    "text": "Combine taught arithmetic, units and variables. A supplied model d=v*t assumes constant speed in each segment; it does not describe acceleration or a real aircraft performance envelope.\n\n\nCode\n# Read the explanation before writing exercise code."
+  },
+  {
+    "objectID": "20261008-distance-consolidation.html#worked-example-different-from-the-exercise",
+    "href": "20261008-distance-consolidation.html#worked-example-different-from-the-exercise",
+    "title": "Consolidation - speed, time and distance",
+    "section": "",
+    "text": "Two segments at 5 m/s for 2 s and 10 m/s for 3 s cover 10+30=40 m.\nExplain the example in words before proceeding.\n\n\nCode\n# Optional: reproduce the separate worked example here."
+  },
+  {
+    "objectID": "20261008-distance-consolidation.html#required-exercise",
+    "href": "20261008-distance-consolidation.html#required-exercise",
+    "title": "Consolidation - speed, time and distance",
+    "section": "",
+    "text": "Model a fictional vehicle traveling 10 m/s for 4 s, then 15 m/s for 6 s.\nCompute each distance, total distance and total time.\nCompute trip-average speed as total distance divided by total time.\nExplain why the arithmetic mean of the two speeds is generally different.\n\n\n\nCode\n# TODO: named inputs, two distances, totals, average, and units."
+  },
+  {
+    "objectID": "20261008-distance-consolidation.html#checks-and-interpretation",
+    "href": "20261008-distance-consolidation.html#checks-and-interpretation",
+    "title": "Consolidation - speed, time and distance",
+    "section": "",
+    "text": "Both segment units cancel correctly; total distance equals the sum; average speed multiplied by total duration recovers total distance.\nWrite why each check is appropriate. Use only taught constructs; plain calculations and written checks are sufficient.\n\n\nCode\n# TODO: checks and written interpretation."
+  },
+  {
+    "objectID": "20261008-distance-consolidation.html#reflection",
+    "href": "20261008-distance-consolidation.html#reflection",
+    "title": "Consolidation - speed, time and distance",
+    "section": "",
+    "text": "What does the result mean? Which assumption limits the model? Which earlier idea did you reuse?\n\n\nCode\n# TODO: your reflection; no advance solution is supplied."
+  },
+  {
+    "objectID": "20261008-distance-consolidation.html#optional-stretch",
+    "href": "20261008-distance-consolidation.html#optional-stretch",
+    "title": "Consolidation - speed, time and distance",
+    "section": "",
+    "text": "Make segment durations equal and compare the two averages.\n\n\nCode\n# TODO: optional stretch after core work."
+  },
+  {
+    "objectID": "20261008-distance-consolidation.html#reading-and-continuity",
+    "href": "20261008-distance-consolidation.html#reading-and-continuity",
+    "title": "Consolidation - speed, time and distance",
+    "section": "",
+    "text": "Required reading: explanation and worked example above. Optional accessible background: OpenStax Algebra and Trigonometry 2e and Python introductory tutorial. Read only the relevant arithmetic/function material, not advanced sections.\nCurriculum: CSE-Aerospace-Course-Plan.md. Next: Lesson 009. This historical rebuild contains no invented dated news brief."
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Daily Learning & Refreshers",
+    "section": "",
+    "text": "A collection of focused technical notebooks that revisit advanced concepts, connect theory with implementation, and provide worked examples for others to follow. This project is a way to keep my knowledge sharp, explore questions in greater depth, and share the reasoning behind the results. The notebooks emphasize computational fluid dynamics, numerical methods, and scientific computing."
+  },
+  {
+    "objectID": "index.html#what-youll-find",
+    "href": "index.html#what-youll-find",
+    "title": "Daily Learning & Refreshers",
+    "section": "What you’ll find",
+    "text": "What you’ll find\nEach entry explores a specific question or method through a combination of mathematical development, Python implementation, and interpretation. Depending on the topic, that may include:\n\nDerivations of governing equations and numerical schemes.\nExperiments with accuracy, stability, and convergence.\nComparisons with analytical solutions or established benchmarks.\nDiscussion of assumptions, limitations, and common pitfalls.\n\nThe goal is to make the reasoning clear enough that you can follow it, reproduce the results, and extend the example yourself.\nIt is important to note that some of these exercises may not be finished, as this is a work in progress."
+  },
+  {
+    "objectID": "index.html#who-these-notebooks-are-for",
+    "href": "index.html#who-these-notebooks-are-for",
+    "title": "Daily Learning & Refreshers",
+    "section": "Who these notebooks are for",
+    "text": "Who these notebooks are for\nThese are refreshers and deeper explorations rather than introductory lessons. They generally assume familiarity with calculus, differential equations, basic numerical methods, and Python. Each notebook identifies any additional prerequisites. You can browse by topic or follow the entries chronologically. Most are intended to stand on their own; related entries link to one another when additional context helps."
+  },
+  {
+    "objectID": "index.html#explore-the-collection",
+    "href": "index.html#explore-the-collection",
+    "title": "Daily Learning & Refreshers",
+    "section": "Explore the collection",
+    "text": "Explore the collection\nBrowse the notebooks · Visit my portfolio · View the source on GitHub"
+  },
+  {
+    "objectID": "index.html#practice-index",
+    "href": "index.html#practice-index",
+    "title": "Daily Learning & Refreshers",
+    "section": "Practice Index",
+    "text": "Practice Index\n\n\n   \n    \n    \n      Order By\n      Default\n      \n        Date - Oldest\n      \n      \n        Date - Newest\n      \n      \n        Title\n      \n    \n  \n    \n      \n      \n    \n\n\n\n\n\n\nTitle\n\n\n\nDate\n\n\n\nCategories\n\n\n\n\n\n\n\n\nLesson 001: Notebook workflow and reproducibility\n\n\n \n\n\n \n\n\n\n\n\n\nLesson 002: Mathematical statements and comparisons\n\n\n \n\n\n \n\n\n\n\n\n\nLesson 004: Review: describe a computational question\n\n\n \n\n\n \n\n\n\n\n\n\nScientific notation and powers of ten\n\n\nOct 21, 2026\n\n\nCSE foundations\n\n\n\n\n\n\nPercent changes and reference values\n\n\nOct 20, 2026\n\n\nCSE foundations\n\n\n\n\n\n\nRatios and proportionality\n\n\nOct 19, 2026\n\n\nCSE foundations\n\n\n\n\n\n\nConsolidation - tabulate and plot a function\n\n\nOct 15, 2026\n\n\nCSE foundations, aerospace\n\n\n\n\n\n\nGraphs, axes and slope\n\n\nOct 14, 2026\n\n\nCSE foundations, aerospace\n\n\n\n\n\n\nTables of function values\n\n\nOct 13, 2026\n\n\nCSE foundations, aerospace\n\n\n\n\n\n\nFunctions as input-output rules\n\n\nOct 12, 2026\n\n\nCSE foundations, aerospace\n\n\n\n\n\n\nReview - explain and check a calculation\n\n\nOct 9, 2026\n\n\nCSE foundations, aerospace\n\n\n\n\n\n\nConsolidation - speed, time and distance\n\n\nOct 8, 2026\n\n\nCSE foundations, aerospace\n\n\n\n\n\n\nVariables and named quantities\n\n\nOct 7, 2026\n\n\nCSE foundations, aerospace\n\n\n\n\n\n\nUnits and dimensional consistency\n\n\nOct 6, 2026\n\n\nCSE foundations, aerospace\n\n\n\n\n\n\nExpressions and order of operations\n\n\nOct 5, 2026\n\n\nJulia, Programming, Expressions\n\n\n\n\n\n\nQuantities, symbols and units\n\n\nOct 1, 2026\n\n\nJulia, Programming, Units\n\n\n\n\n\n\nNo matching items"
+  },
+  {
+    "objectID": "20261001-quantities-symbols-units.html",
+    "href": "20261001-quantities-symbols-units.html",
+    "title": "Quantities, symbols and units",
+    "section": "",
+    "text": "Learning goal: Quantities, symbols and units.\nPrerequisites: Lessons 1-2.\nTime: 15-30 minutes. Status: Complete\n\n\nA quantity describes something measurable, a symbol names it, a value gives its size, and a unit supplies the scale. For example, t may denote time, 4 is a numerical value, and s means seconds. Writing t=4 s states a physical quantity; writing 4 alone leaves its physical meaning unspecified. No unit conversions are required yet.\n\n\nCode\n# Read the explanation before writing exercise code.\nt = 4\n\n\n4\n\n\n\n\n\nIn \"length L = 6 m\", length is the quantity, L is its symbol, 6 is the numerical value, and m is the unit.\nExplain the example in words before proceeding.\n\n\nCode\n# Optional: reproduce the separate worked example here.\nL = 6 # meters\n\n\n6\n\n\n\n\n\n\nAnnotate time t=12 s, mass m=3 kg, and temperature T=290 K using the four categories.\nExplain why a bare input of 25 is ambiguous.\nGive one aerospace-relevant quantity and a plausible unit without looking up a real vehicle.\nUse print to display a clearly labeled quantity as text.\n\n\n\nCode\nt = 12 # seconds\nm = 3 # kg\nT = 290 # K\n\ndisty = \"text/markdown\"\n\ndisplay(disty, \"## 3.1 Variables with Units\")\ndisplay(disty, \"### 3.1.1 Variables\")\ndisplay(disty, \"- \\$t = $t\\\\, \\\\left[s\\\\right]\\$\")\ndisplay(disty, \"- \\$m = $m\\\\, \\\\left[kg\\\\right]\\$\")\ndisplay(disty, \"- \\$T = $T\\\\, \\\\left[K\\\\right]\\$\")\n\ndisplay(disty, \"### 3.1.2 Explanation\")\ndisplay(disty, \"25 what? \\$25 \\\\left[K\\\\right]\\$ is very different from \\$25^{\\\\circ}\\\\left[C\\\\right]\\$ and \\$25^{\\\\circ}\\\\left[F\\\\right]\\$\")\n\ndisplay(disty, \"### 3.1.3 Example\")\ndisplay(disty, \"Stagnation Temperature \\$\\\\left[K\\\\right]\\$\")\n\ndisplay(disty, \"### 3.1.4 Print\")\nprintln(\"See above for examples using Markdown/LaTeX, here  it would be T = $T [K]\")\n\n\n\n\n\n\n\n\n\n\\(t = 12\\, \\left[s\\right]\\)\n\n\n\n\n\\(m = 3\\, \\left[kg\\right]\\)\n\n\n\n\n\\(T = 290\\, \\left[K\\right]\\)\n\n\n\n\n\n\n25 what? \\(25 \\left[K\\right]\\) is very different from \\(25^{\\circ}\\left[C\\right]\\) and \\(25^{\\circ}\\left[F\\right]\\)\n\n\n\n\n\nStagnation Temperature \\(\\left[K\\right]\\)\n\n\n\n\n\nSee above for examples using Markdown/LaTeX, here  it would be T = 290 [K]\n\n\n\n\n\nEvery example identifies quantity, symbol, value and unit; invented data are labeled fictional; no assumption that a symbol uniquely determines its physical meaning.\nWrite why each check is appropriate. Use only taught constructs; plain calculations and written checks are sufficient.\n\n\nCode\nimport Base: @doc\n\ndisplay(disty, \"### Example\")\n\n\"\"\"\n    valid_cooling(Tw, Tb)\n\nCheck whether a valid cooling configuration exists.\n\n# Arguments\n- Tw :: Float64 =&gt; Wall Temperature\n- Tb :: Float64 =&gt; Bulk Temperature\n\n# Outputs\n- result::Bool\n\n# Examples\n```julia-repl\njulia&gt; valid_cooling(250, 275)\nfalse\n```\n\"\"\"\nfunction valid_cooling(Tw::Float64, Tb::Float64)\n    if Tw &lt;= Tb\n        return false\n    else\n        return true\n    end\nend\n\nTw  = 250.0 # K\ndisplay(disty, \"Wall Temperature: \\$T_w = $Tw \\\\left[K\\\\right]\\$\")\nTb = 275.0 # K\ndisplay(disty, \"Bulk Temperature: \\$T_b = $Tb \\\\left[K\\\\right]\\$\")\n\ndisplay(disty, \"We require that \\$T_w \\\\ge T_b\\$ for cooling.\")\ndisplay(disty, \"Let's check it with the function valid_cooling:\")\ndisplay(disty, @doc valid_cooling)\n\nresult = valid_cooling(Tw, Tb)\n\nif !result\n    error(\"Tw must be higher than Tb for a valid cooling configuration.\")\nend\n\n\n\n\n\nWall Temperature: \\(T_w = 250.0 \\left[K\\right]\\)\n\n\nBulk Temperature: \\(T_b = 275.0 \\left[K\\right]\\)\n\n\nWe require that \\(T_w \\ge T_b\\) for cooling.\n\n\nLet’s check it with the function valid_cooling:\n\n\nvalid_cooling(Tw, Tb)\nCheck whether a valid cooling configuration exists.\n\n\n\nTw :: Float64 =&gt; Wall Temperature\nTb :: Float64 =&gt; Bulk Temperature\n\n\n\n\n\nresult::Bool\n\n\n\n\njulia&gt; valid_cooling(250, 275)\nfalse\n\n\n\nErrorException: Tw must be higher than Tb for a valid cooling configuration.\nTw must be higher than Tb for a valid cooling configuration.\n\n\n\nStacktrace:\n\n [1] error(s::String)\n\n   @ Base ./error.jl:44\n\n [2] top-level scope\n\n   @ ~/Code/Projects/daily-learning/jl_notebook_cell_df34fa98e69747e1a8f8a730347b8e2f_X12sZmlsZQ==.jl:43\n\n\n\n\n\nWhat does the result mean? Which assumption limits the model? Which earlier idea did you reuse?\n\n\nCode\n# Nothing here today\n\n\n\n\n\nNothing Here today\n\n\nCode\n# Nothing here today\n\n\n\n\n\nRequired reading: explanation and worked example above. Optional accessible background: OpenStax Algebra and Trigonometry 2e and Python introductory tutorial and Julia documentation. Read only the relevant arithmetic/function material, not advanced sections."
+  },
+  {
+    "objectID": "20261001-quantities-symbols-units.html#concept-and-notation",
+    "href": "20261001-quantities-symbols-units.html#concept-and-notation",
+    "title": "Quantities, symbols and units",
+    "section": "",
+    "text": "A quantity describes something measurable, a symbol names it, a value gives its size, and a unit supplies the scale. For example, t may denote time, 4 is a numerical value, and s means seconds. Writing t=4 s states a physical quantity; writing 4 alone leaves its physical meaning unspecified. No unit conversions are required yet.\n\n\nCode\n# Read the explanation before writing exercise code.\nt = 4\n\n\n4"
+  },
+  {
+    "objectID": "20261001-quantities-symbols-units.html#worked-example-different-from-the-exercise",
+    "href": "20261001-quantities-symbols-units.html#worked-example-different-from-the-exercise",
+    "title": "Quantities, symbols and units",
+    "section": "",
+    "text": "In \"length L = 6 m\", length is the quantity, L is its symbol, 6 is the numerical value, and m is the unit.\nExplain the example in words before proceeding.\n\n\nCode\n# Optional: reproduce the separate worked example here.\nL = 6 # meters\n\n\n6"
+  },
+  {
+    "objectID": "20261001-quantities-symbols-units.html#required-exercise",
+    "href": "20261001-quantities-symbols-units.html#required-exercise",
+    "title": "Quantities, symbols and units",
+    "section": "",
+    "text": "Annotate time t=12 s, mass m=3 kg, and temperature T=290 K using the four categories.\nExplain why a bare input of 25 is ambiguous.\nGive one aerospace-relevant quantity and a plausible unit without looking up a real vehicle.\nUse print to display a clearly labeled quantity as text.\n\n\n\nCode\nt = 12 # seconds\nm = 3 # kg\nT = 290 # K\n\ndisty = \"text/markdown\"\n\ndisplay(disty, \"## 3.1 Variables with Units\")\ndisplay(disty, \"### 3.1.1 Variables\")\ndisplay(disty, \"- \\$t = $t\\\\, \\\\left[s\\\\right]\\$\")\ndisplay(disty, \"- \\$m = $m\\\\, \\\\left[kg\\\\right]\\$\")\ndisplay(disty, \"- \\$T = $T\\\\, \\\\left[K\\\\right]\\$\")\n\ndisplay(disty, \"### 3.1.2 Explanation\")\ndisplay(disty, \"25 what? \\$25 \\\\left[K\\\\right]\\$ is very different from \\$25^{\\\\circ}\\\\left[C\\\\right]\\$ and \\$25^{\\\\circ}\\\\left[F\\\\right]\\$\")\n\ndisplay(disty, \"### 3.1.3 Example\")\ndisplay(disty, \"Stagnation Temperature \\$\\\\left[K\\\\right]\\$\")\n\ndisplay(disty, \"### 3.1.4 Print\")\nprintln(\"See above for examples using Markdown/LaTeX, here  it would be T = $T [K]\")\n\n\n\n\n\n\n\n\n\n\\(t = 12\\, \\left[s\\right]\\)\n\n\n\n\n\\(m = 3\\, \\left[kg\\right]\\)\n\n\n\n\n\\(T = 290\\, \\left[K\\right]\\)\n\n\n\n\n\n\n25 what? \\(25 \\left[K\\right]\\) is very different from \\(25^{\\circ}\\left[C\\right]\\) and \\(25^{\\circ}\\left[F\\right]\\)\n\n\n\n\n\nStagnation Temperature \\(\\left[K\\right]\\)\n\n\n\n\n\nSee above for examples using Markdown/LaTeX, here  it would be T = 290 [K]"
+  },
+  {
+    "objectID": "20261001-quantities-symbols-units.html#checks-and-interpretation",
+    "href": "20261001-quantities-symbols-units.html#checks-and-interpretation",
+    "title": "Quantities, symbols and units",
+    "section": "",
+    "text": "Every example identifies quantity, symbol, value and unit; invented data are labeled fictional; no assumption that a symbol uniquely determines its physical meaning.\nWrite why each check is appropriate. Use only taught constructs; plain calculations and written checks are sufficient.\n\n\nCode\nimport Base: @doc\n\ndisplay(disty, \"### Example\")\n\n\"\"\"\n    valid_cooling(Tw, Tb)\n\nCheck whether a valid cooling configuration exists.\n\n# Arguments\n- Tw :: Float64 =&gt; Wall Temperature\n- Tb :: Float64 =&gt; Bulk Temperature\n\n# Outputs\n- result::Bool\n\n# Examples\n```julia-repl\njulia&gt; valid_cooling(250, 275)\nfalse\n```\n\"\"\"\nfunction valid_cooling(Tw::Float64, Tb::Float64)\n    if Tw &lt;= Tb\n        return false\n    else\n        return true\n    end\nend\n\nTw  = 250.0 # K\ndisplay(disty, \"Wall Temperature: \\$T_w = $Tw \\\\left[K\\\\right]\\$\")\nTb = 275.0 # K\ndisplay(disty, \"Bulk Temperature: \\$T_b = $Tb \\\\left[K\\\\right]\\$\")\n\ndisplay(disty, \"We require that \\$T_w \\\\ge T_b\\$ for cooling.\")\ndisplay(disty, \"Let's check it with the function valid_cooling:\")\ndisplay(disty, @doc valid_cooling)\n\nresult = valid_cooling(Tw, Tb)\n\nif !result\n    error(\"Tw must be higher than Tb for a valid cooling configuration.\")\nend\n\n\n\n\n\nWall Temperature: \\(T_w = 250.0 \\left[K\\right]\\)\n\n\nBulk Temperature: \\(T_b = 275.0 \\left[K\\right]\\)\n\n\nWe require that \\(T_w \\ge T_b\\) for cooling.\n\n\nLet’s check it with the function valid_cooling:\n\n\nvalid_cooling(Tw, Tb)\nCheck whether a valid cooling configuration exists.\n\n\n\nTw :: Float64 =&gt; Wall Temperature\nTb :: Float64 =&gt; Bulk Temperature\n\n\n\n\n\nresult::Bool\n\n\n\n\njulia&gt; valid_cooling(250, 275)\nfalse\n\n\n\nErrorException: Tw must be higher than Tb for a valid cooling configuration.\nTw must be higher than Tb for a valid cooling configuration.\n\n\n\nStacktrace:\n\n [1] error(s::String)\n\n   @ Base ./error.jl:44\n\n [2] top-level scope\n\n   @ ~/Code/Projects/daily-learning/jl_notebook_cell_df34fa98e69747e1a8f8a730347b8e2f_X12sZmlsZQ==.jl:43"
+  },
+  {
+    "objectID": "20261001-quantities-symbols-units.html#reflection",
+    "href": "20261001-quantities-symbols-units.html#reflection",
+    "title": "Quantities, symbols and units",
+    "section": "",
+    "text": "What does the result mean? Which assumption limits the model? Which earlier idea did you reuse?\n\n\nCode\n# Nothing here today"
+  },
+  {
+    "objectID": "20261001-quantities-symbols-units.html#optional-stretch",
+    "href": "20261001-quantities-symbols-units.html#optional-stretch",
+    "title": "Quantities, symbols and units",
+    "section": "",
+    "text": "Nothing Here today\n\n\nCode\n# Nothing here today"
+  },
+  {
+    "objectID": "20261001-quantities-symbols-units.html#reading-and-continuity",
+    "href": "20261001-quantities-symbols-units.html#reading-and-continuity",
+    "title": "Quantities, symbols and units",
+    "section": "",
+    "text": "Required reading: explanation and worked example above. Optional accessible background: OpenStax Algebra and Trigonometry 2e and Python introductory tutorial and Julia documentation. Read only the relevant arithmetic/function material, not advanced sections."
+  },
+  {
+    "objectID": "20261021-scientific-notation.html",
+    "href": "20261021-scientific-notation.html",
+    "title": "Scientific notation and powers of ten",
+    "section": "",
+    "text": "Learning goal: Translate positive quantities between decimal notation and normalized scientific notation, and verify that the represented value and units are unchanged.\nPrerequisites: Lessons 005-016: multiplication, division, decimals, units, variables and ratios. Time: 15-30 minutes, plus optional reading of 5 minutes. Python 3; no additional packages required.\n\n\nWithout code: What happens to a positive number when you multiply it by 10? Divide it by 10? Why must a length retain its unit when its numerical representation changes? From Lesson 016: what reference belongs in the denominator of a percent change? Answer in Markdown before proceeding.\n\n\nCode\n# TODO: retrieval answers in Markdown; arithmetic checks here.\n\n\n\n\n\nAn exponent counts repeated multiplication: 10^3 means 101010 = 1000. In this lesson the base is always 10. We define 10^0 = 1. A negative exponent means a reciprocal: 10^(-1)=1/10=0.1 and 10^(-3)=1/1000=0.001. A negative exponent does not make the number negative.\nMultiplying by 10 moves the decimal point one place to the right; dividing by 10 moves it one place to the left. Scientific notation writes a positive number as a times 10^n, where the coefficient a is at least 1 and less than 10, and n is an integer (whole number, possibly negative or zero). This is called normalized scientific notation. The powers supply the scale; the coefficient supplies the remaining value. Zero is a separate case and is outside today’s normalization tasks.\nIn Python use ** for powers: 103 and 10(-3). The ^ operator is not exponentiation in Python. A compact number literal such as 2.4e3 means 2.4*10**3. Here e is part of numeric notation, not a variable or the exponential function. 2.4e-3 means 2.4*10**(-3). The unit still belongs in the variable name or written label.\n\n\n\nA fictional cable is 7200 mm long. Its normalized form is 7.2 times 10^3 mm: move the decimal three places left in the coefficient, then compensate by multiplying by 1000. Python: cable_mm = 7.2 * 10**3, or cable_mm = 7.2e3. Both represent 7200 mm; the unit was not converted.\nA fictional thin sheet is 0.0046 m thick. Its normalized form is 4.6 times 10^(-3) m. Python: sheet_m = 4.6e-3. The coefficient was enlarged by 1000, so the power compensates by dividing by 1000. Check by expanding the power.\n72 times 10^2 also equals 7200, but it is not normalized because its coefficient is at least 10. Scientific notation changes representation. A unit conversion changes the numerical value and unit together while preserving the physical quantity. Do not confuse the two operations.\n\n\nCode\n# Optional: reproduce the separate cable and sheet examples here.\n\n\n\n\n\nThese supplied quantities are fictional educational inputs, not measurements or a physical simulation. Keep their units unchanged.\nA. Test-track length: 36000 m. B. Optical-window thickness: 0.00082 m. C. Sensor sampling interval: 0.000025 s. D. Test-chamber pressure: 125000 Pa. Pa is the pressure unit pascal; no pressure physics is needed. E. Reference speed: 8 m/s.\n\nBefore coding, write each value in normalized scientific notation in Markdown. State coefficient, exponent and unit. Predict whether the exponent is positive, negative or zero.\nIn the starter cells, store each original decimal value in a named variable. Independently enter your coefficient and exponent in an expression using * and **; also enter the corresponding e notation. Do not use a formatting function to choose the exponent for you.\nPrint the original and reconstructed values with labels. Compute reconstructed/original for each pair. Interpret what a ratio of 1 would establish. If Python displays a tiny difference, inspect the written decimal expansion and report it; do not build a rounding-error investigation.\nMake a Markdown table with columns quantity, decimal value, normalized notation, unit, and check result. No plot is required: the table is the diagnostic.\nA colleague writes B as 8.2e3 m and C as 25e-6 s. Explain separately whether each has the supplied value and whether each is normalized. Correct the representation where needed.\nExplain why a smaller positive value can have a larger coefficient in normalized notation. Use B and C; compare both coefficient and power.\n\n\n\nCode\n# TODO: original decimals, your normalized expressions, and e notation for A-E.\n\n\n\n\n\nComplete tasks 3-4. Enter your own calculations and fill a Markdown table above or below this cell.\n\n\nCode\n# TODO: print labeled pairs and compute reconstruction/original ratios.\n\n\n\n\n\nSuccess checks: each positive coefficient is at least 1 and less than 10; expanding the power reconstructs the decimal value; the unit is unchanged; e notation and coefficient-times-power agree; exponent signs fit the size of the numbers. A negative exponent must not create a negative physical quantity. Restart the kernel and run completed cells top-to-bottom.\nWrite one sentence explaining what scientific notation helps you see, and one explaining what it cannot tell you about the reliability of these fictional data. More displayed digits do not establish more measurement accuracy.\nOptional stretch, with taught arithmetic only: 1000 m = 1 km. Convert A to km, then express the result in normalized scientific notation. Explain why the exponent can change even though the physical length has not changed.\nRemediation: if exponent signs are confusing, start with 10, 1, 0.1 and 0.01 and expand each as multiplication or division. If a coefficient is outside the required range, shift it one decimal place and compensate with one factor of 10. Record comfortable / needs practice for powers, normalization, e notation and units.\n\n\nCode\n# TODO: supporting arithmetic for tasks 5-6 and the stated checks.\n\n\n\n\n\nWrite your explanations for tasks 5-6, your interpretation and comfortable / needs practice record here.\n\n\nCode\n# TODO: optional unit-conversion stretch after completing the core exercise.\n\n\n\n\n\nLynn Marecek and MaryAnne Anthony-Smith, Prealgebra, OpenStax (2015), Section 10.5, Integer Exponents and Scientific Notation. Read only the introductory conversion material: Convert from Decimal Notation to Scientific Notation and Convert Scientific Notation to Decimal Form. Skip multiplication/division of scientific-notation expressions until taught. Focus on the coefficient range and exponent sign. The explanation in this lesson is sufficient to complete the tasks.\nCurriculum v1.1. Lesson 017 assigned October 21, 2026. Previous: Lesson 016, percent changes and reference values, originally delivered October 20. Next: Lesson 018, compare two flight segments consolidation. Assignment does not establish completion or mastery. CSE-Course-Ledger.json governs progression.\nThe starter follows the verified cached public problem-template.ipynb: raw publishing metadata, explanations, unexecuted implementation cells, checks and interpretation. Raw YAML is not executable Python or Julia.\nOpen reading\nPublic template"
+  },
+  {
+    "objectID": "20261021-scientific-notation.html#retrieve-what-you-know",
+    "href": "20261021-scientific-notation.html#retrieve-what-you-know",
+    "title": "Scientific notation and powers of ten",
+    "section": "",
+    "text": "Without code: What happens to a positive number when you multiply it by 10? Divide it by 10? Why must a length retain its unit when its numerical representation changes? From Lesson 016: what reference belongs in the denominator of a percent change? Answer in Markdown before proceeding.\n\n\nCode\n# TODO: retrieval answers in Markdown; arithmetic checks here."
+  },
+  {
+    "objectID": "20261021-scientific-notation.html#powers-of-ten-taught-from-the-beginning",
+    "href": "20261021-scientific-notation.html#powers-of-ten-taught-from-the-beginning",
+    "title": "Scientific notation and powers of ten",
+    "section": "",
+    "text": "An exponent counts repeated multiplication: 10^3 means 101010 = 1000. In this lesson the base is always 10. We define 10^0 = 1. A negative exponent means a reciprocal: 10^(-1)=1/10=0.1 and 10^(-3)=1/1000=0.001. A negative exponent does not make the number negative.\nMultiplying by 10 moves the decimal point one place to the right; dividing by 10 moves it one place to the left. Scientific notation writes a positive number as a times 10^n, where the coefficient a is at least 1 and less than 10, and n is an integer (whole number, possibly negative or zero). This is called normalized scientific notation. The powers supply the scale; the coefficient supplies the remaining value. Zero is a separate case and is outside today’s normalization tasks.\nIn Python use ** for powers: 103 and 10(-3). The ^ operator is not exponentiation in Python. A compact number literal such as 2.4e3 means 2.4*10**3. Here e is part of numeric notation, not a variable or the exponential function. 2.4e-3 means 2.4*10**(-3). The unit still belongs in the variable name or written label."
+  },
+  {
+    "objectID": "20261021-scientific-notation.html#separate-worked-examples",
+    "href": "20261021-scientific-notation.html#separate-worked-examples",
+    "title": "Scientific notation and powers of ten",
+    "section": "",
+    "text": "A fictional cable is 7200 mm long. Its normalized form is 7.2 times 10^3 mm: move the decimal three places left in the coefficient, then compensate by multiplying by 1000. Python: cable_mm = 7.2 * 10**3, or cable_mm = 7.2e3. Both represent 7200 mm; the unit was not converted.\nA fictional thin sheet is 0.0046 m thick. Its normalized form is 4.6 times 10^(-3) m. Python: sheet_m = 4.6e-3. The coefficient was enlarged by 1000, so the power compensates by dividing by 1000. Check by expanding the power.\n72 times 10^2 also equals 7200, but it is not normalized because its coefficient is at least 10. Scientific notation changes representation. A unit conversion changes the numerical value and unit together while preserving the physical quantity. Do not confuse the two operations.\n\n\nCode\n# Optional: reproduce the separate cable and sheet examples here."
+  },
+  {
+    "objectID": "20261021-scientific-notation.html#assigned-practice-an-aerospace-data-card",
+    "href": "20261021-scientific-notation.html#assigned-practice-an-aerospace-data-card",
+    "title": "Scientific notation and powers of ten",
+    "section": "",
+    "text": "These supplied quantities are fictional educational inputs, not measurements or a physical simulation. Keep their units unchanged.\nA. Test-track length: 36000 m. B. Optical-window thickness: 0.00082 m. C. Sensor sampling interval: 0.000025 s. D. Test-chamber pressure: 125000 Pa. Pa is the pressure unit pascal; no pressure physics is needed. E. Reference speed: 8 m/s.\n\nBefore coding, write each value in normalized scientific notation in Markdown. State coefficient, exponent and unit. Predict whether the exponent is positive, negative or zero.\nIn the starter cells, store each original decimal value in a named variable. Independently enter your coefficient and exponent in an expression using * and **; also enter the corresponding e notation. Do not use a formatting function to choose the exponent for you.\nPrint the original and reconstructed values with labels. Compute reconstructed/original for each pair. Interpret what a ratio of 1 would establish. If Python displays a tiny difference, inspect the written decimal expansion and report it; do not build a rounding-error investigation.\nMake a Markdown table with columns quantity, decimal value, normalized notation, unit, and check result. No plot is required: the table is the diagnostic.\nA colleague writes B as 8.2e3 m and C as 25e-6 s. Explain separately whether each has the supplied value and whether each is normalized. Correct the representation where needed.\nExplain why a smaller positive value can have a larger coefficient in normalized notation. Use B and C; compare both coefficient and power.\n\n\n\nCode\n# TODO: original decimals, your normalized expressions, and e notation for A-E."
+  },
+  {
+    "objectID": "20261021-scientific-notation.html#reconstruction-checks-and-diagnostic-table",
+    "href": "20261021-scientific-notation.html#reconstruction-checks-and-diagnostic-table",
+    "title": "Scientific notation and powers of ten",
+    "section": "",
+    "text": "Complete tasks 3-4. Enter your own calculations and fill a Markdown table above or below this cell.\n\n\nCode\n# TODO: print labeled pairs and compute reconstruction/original ratios."
+  },
+  {
+    "objectID": "20261021-scientific-notation.html#checks-interpretation-and-optional-stretch",
+    "href": "20261021-scientific-notation.html#checks-interpretation-and-optional-stretch",
+    "title": "Scientific notation and powers of ten",
+    "section": "",
+    "text": "Success checks: each positive coefficient is at least 1 and less than 10; expanding the power reconstructs the decimal value; the unit is unchanged; e notation and coefficient-times-power agree; exponent signs fit the size of the numbers. A negative exponent must not create a negative physical quantity. Restart the kernel and run completed cells top-to-bottom.\nWrite one sentence explaining what scientific notation helps you see, and one explaining what it cannot tell you about the reliability of these fictional data. More displayed digits do not establish more measurement accuracy.\nOptional stretch, with taught arithmetic only: 1000 m = 1 km. Convert A to km, then express the result in normalized scientific notation. Explain why the exponent can change even though the physical length has not changed.\nRemediation: if exponent signs are confusing, start with 10, 1, 0.1 and 0.01 and expand each as multiplication or division. If a coefficient is outside the required range, shift it one decimal place and compensate with one factor of 10. Record comfortable / needs practice for powers, normalization, e notation and units.\n\n\nCode\n# TODO: supporting arithmetic for tasks 5-6 and the stated checks."
+  },
+  {
+    "objectID": "20261021-scientific-notation.html#interpretation-and-learning-record",
+    "href": "20261021-scientific-notation.html#interpretation-and-learning-record",
+    "title": "Scientific notation and powers of ten",
+    "section": "",
+    "text": "Write your explanations for tasks 5-6, your interpretation and comfortable / needs practice record here.\n\n\nCode\n# TODO: optional unit-conversion stretch after completing the core exercise."
+  },
+  {
+    "objectID": "20261021-scientific-notation.html#reading-and-continuity",
+    "href": "20261021-scientific-notation.html#reading-and-continuity",
+    "title": "Scientific notation and powers of ten",
+    "section": "",
+    "text": "Lynn Marecek and MaryAnne Anthony-Smith, Prealgebra, OpenStax (2015), Section 10.5, Integer Exponents and Scientific Notation. Read only the introductory conversion material: Convert from Decimal Notation to Scientific Notation and Convert Scientific Notation to Decimal Form. Skip multiplication/division of scientific-notation expressions until taught. Focus on the coefficient range and exponent sign. The explanation in this lesson is sufficient to complete the tasks.\nCurriculum v1.1. Lesson 017 assigned October 21, 2026. Previous: Lesson 016, percent changes and reference values, originally delivered October 20. Next: Lesson 018, compare two flight segments consolidation. Assignment does not establish completion or mastery. CSE-Course-Ledger.json governs progression.\nThe starter follows the verified cached public problem-template.ipynb: raw publishing metadata, explanations, unexecuted implementation cells, checks and interpretation. Raw YAML is not executable Python or Julia.\nOpen reading\nPublic template"
   },
   {
     "objectID": "20261020-percent-changes.html",
@@ -912,58 +968,58 @@
   {
     "objectID": "20261002-computational-question-review.html",
     "href": "20261002-computational-question-review.html",
-    "title": "Review: describe a computational question",
+    "title": "Lesson 004: Review: describe a computational question",
     "section": "",
-    "text": "Learning goal: Review: describe a computational question.\nPrerequisites: Lessons 1-3.\nTime: 15-30 minutes. Status: assigned; completion and mastery not assessed.\nRebuilt October 15, 2026. The filename date retains the original assignment date. This replaces the old advanced exercise in the active course; old files remain optional archive material.\n\n\nBefore computing, state the question, the supplied inputs, the desired output, and any assumption. A model supplies a rule connecting them. This lesson describes a model in words; the next lesson introduces arithmetic expressions.\n\n\nCode\n# Read the explanation before writing exercise code.\n\n\n\n\n\nQuestion: compare two rods. Inputs: two lengths stated in the same unit. Output: which is longer, or whether they are equal. Assumption: both lengths use the same measurement convention.\nExplain the example in words before proceeding.\n\n\nCode\n# Optional: reproduce the separate worked example here.\n\n\n\n\n\n\nDescribe a fictional aerospace question about comparing two durations in seconds.\nState two input quantities, one requested output, and an assumption.\nExplain how you would decide the answer in words, without introducing an algorithm or arithmetic expression.\nWrite a clearly labeled output sentence with print.\nReproduce it after restarting the kernel.\n\n\n\nCode\n# TODO: question, inputs, output, assumption, written comparison and labeled text output.\n\n\n\n\n\nInputs and output are distinct; both inputs carry consistent units; the assumption is explicit; the notebook reproduces its output. This reviews orientation, not evidence of mastery of later mathematics.\nWrite why each check is appropriate. Use only taught constructs; plain calculations and written checks are sufficient.\n\n\nCode\n# TODO: checks and written interpretation.\n\n\n\n\n\nWhat does the result mean? Which assumption limits the model? Which earlier idea did you reuse?\n\n\nCode\n# TODO: your reflection; no advance solution is supplied.\n\n\n\n\n\nGive an example where different input units prevent an immediate numerical comparison.\n\n\nCode\n# TODO: optional stretch after core work.\n\n\n\n\n\nRequired reading: explanation and worked example above. Optional accessible background: OpenStax Algebra and Trigonometry 2e and Python introductory tutorial. Read only the relevant arithmetic/function material, not advanced sections.\nCurriculum: CSE-Aerospace-Course-Plan.md. Next: Lesson 005. This historical rebuild contains no invented dated news brief."
+    "text": "Code\n---\ntitle: \"Review: describe a computational question\"\ndate: 2026-10-02\ncategories: [Julia, Programming, Models]\ndescription: \"Course v1.1 lesson 4; rebuilt October 15, 2026.\"\n---\n\n\nBase.Meta.ParseError: ParseError:\n# Error @ /home/jfowler/Code/Projects/daily-learning/jl_notebook_cell_df34fa98e69747e1a8f8a730347b8e2f_W0sZmlsZQ==.jl:1:1\n---\n└┘ ── not a unary operator\nParseError:\n\n# Error @ /home/jfowler/Code/Projects/daily-learning/jl_notebook_cell_df34fa98e69747e1a8f8a730347b8e2f_W0sZmlsZQ==.jl:1:1\n\n---\n\n└┘ ── not a unary operator\n\n\n\nStacktrace:\n\n [1] top-level scope\n\n   @ ~/Code/Projects/daily-learning/jl_notebook_cell_df34fa98e69747e1a8f8a730347b8e2f_W0sZmlsZQ==.jl:1\nLearning goal: Review: describe a computational question.\nPrerequisites: Lessons 1-3.\nTime: 15-30 minutes. Status: Complete"
   },
   {
     "objectID": "20261002-computational-question-review.html#concept-and-notation",
     "href": "20261002-computational-question-review.html#concept-and-notation",
-    "title": "Review: describe a computational question",
-    "section": "",
-    "text": "Before computing, state the question, the supplied inputs, the desired output, and any assumption. A model supplies a rule connecting them. This lesson describes a model in words; the next lesson introduces arithmetic expressions.\n\n\nCode\n# Read the explanation before writing exercise code."
+    "title": "Lesson 004: Review: describe a computational question",
+    "section": "1. Concept and notation",
+    "text": "1. Concept and notation\nBefore computing, state the question, the supplied inputs, the desired output, and any assumption. A model supplies a rule connecting them. This lesson describes a model in words; the next lesson introduces arithmetic expressions.\n\n\nCode\n# Read the explanation before writing exercise code."
   },
   {
     "objectID": "20261002-computational-question-review.html#worked-example-different-from-the-exercise",
     "href": "20261002-computational-question-review.html#worked-example-different-from-the-exercise",
-    "title": "Review: describe a computational question",
-    "section": "",
-    "text": "Question: compare two rods. Inputs: two lengths stated in the same unit. Output: which is longer, or whether they are equal. Assumption: both lengths use the same measurement convention.\nExplain the example in words before proceeding.\n\n\nCode\n# Optional: reproduce the separate worked example here."
+    "title": "Lesson 004: Review: describe a computational question",
+    "section": "2. Worked example (different from the exercise)",
+    "text": "2. Worked example (different from the exercise)\nQuestion: compare two rods. Inputs: two lengths stated in the same unit. Output: which is longer, or whether they are equal. Assumption: both lengths use the same measurement convention.\nExplain the example in words before proceeding.\n\n\nCode\nL1 = 1 # m\nL2 = 36 # in\nL2m = L2 * 0.0254 # converted to m\nprintln(\"L1 = $L1 m\")\nprintln(\"L2 = $L2m m\")\n\nfunction compare_lengths(l1, l2)\n    longer = (l1 &gt; l2) ? \"L1\" : \"L2\"\n    shorter = (l1 &gt; l2) ? \"L2\" : \"L1\"\n    println(\"$longer is longer than $shorter.\")\nend\n\ncompare_lengths(L1, L2m)\n\n\nL1 = 1 m\nL2 = 0.9144 m\nL1 is longer than L2."
   },
   {
     "objectID": "20261002-computational-question-review.html#required-exercise",
     "href": "20261002-computational-question-review.html#required-exercise",
-    "title": "Review: describe a computational question",
-    "section": "",
-    "text": "Describe a fictional aerospace question about comparing two durations in seconds.\nState two input quantities, one requested output, and an assumption.\nExplain how you would decide the answer in words, without introducing an algorithm or arithmetic expression.\nWrite a clearly labeled output sentence with print.\nReproduce it after restarting the kernel.\n\n\n\nCode\n# TODO: question, inputs, output, assumption, written comparison and labeled text output."
+    "title": "Lesson 004: Review: describe a computational question",
+    "section": "3. Required exercise",
+    "text": "3. Required exercise\n\nDescribe a fictional aerospace question about comparing two durations in seconds.\n\nExample: Comparing the duration of two wind tunnel tests.\n\nState two input quantities, one requested output, and an assumption.\n\nInputs: distance, time\nOutput: average velocity\nAssumption: Assumed constant speed.\n\nWrite a clearly labeled output sentence with print.\nReproduce it after restarting the kernel.\n\n\n\nCode\nd = 3000 # m\nt = 60 # s\n\nfunction average_velocity(d, t)\n    return d / t\nend\n\nv = average_velocity(d, t)\n\nprintln(\"The average velocity is $v m/s\")\n\n\nThe average velocity is 50.0 m/s"
   },
   {
     "objectID": "20261002-computational-question-review.html#checks-and-interpretation",
     "href": "20261002-computational-question-review.html#checks-and-interpretation",
-    "title": "Review: describe a computational question",
-    "section": "",
-    "text": "Inputs and output are distinct; both inputs carry consistent units; the assumption is explicit; the notebook reproduces its output. This reviews orientation, not evidence of mastery of later mathematics.\nWrite why each check is appropriate. Use only taught constructs; plain calculations and written checks are sufficient.\n\n\nCode\n# TODO: checks and written interpretation."
+    "title": "Lesson 004: Review: describe a computational question",
+    "section": "4. Checks and interpretation",
+    "text": "4. Checks and interpretation\nInputs and output are distinct; both inputs carry consistent units; the assumption is explicit; the notebook reproduces its output. This reviews orientation, not evidence of mastery of later mathematics.\nWrite why each check is appropriate. Use only taught constructs; plain calculations and written checks are sufficient.\n\n\nCode\nfunction pressure_positivity(p)\n    index = 1\n    for pressure in p\n        if pressure &lt;= 0.0\n            error(\"The pressure is non-positive at index $index. Exiting.\")\n        end\n        index += 1\n    end\nend\n\npressures = [1, 2, 3, 5, 8, 10, 7, 6, 3, 2, 1, 0]\n\npressure_positivity(pressures)\n\n\nErrorException: The pressure is non-positive at index 12. Exiting.\nThe pressure is non-positive at index 12. Exiting.\n\n\n\nStacktrace:\n\n [1] error(s::String)\n\n   @ Base ./error.jl:44\n\n [2] pressure_positivity(p::Vector{Int64})\n\n   @ Main ~/Code/Projects/daily-learning/jl_notebook_cell_df34fa98e69747e1a8f8a730347b8e2f_X12sZmlsZQ==.jl:5\n\n [3] top-level scope\n\n   @ ~/Code/Projects/daily-learning/jl_notebook_cell_df34fa98e69747e1a8f8a730347b8e2f_X12sZmlsZQ==.jl:13"
   },
   {
     "objectID": "20261002-computational-question-review.html#reflection",
     "href": "20261002-computational-question-review.html#reflection",
-    "title": "Review: describe a computational question",
-    "section": "",
-    "text": "What does the result mean? Which assumption limits the model? Which earlier idea did you reuse?\n\n\nCode\n# TODO: your reflection; no advance solution is supplied."
+    "title": "Lesson 004: Review: describe a computational question",
+    "section": "5. Reflection",
+    "text": "5. Reflection\nWhat does the result mean? Which assumption limits the model? Which earlier idea did you reuse?\n\n\nCode\n# Nothing to do here today"
   },
   {
     "objectID": "20261002-computational-question-review.html#optional-stretch",
     "href": "20261002-computational-question-review.html#optional-stretch",
-    "title": "Review: describe a computational question",
-    "section": "",
-    "text": "Give an example where different input units prevent an immediate numerical comparison.\n\n\nCode\n# TODO: optional stretch after core work."
+    "title": "Lesson 004: Review: describe a computational question",
+    "section": "6. Optional stretch",
+    "text": "6. Optional stretch\nGive an example where different input units prevent an immediate numerical comparison.\n\n\nCode\n# Nothing here today"
   },
   {
     "objectID": "20261002-computational-question-review.html#reading-and-continuity",
     "href": "20261002-computational-question-review.html#reading-and-continuity",
-    "title": "Review: describe a computational question",
-    "section": "",
-    "text": "Required reading: explanation and worked example above. Optional accessible background: OpenStax Algebra and Trigonometry 2e and Python introductory tutorial. Read only the relevant arithmetic/function material, not advanced sections.\nCurriculum: CSE-Aerospace-Course-Plan.md. Next: Lesson 005. This historical rebuild contains no invented dated news brief."
+    "title": "Lesson 004: Review: describe a computational question",
+    "section": "7. Reading and continuity",
+    "text": "7. Reading and continuity\nRequired reading: explanation and worked example above. Optional accessible background: OpenStax Algebra and Trigonometry 2e and Python introductory tutorial. Read only the relevant arithmetic/function material, not advanced sections.\nCurriculum: CSE-Aerospace-Course-Plan.md. Next: Lesson 005. This historical rebuild contains no invented dated news brief."
   },
   {
     "objectID": "problem-template.html",
