@@ -6,8 +6,10 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="dcterms.date" content="2026-10-02">
+<meta name="description" content="Course v1.1 lesson 4; rebuilt October 15, 2026.">
 
-<title>Lesson 004: Review: describe a computational question – Daily Learning &amp; Refreshers</title>
+<title>Review: describe a computational question – Daily Learning &amp; Refreshers</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -155,14 +157,30 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <div class="quarto-title-block"><div><h1 class="title">Lesson 004: Review: describe a computational question</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li></ul></div></div>
-                      </div>
+      <div class="quarto-title-block"><div><h1 class="title">Review: describe a computational question</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li></ul></div></div>
+                  <div>
+        <div class="description">
+          Course v1.1 lesson 4; rebuilt October 15, 2026.
+        </div>
+      </div>
+                          <div class="quarto-categories">
+                <div class="quarto-category">Julia</div>
+                <div class="quarto-category">Programming</div>
+                <div class="quarto-category">Models</div>
+              </div>
+                  </div>
   </div>
     
   
   <div class="quarto-title-meta">
 
       
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">October 2, 2026</p>
+      </div>
+    </div>
     
       
     </div>
@@ -176,13 +194,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#concept-and-notation" id="toc-concept-and-notation" class="nav-link active" data-scroll-target="#concept-and-notation">1. Concept and notation</a></li>
+  <li><a href="#lesson-004-review-describe-a-computational-question" id="toc-lesson-004-review-describe-a-computational-question" class="nav-link active" data-scroll-target="#lesson-004-review-describe-a-computational-question">Lesson 004: Review: describe a computational question</a>
+  <ul class="collapse">
+  <li><a href="#concept-and-notation" id="toc-concept-and-notation" class="nav-link" data-scroll-target="#concept-and-notation">1. Concept and notation</a></li>
   <li><a href="#worked-example-different-from-the-exercise" id="toc-worked-example-different-from-the-exercise" class="nav-link" data-scroll-target="#worked-example-different-from-the-exercise">2. Worked example (different from the exercise)</a></li>
   <li><a href="#required-exercise" id="toc-required-exercise" class="nav-link" data-scroll-target="#required-exercise">3. Required exercise</a></li>
   <li><a href="#checks-and-interpretation" id="toc-checks-and-interpretation" class="nav-link" data-scroll-target="#checks-and-interpretation">4. Checks and interpretation</a></li>
   <li><a href="#reflection" id="toc-reflection" class="nav-link" data-scroll-target="#reflection">5. Reflection</a></li>
   <li><a href="#optional-stretch" id="toc-optional-stretch" class="nav-link" data-scroll-target="#optional-stretch">6. Optional stretch</a></li>
   <li><a href="#reading-and-continuity" id="toc-reading-and-continuity" class="nav-link" data-scroll-target="#reading-and-continuity">7. Reading and continuity</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
@@ -193,38 +214,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 
-<div id="c5776347" class="cell" data-execution_count="33">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="op">---</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>title<span class="op">:</span> <span class="st">"Review: describe a computational question"</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>date<span class="op">:</span> <span class="fl">2026</span><span class="op">-</span><span class="fl">10</span><span class="op">-</span><span class="fl">02</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>categories<span class="op">:</span> [Julia, Programming, Models]</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>description<span class="op">:</span> <span class="st">"Course v1.1 lesson 4; rebuilt October 15, 2026."</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="op">---</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</details>
-<div class="cell-output cell-output-error">
-<pre><code>Base.Meta.ParseError: ParseError:
-# Error @ /home/jfowler/Code/Projects/daily-learning/jl_notebook_cell_df34fa98e69747e1a8f8a730347b8e2f_W0sZmlsZQ==.jl:1:1
----
-└┘ ── not a unary operator
-ParseError:
-
-# Error @ /home/jfowler/Code/Projects/daily-learning/jl_notebook_cell_df34fa98e69747e1a8f8a730347b8e2f_W0sZmlsZQ==.jl:1:1
-
----
-
-└┘ ── not a unary operator
-
-
-
-Stacktrace:
-
- [1] top-level scope
-
-   @ ~/Code/Projects/daily-learning/jl_notebook_cell_df34fa98e69747e1a8f8a730347b8e2f_W0sZmlsZQ==.jl:1</code></pre>
-</div>
-</div>
+<section id="lesson-004-review-describe-a-computational-question" class="level1">
+<h1>Lesson 004: Review: describe a computational question</h1>
 <p><strong>Learning goal:</strong> Review: describe a computational question.</p>
 <p><strong>Prerequisites:</strong> Lessons 1-3.</p>
 <p><strong>Time:</strong> 15-30 minutes. <strong>Status:</strong> Complete</p>
@@ -234,30 +225,30 @@ Stacktrace:
 <div id="322816cd" class="cell" data-execution_count="34">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Read the explanation before writing exercise code.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Read the explanation before writing exercise code.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 </section>
 <section id="worked-example-different-from-the-exercise" class="level2">
 <h2 class="anchored" data-anchor-id="worked-example-different-from-the-exercise">2. Worked example (different from the exercise)</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>Question: compare two rods. Inputs: two lengths stated <span class="kw">in</span> the same unit. Output: which <span class="kw">is</span> longer, <span class="kw">or</span> whether they are equal. Assumption: both lengths use the same measurement convention.</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>Question: compare two rods. Inputs: two lengths stated <span class="kw">in</span> the same unit. Output: which <span class="kw">is</span> longer, <span class="kw">or</span> whether they are equal. Assumption: both lengths use the same measurement convention.</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Explain the example in words before proceeding.</p>
 <div id="60c8b216" class="cell" data-execution_count="35">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>L1 <span class="op">=</span> <span class="fl">1</span> <span class="co"># m</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>L2 <span class="op">=</span> <span class="fl">36</span> <span class="co"># in</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>L2m <span class="op">=</span> L2 <span class="op">*</span> <span class="fl">0.0254</span> <span class="co"># converted to m</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="fu">println</span>(<span class="st">"L1 = </span><span class="sc">$</span>L1<span class="st"> m"</span>)</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="fu">println</span>(<span class="st">"L2 = </span><span class="sc">$</span>L2m<span class="st"> m"</span>)</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">compare_lengths</span>(l1, l2)</span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    longer <span class="op">=</span> (l1 <span class="op">&gt;</span> l2) ? <span class="st">"L1"</span> <span class="op">:</span> <span class="st">"L2"</span></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    shorter <span class="op">=</span> (l1 <span class="op">&gt;</span> l2) ? <span class="st">"L2"</span> <span class="op">:</span> <span class="st">"L1"</span></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">println</span>(<span class="st">"</span><span class="sc">$</span>longer<span class="st"> is longer than </span><span class="sc">$</span>shorter<span class="st">."</span>)</span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="fu">compare_lengths</span>(L1, L2m)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>L1 <span class="op">=</span> <span class="fl">1</span> <span class="co"># m</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>L2 <span class="op">=</span> <span class="fl">36</span> <span class="co"># in</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>L2m <span class="op">=</span> L2 <span class="op">*</span> <span class="fl">0.0254</span> <span class="co"># converted to m</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="fu">println</span>(<span class="st">"L1 = </span><span class="sc">$</span>L1<span class="st"> m"</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="fu">println</span>(<span class="st">"L2 = </span><span class="sc">$</span>L2m<span class="st"> m"</span>)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">compare_lengths</span>(l1, l2)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    longer <span class="op">=</span> (l1 <span class="op">&gt;</span> l2) ? <span class="st">"L1"</span> <span class="op">:</span> <span class="st">"L2"</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    shorter <span class="op">=</span> (l1 <span class="op">&gt;</span> l2) ? <span class="st">"L2"</span> <span class="op">:</span> <span class="st">"L1"</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">println</span>(<span class="st">"</span><span class="sc">$</span>longer<span class="st"> is longer than </span><span class="sc">$</span>shorter<span class="st">."</span>)</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="fu">compare_lengths</span>(L1, L2m)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>L1 = 1 m
@@ -285,16 +276,16 @@ L1 is longer than L2.</code></pre>
 <div id="e93e2c60" class="cell" data-execution_count="36">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> <span class="fl">3000</span> <span class="co"># m</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> <span class="fl">60</span> <span class="co"># s</span></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">average_velocity</span>(d, t)</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> d <span class="op">/</span> t</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>v <span class="op">=</span> <span class="fu">average_velocity</span>(d, t)</span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="fu">println</span>(<span class="st">"The average velocity is </span><span class="sc">$</span>v<span class="st"> m/s"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> <span class="fl">3000</span> <span class="co"># m</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> <span class="fl">60</span> <span class="co"># s</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">average_velocity</span>(d, t)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> d <span class="op">/</span> t</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>v <span class="op">=</span> <span class="fu">average_velocity</span>(d, t)</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="fu">println</span>(<span class="st">"The average velocity is </span><span class="sc">$</span>v<span class="st"> m/s"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>The average velocity is 50.0 m/s</code></pre>
@@ -308,19 +299,19 @@ L1 is longer than L2.</code></pre>
 <div id="a5671bf4" class="cell" data-execution_count="37">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">pressure_positivity</span>(p)</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    index <span class="op">=</span> <span class="fl">1</span></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> pressure <span class="kw">in</span> p</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> pressure <span class="op">&lt;=</span> <span class="fl">0.0</span></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>            <span class="fu">error</span>(<span class="st">"The pressure is non-positive at index </span><span class="sc">$</span>index<span class="st">. Exiting."</span>)</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">end</span></span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>        index <span class="op">+=</span> <span class="fl">1</span></span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">end</span></span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>pressures <span class="op">=</span> [<span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">5</span>, <span class="fl">8</span>, <span class="fl">10</span>, <span class="fl">7</span>, <span class="fl">6</span>, <span class="fl">3</span>, <span class="fl">2</span>, <span class="fl">1</span>, <span class="fl">0</span>]</span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="fu">pressure_positivity</span>(pressures)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">pressure_positivity</span>(p)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    index <span class="op">=</span> <span class="fl">1</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> pressure <span class="kw">in</span> p</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> pressure <span class="op">&lt;=</span> <span class="fl">0.0</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>            <span class="fu">error</span>(<span class="st">"The pressure is non-positive at index </span><span class="sc">$</span>index<span class="st">. Exiting."</span>)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">end</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>        index <span class="op">+=</span> <span class="fl">1</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">end</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>pressures <span class="op">=</span> [<span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">5</span>, <span class="fl">8</span>, <span class="fl">10</span>, <span class="fl">7</span>, <span class="fl">6</span>, <span class="fl">3</span>, <span class="fl">2</span>, <span class="fl">1</span>, <span class="fl">0</span>]</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="fu">pressure_positivity</span>(pressures)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-error">
 <pre><code>ErrorException: The pressure is non-positive at index 12. Exiting.
@@ -350,7 +341,7 @@ Stacktrace:
 <div id="8c059e24" class="cell" data-execution_count="38">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Nothing to do here today</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Nothing to do here today</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 </section>
@@ -360,7 +351,7 @@ Stacktrace:
 <div id="0e581695" class="cell" data-execution_count="39">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Nothing here today</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Nothing here today</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 </section>
@@ -370,6 +361,7 @@ Stacktrace:
 <p>Curriculum: CSE-Aerospace-Course-Plan.md. Next: Lesson 005. This historical rebuild contains no invented dated news brief.</p>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->

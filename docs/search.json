@@ -725,7 +725,7 @@
     "href": "index.html#practice-index",
     "title": "Daily Learning & Refreshers",
     "section": "Practice Index",
-    "text": "Practice Index\n\n\n   \n    \n    \n      Order By\n      Default\n      \n        Date - Oldest\n      \n      \n        Date - Newest\n      \n      \n        Title\n      \n    \n  \n    \n      \n      \n    \n\n\n\n\n\n\nTitle\n\n\n\nDate\n\n\n\nCategories\n\n\n\n\n\n\n\n\nLesson 004: Review: describe a computational question\n\n\n \n\n\n \n\n\n\n\n\n\nScientific notation and powers of ten\n\n\nOct 21, 2026\n\n\nCSE foundations\n\n\n\n\n\n\nPercent changes and reference values\n\n\nOct 20, 2026\n\n\nCSE foundations\n\n\n\n\n\n\nRatios and proportionality\n\n\nOct 19, 2026\n\n\nCSE foundations\n\n\n\n\n\n\nConsolidation - tabulate and plot a function\n\n\nOct 15, 2026\n\n\nCSE foundations, aerospace\n\n\n\n\n\n\nGraphs, axes and slope\n\n\nOct 14, 2026\n\n\nCSE foundations, aerospace\n\n\n\n\n\n\nTables of function values\n\n\nOct 13, 2026\n\n\nCSE foundations, aerospace\n\n\n\n\n\n\nFunctions as input-output rules\n\n\nOct 12, 2026\n\n\nCSE foundations, aerospace\n\n\n\n\n\n\nReview - explain and check a calculation\n\n\nOct 9, 2026\n\n\nCSE foundations, aerospace\n\n\n\n\n\n\nConsolidation - speed, time and distance\n\n\nOct 8, 2026\n\n\nCSE foundations, aerospace\n\n\n\n\n\n\nVariables and named quantities\n\n\nOct 7, 2026\n\n\nCSE foundations, aerospace\n\n\n\n\n\n\nUnits and dimensional consistency\n\n\nOct 6, 2026\n\n\nCSE foundations, aerospace\n\n\n\n\n\n\nExpressions and order of operations\n\n\nOct 5, 2026\n\n\nJulia, Programming, Expressions\n\n\n\n\n\n\nQuantities, symbols and units\n\n\nOct 1, 2026\n\n\nJulia, Programming, Units\n\n\n\n\n\n\nMathematical statements and comparisons\n\n\nSep 30, 2026\n\n\nLogic, Julia, Programming\n\n\n\n\n\n\nNotebook workflow and reproducibility\n\n\nSep 29, 2026\n\n\nProgramming, Julia, Notebooks\n\n\n\n\n\n\nNo matching items"
+    "text": "Practice Index\n\n\n   \n    \n    \n      Order By\n      Default\n      \n        Date - Oldest\n      \n      \n        Date - Newest\n      \n      \n        Title\n      \n    \n  \n    \n      \n      \n    \n\n\n\n\n\n\nTitle\n\n\n\nDate\n\n\n\nCategories\n\n\n\n\n\n\n\n\nScientific notation and powers of ten\n\n\nOct 21, 2026\n\n\nCSE foundations\n\n\n\n\n\n\nPercent changes and reference values\n\n\nOct 20, 2026\n\n\nCSE foundations\n\n\n\n\n\n\nRatios and proportionality\n\n\nOct 19, 2026\n\n\nCSE foundations\n\n\n\n\n\n\nConsolidation - tabulate and plot a function\n\n\nOct 15, 2026\n\n\nCSE foundations, aerospace\n\n\n\n\n\n\nGraphs, axes and slope\n\n\nOct 14, 2026\n\n\nCSE foundations, aerospace\n\n\n\n\n\n\nTables of function values\n\n\nOct 13, 2026\n\n\nCSE foundations, aerospace\n\n\n\n\n\n\nFunctions as input-output rules\n\n\nOct 12, 2026\n\n\nCSE foundations, aerospace\n\n\n\n\n\n\nReview - explain and check a calculation\n\n\nOct 9, 2026\n\n\nCSE foundations, aerospace\n\n\n\n\n\n\nConsolidation - speed, time and distance\n\n\nOct 8, 2026\n\n\nCSE foundations, aerospace\n\n\n\n\n\n\nVariables and named quantities\n\n\nOct 7, 2026\n\n\nCSE foundations, aerospace\n\n\n\n\n\n\nUnits and dimensional consistency\n\n\nOct 6, 2026\n\n\nCSE foundations, aerospace\n\n\n\n\n\n\nExpressions and order of operations\n\n\nOct 5, 2026\n\n\nJulia, Programming, Expressions\n\n\n\n\n\n\nReview: describe a computational question\n\n\nOct 2, 2026\n\n\nJulia, Programming, Models\n\n\n\n\n\n\nQuantities, symbols and units\n\n\nOct 1, 2026\n\n\nJulia, Programming, Units\n\n\n\n\n\n\nMathematical statements and comparisons\n\n\nSep 30, 2026\n\n\nLogic, Julia, Programming\n\n\n\n\n\n\nNotebook workflow and reproducibility\n\n\nSep 29, 2026\n\n\nProgramming, Julia, Notebooks\n\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "20261001-quantities-symbols-units.html",
@@ -968,58 +968,58 @@
   {
     "objectID": "20261002-computational-question-review.html",
     "href": "20261002-computational-question-review.html",
-    "title": "Lesson 004: Review: describe a computational question",
+    "title": "Review: describe a computational question",
     "section": "",
-    "text": "Code\n---\ntitle: \"Review: describe a computational question\"\ndate: 2026-10-02\ncategories: [Julia, Programming, Models]\ndescription: \"Course v1.1 lesson 4; rebuilt October 15, 2026.\"\n---\n\n\nBase.Meta.ParseError: ParseError:\n# Error @ /home/jfowler/Code/Projects/daily-learning/jl_notebook_cell_df34fa98e69747e1a8f8a730347b8e2f_W0sZmlsZQ==.jl:1:1\n---\n└┘ ── not a unary operator\nParseError:\n\n# Error @ /home/jfowler/Code/Projects/daily-learning/jl_notebook_cell_df34fa98e69747e1a8f8a730347b8e2f_W0sZmlsZQ==.jl:1:1\n\n---\n\n└┘ ── not a unary operator\n\n\n\nStacktrace:\n\n [1] top-level scope\n\n   @ ~/Code/Projects/daily-learning/jl_notebook_cell_df34fa98e69747e1a8f8a730347b8e2f_W0sZmlsZQ==.jl:1\nLearning goal: Review: describe a computational question.\nPrerequisites: Lessons 1-3.\nTime: 15-30 minutes. Status: Complete"
+    "text": "Learning goal: Review: describe a computational question.\nPrerequisites: Lessons 1-3.\nTime: 15-30 minutes. Status: Complete\n\n\nBefore computing, state the question, the supplied inputs, the desired output, and any assumption. A model supplies a rule connecting them. This lesson describes a model in words; the next lesson introduces arithmetic expressions.\n\n\nCode\n# Read the explanation before writing exercise code.\n\n\n\n\n\nQuestion: compare two rods. Inputs: two lengths stated in the same unit. Output: which is longer, or whether they are equal. Assumption: both lengths use the same measurement convention.\nExplain the example in words before proceeding.\n\n\nCode\nL1 = 1 # m\nL2 = 36 # in\nL2m = L2 * 0.0254 # converted to m\nprintln(\"L1 = $L1 m\")\nprintln(\"L2 = $L2m m\")\n\nfunction compare_lengths(l1, l2)\n    longer = (l1 &gt; l2) ? \"L1\" : \"L2\"\n    shorter = (l1 &gt; l2) ? \"L2\" : \"L1\"\n    println(\"$longer is longer than $shorter.\")\nend\n\ncompare_lengths(L1, L2m)\n\n\nL1 = 1 m\nL2 = 0.9144 m\nL1 is longer than L2.\n\n\n\n\n\n\nDescribe a fictional aerospace question about comparing two durations in seconds.\n\nExample: Comparing the duration of two wind tunnel tests.\n\nState two input quantities, one requested output, and an assumption.\n\nInputs: distance, time\nOutput: average velocity\nAssumption: Assumed constant speed.\n\nWrite a clearly labeled output sentence with print.\nReproduce it after restarting the kernel.\n\n\n\nCode\nd = 3000 # m\nt = 60 # s\n\nfunction average_velocity(d, t)\n    return d / t\nend\n\nv = average_velocity(d, t)\n\nprintln(\"The average velocity is $v m/s\")\n\n\nThe average velocity is 50.0 m/s\n\n\n\n\n\nInputs and output are distinct; both inputs carry consistent units; the assumption is explicit; the notebook reproduces its output. This reviews orientation, not evidence of mastery of later mathematics.\nWrite why each check is appropriate. Use only taught constructs; plain calculations and written checks are sufficient.\n\n\nCode\nfunction pressure_positivity(p)\n    index = 1\n    for pressure in p\n        if pressure &lt;= 0.0\n            error(\"The pressure is non-positive at index $index. Exiting.\")\n        end\n        index += 1\n    end\nend\n\npressures = [1, 2, 3, 5, 8, 10, 7, 6, 3, 2, 1, 0]\n\npressure_positivity(pressures)\n\n\nErrorException: The pressure is non-positive at index 12. Exiting.\nThe pressure is non-positive at index 12. Exiting.\n\n\n\nStacktrace:\n\n [1] error(s::String)\n\n   @ Base ./error.jl:44\n\n [2] pressure_positivity(p::Vector{Int64})\n\n   @ Main ~/Code/Projects/daily-learning/jl_notebook_cell_df34fa98e69747e1a8f8a730347b8e2f_X12sZmlsZQ==.jl:5\n\n [3] top-level scope\n\n   @ ~/Code/Projects/daily-learning/jl_notebook_cell_df34fa98e69747e1a8f8a730347b8e2f_X12sZmlsZQ==.jl:13\n\n\n\n\n\nWhat does the result mean? Which assumption limits the model? Which earlier idea did you reuse?\n\n\nCode\n# Nothing to do here today\n\n\n\n\n\nGive an example where different input units prevent an immediate numerical comparison.\n\n\nCode\n# Nothing here today\n\n\n\n\n\nRequired reading: explanation and worked example above. Optional accessible background: OpenStax Algebra and Trigonometry 2e and Python introductory tutorial. Read only the relevant arithmetic/function material, not advanced sections.\nCurriculum: CSE-Aerospace-Course-Plan.md. Next: Lesson 005. This historical rebuild contains no invented dated news brief."
   },
   {
     "objectID": "20261002-computational-question-review.html#concept-and-notation",
     "href": "20261002-computational-question-review.html#concept-and-notation",
-    "title": "Lesson 004: Review: describe a computational question",
-    "section": "1. Concept and notation",
-    "text": "1. Concept and notation\nBefore computing, state the question, the supplied inputs, the desired output, and any assumption. A model supplies a rule connecting them. This lesson describes a model in words; the next lesson introduces arithmetic expressions.\n\n\nCode\n# Read the explanation before writing exercise code."
+    "title": "Review: describe a computational question",
+    "section": "",
+    "text": "Before computing, state the question, the supplied inputs, the desired output, and any assumption. A model supplies a rule connecting them. This lesson describes a model in words; the next lesson introduces arithmetic expressions.\n\n\nCode\n# Read the explanation before writing exercise code."
   },
   {
     "objectID": "20261002-computational-question-review.html#worked-example-different-from-the-exercise",
     "href": "20261002-computational-question-review.html#worked-example-different-from-the-exercise",
-    "title": "Lesson 004: Review: describe a computational question",
-    "section": "2. Worked example (different from the exercise)",
-    "text": "2. Worked example (different from the exercise)\nQuestion: compare two rods. Inputs: two lengths stated in the same unit. Output: which is longer, or whether they are equal. Assumption: both lengths use the same measurement convention.\nExplain the example in words before proceeding.\n\n\nCode\nL1 = 1 # m\nL2 = 36 # in\nL2m = L2 * 0.0254 # converted to m\nprintln(\"L1 = $L1 m\")\nprintln(\"L2 = $L2m m\")\n\nfunction compare_lengths(l1, l2)\n    longer = (l1 &gt; l2) ? \"L1\" : \"L2\"\n    shorter = (l1 &gt; l2) ? \"L2\" : \"L1\"\n    println(\"$longer is longer than $shorter.\")\nend\n\ncompare_lengths(L1, L2m)\n\n\nL1 = 1 m\nL2 = 0.9144 m\nL1 is longer than L2."
+    "title": "Review: describe a computational question",
+    "section": "",
+    "text": "Question: compare two rods. Inputs: two lengths stated in the same unit. Output: which is longer, or whether they are equal. Assumption: both lengths use the same measurement convention.\nExplain the example in words before proceeding.\n\n\nCode\nL1 = 1 # m\nL2 = 36 # in\nL2m = L2 * 0.0254 # converted to m\nprintln(\"L1 = $L1 m\")\nprintln(\"L2 = $L2m m\")\n\nfunction compare_lengths(l1, l2)\n    longer = (l1 &gt; l2) ? \"L1\" : \"L2\"\n    shorter = (l1 &gt; l2) ? \"L2\" : \"L1\"\n    println(\"$longer is longer than $shorter.\")\nend\n\ncompare_lengths(L1, L2m)\n\n\nL1 = 1 m\nL2 = 0.9144 m\nL1 is longer than L2."
   },
   {
     "objectID": "20261002-computational-question-review.html#required-exercise",
     "href": "20261002-computational-question-review.html#required-exercise",
-    "title": "Lesson 004: Review: describe a computational question",
-    "section": "3. Required exercise",
-    "text": "3. Required exercise\n\nDescribe a fictional aerospace question about comparing two durations in seconds.\n\nExample: Comparing the duration of two wind tunnel tests.\n\nState two input quantities, one requested output, and an assumption.\n\nInputs: distance, time\nOutput: average velocity\nAssumption: Assumed constant speed.\n\nWrite a clearly labeled output sentence with print.\nReproduce it after restarting the kernel.\n\n\n\nCode\nd = 3000 # m\nt = 60 # s\n\nfunction average_velocity(d, t)\n    return d / t\nend\n\nv = average_velocity(d, t)\n\nprintln(\"The average velocity is $v m/s\")\n\n\nThe average velocity is 50.0 m/s"
+    "title": "Review: describe a computational question",
+    "section": "",
+    "text": "Describe a fictional aerospace question about comparing two durations in seconds.\n\nExample: Comparing the duration of two wind tunnel tests.\n\nState two input quantities, one requested output, and an assumption.\n\nInputs: distance, time\nOutput: average velocity\nAssumption: Assumed constant speed.\n\nWrite a clearly labeled output sentence with print.\nReproduce it after restarting the kernel.\n\n\n\nCode\nd = 3000 # m\nt = 60 # s\n\nfunction average_velocity(d, t)\n    return d / t\nend\n\nv = average_velocity(d, t)\n\nprintln(\"The average velocity is $v m/s\")\n\n\nThe average velocity is 50.0 m/s"
   },
   {
     "objectID": "20261002-computational-question-review.html#checks-and-interpretation",
     "href": "20261002-computational-question-review.html#checks-and-interpretation",
-    "title": "Lesson 004: Review: describe a computational question",
-    "section": "4. Checks and interpretation",
-    "text": "4. Checks and interpretation\nInputs and output are distinct; both inputs carry consistent units; the assumption is explicit; the notebook reproduces its output. This reviews orientation, not evidence of mastery of later mathematics.\nWrite why each check is appropriate. Use only taught constructs; plain calculations and written checks are sufficient.\n\n\nCode\nfunction pressure_positivity(p)\n    index = 1\n    for pressure in p\n        if pressure &lt;= 0.0\n            error(\"The pressure is non-positive at index $index. Exiting.\")\n        end\n        index += 1\n    end\nend\n\npressures = [1, 2, 3, 5, 8, 10, 7, 6, 3, 2, 1, 0]\n\npressure_positivity(pressures)\n\n\nErrorException: The pressure is non-positive at index 12. Exiting.\nThe pressure is non-positive at index 12. Exiting.\n\n\n\nStacktrace:\n\n [1] error(s::String)\n\n   @ Base ./error.jl:44\n\n [2] pressure_positivity(p::Vector{Int64})\n\n   @ Main ~/Code/Projects/daily-learning/jl_notebook_cell_df34fa98e69747e1a8f8a730347b8e2f_X12sZmlsZQ==.jl:5\n\n [3] top-level scope\n\n   @ ~/Code/Projects/daily-learning/jl_notebook_cell_df34fa98e69747e1a8f8a730347b8e2f_X12sZmlsZQ==.jl:13"
+    "title": "Review: describe a computational question",
+    "section": "",
+    "text": "Inputs and output are distinct; both inputs carry consistent units; the assumption is explicit; the notebook reproduces its output. This reviews orientation, not evidence of mastery of later mathematics.\nWrite why each check is appropriate. Use only taught constructs; plain calculations and written checks are sufficient.\n\n\nCode\nfunction pressure_positivity(p)\n    index = 1\n    for pressure in p\n        if pressure &lt;= 0.0\n            error(\"The pressure is non-positive at index $index. Exiting.\")\n        end\n        index += 1\n    end\nend\n\npressures = [1, 2, 3, 5, 8, 10, 7, 6, 3, 2, 1, 0]\n\npressure_positivity(pressures)\n\n\nErrorException: The pressure is non-positive at index 12. Exiting.\nThe pressure is non-positive at index 12. Exiting.\n\n\n\nStacktrace:\n\n [1] error(s::String)\n\n   @ Base ./error.jl:44\n\n [2] pressure_positivity(p::Vector{Int64})\n\n   @ Main ~/Code/Projects/daily-learning/jl_notebook_cell_df34fa98e69747e1a8f8a730347b8e2f_X12sZmlsZQ==.jl:5\n\n [3] top-level scope\n\n   @ ~/Code/Projects/daily-learning/jl_notebook_cell_df34fa98e69747e1a8f8a730347b8e2f_X12sZmlsZQ==.jl:13"
   },
   {
     "objectID": "20261002-computational-question-review.html#reflection",
     "href": "20261002-computational-question-review.html#reflection",
-    "title": "Lesson 004: Review: describe a computational question",
-    "section": "5. Reflection",
-    "text": "5. Reflection\nWhat does the result mean? Which assumption limits the model? Which earlier idea did you reuse?\n\n\nCode\n# Nothing to do here today"
+    "title": "Review: describe a computational question",
+    "section": "",
+    "text": "What does the result mean? Which assumption limits the model? Which earlier idea did you reuse?\n\n\nCode\n# Nothing to do here today"
   },
   {
     "objectID": "20261002-computational-question-review.html#optional-stretch",
     "href": "20261002-computational-question-review.html#optional-stretch",
-    "title": "Lesson 004: Review: describe a computational question",
-    "section": "6. Optional stretch",
-    "text": "6. Optional stretch\nGive an example where different input units prevent an immediate numerical comparison.\n\n\nCode\n# Nothing here today"
+    "title": "Review: describe a computational question",
+    "section": "",
+    "text": "Give an example where different input units prevent an immediate numerical comparison.\n\n\nCode\n# Nothing here today"
   },
   {
     "objectID": "20261002-computational-question-review.html#reading-and-continuity",
     "href": "20261002-computational-question-review.html#reading-and-continuity",
-    "title": "Lesson 004: Review: describe a computational question",
-    "section": "7. Reading and continuity",
-    "text": "7. Reading and continuity\nRequired reading: explanation and worked example above. Optional accessible background: OpenStax Algebra and Trigonometry 2e and Python introductory tutorial. Read only the relevant arithmetic/function material, not advanced sections.\nCurriculum: CSE-Aerospace-Course-Plan.md. Next: Lesson 005. This historical rebuild contains no invented dated news brief."
+    "title": "Review: describe a computational question",
+    "section": "",
+    "text": "Required reading: explanation and worked example above. Optional accessible background: OpenStax Algebra and Trigonometry 2e and Python introductory tutorial. Read only the relevant arithmetic/function material, not advanced sections.\nCurriculum: CSE-Aerospace-Course-Plan.md. Next: Lesson 005. This historical rebuild contains no invented dated news brief."
   },
   {
     "objectID": "problem-template.html",
