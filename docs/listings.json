@@ -2,6 +2,9 @@
   {
     "listing": "/index.html",
     "items": [
+      "/20261028-simple-conditionals.html",
+      "/20261027-comparisons-booleans.html",
+      "/20261026-input-domains.html",
       "/20261022-flight-segment-comparison.html",
       "/20261021-scientific-notation.html",
       "/20261020-percent-changes.html",

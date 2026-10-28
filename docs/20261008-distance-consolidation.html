@@ -164,8 +164,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         </div>
       </div>
                           <div class="quarto-categories">
-                <div class="quarto-category">CSE foundations</div>
-                <div class="quarto-category">aerospace</div>
+                <div class="quarto-category">Programming</div>
+                <div class="quarto-category">Julia</div>
+                <div class="quarto-category">Units</div>
               </div>
                   </div>
   </div>
@@ -217,27 +218,67 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h1>Lesson 008: Consolidation - speed, time and distance</h1>
 <p><strong>Learning goal:</strong> Consolidation - speed, time and distance.</p>
 <p><strong>Prerequisites:</strong> Lessons 5-7.</p>
-<p><strong>Time:</strong> 15-30 minutes. <strong>Status:</strong> assigned; completion and mastery not assessed.</p>
-<p>Rebuilt October 15, 2026. The filename date retains the original assignment date. This replaces the old advanced exercise in the active course; old files remain optional archive material.</p>
+<p><strong>Time:</strong> 15-30 minutes. <strong>Status:</strong> assigned</p>
 <section id="concept-and-notation" class="level2">
 <h2 class="anchored" data-anchor-id="concept-and-notation">1. Concept and notation</h2>
 <p>Combine taught arithmetic, units and variables. A supplied model d=v*t assumes constant speed in each segment; it does not describe acceleration or a real aircraft performance envelope.</p>
-<div id="322816cd" class="cell">
+<div id="322816cd" class="cell" data-execution_count="21">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Read the explanation before writing exercise code.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">printlnmd</span>(line)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">display</span>(<span class="st">"text/markdown"</span>, line)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> Segment</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    v</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    t</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    d</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">function</span> <span class="fu">Segment</span>(v, t)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>        d <span class="op">=</span> v<span class="op">*</span>t</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>        <span class="fu">new</span>(v, t, d)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">end</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> Trip</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    segments</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    tt</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    td</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    vbar</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    <span class="kw">function</span> <span class="fu">Trip</span>(segments)</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>        total_time <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> segment <span class="kw">in</span> segments</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>            total_time <span class="op">+=</span> segment.t</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>        <span class="cf">end</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>        total_distance <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> segment <span class="kw">in</span> segments</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>            total_distance <span class="op">+=</span> segment.d</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>        <span class="cf">end</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>        average_time <span class="op">=</span> total_distance<span class="op">/</span>total_time</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>        <span class="fu">new</span>(segments, total_time, total_distance, average_time)</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>    <span class="kw">end</span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 </section>
 <section id="worked-example-different-from-the-exercise" class="level2">
 <h2 class="anchored" data-anchor-id="worked-example-different-from-the-exercise">2. Worked example (different from the exercise)</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>Two segments at <span class="dv">5</span> m<span class="op">/</span>s <span class="cf">for</span> <span class="dv">2</span> s <span class="kw">and</span> <span class="dv">10</span> m<span class="op">/</span>s <span class="cf">for</span> <span class="dv">3</span> s cover <span class="dv">10</span><span class="op">+</span><span class="dv">30</span><span class="op">=</span><span class="dv">40</span> m.</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Explain the example in words before proceeding.</p>
-<div id="60c8b216" class="cell">
+<p>Two segments at 5 m/s for 2 s and 10 m/s for 3 s cover 10+30=40 m.</p>
+<div id="60c8b216" class="cell" data-execution_count="22">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Optional: reproduce the separate worked example here.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>segment1 <span class="op">=</span> <span class="fu">Segment</span>(<span class="fl">5</span>, <span class="fl">2</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>segment2 <span class="op">=</span> <span class="fu">Segment</span>(<span class="fl">10</span>, <span class="fl">3</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>trip <span class="op">=</span> <span class="fu">Trip</span>([segment1, segment2])</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="fu">printlnmd</span>(<span class="st">"The total distance covered is \$ </span><span class="sc">$</span>(trip.td)<span class="sc">\\</span><span class="st">left[m</span><span class="sc">\\</span><span class="st">right]\$"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
+<div class="cell-output cell-output-display cell-output-markdown">
+<p>The total distance covered is $ 40.0$</p>
+</div>
 </div>
 </section>
 <section id="required-exercise" class="level2">
@@ -246,44 +287,74 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>Model a fictional vehicle traveling 10 m/s for 4 s, then 15 m/s for 6 s.</li>
 <li>Compute each distance, total distance and total time.</li>
 <li>Compute trip-average speed as total distance divided by total time.</li>
-<li>Explain why the arithmetic mean of the two speeds is generally different.</li>
 </ol>
-<div id="e93e2c60" class="cell">
+<div id="e93e2c60" class="cell" data-execution_count="23">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: named inputs, two distances, totals, average, and units.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>segment1 <span class="op">=</span> <span class="fu">Segment</span>(<span class="fl">10.0</span>, <span class="fl">4.0</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">printlnmd</span>(<span class="st">"The total distance traveled in segment 1 is \$ </span><span class="sc">$</span>(segment1.d)<span class="st"> </span><span class="sc">\\</span><span class="st">left[m</span><span class="sc">\\</span><span class="st">right]\$"</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>segment2 <span class="op">=</span> <span class="fu">Segment</span>(<span class="fl">15.0</span>, <span class="fl">6.0</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="fu">printlnmd</span>(<span class="st">"The total distance traveled in segment 2 is \$ </span><span class="sc">$</span>(segment2.d)<span class="st"> </span><span class="sc">\\</span><span class="st">left[m</span><span class="sc">\\</span><span class="st">right]\$"</span>)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>trip <span class="op">=</span> <span class="fu">Trip</span>([segment1, segment2])</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="fu">printlnmd</span>(<span class="st">"The total distance traveled during the trip is \$ </span><span class="sc">$</span>(trip.td)<span class="st"> </span><span class="sc">\\</span><span class="st">left[m</span><span class="sc">\\</span><span class="st">right]\$"</span>)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="fu">printlnmd</span>(<span class="st">"The total time traveled during the trip is \$ </span><span class="sc">$</span>(trip.tt)<span class="st"> </span><span class="sc">\\</span><span class="st">left[s</span><span class="sc">\\</span><span class="st">right]\$"</span>)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="fu">printlnmd</span>(<span class="st">"The average speed traveled during the trip is \$ </span><span class="sc">$</span>(trip.vbar)<span class="st"> </span><span class="sc">\\</span><span class="st">left[m/s</span><span class="sc">\\</span><span class="st">right]\$"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
+<div class="cell-output cell-output-display cell-output-markdown">
+<p>The total distance traveled in segment 1 is $ 40.0 $</p>
+</div>
+<div class="cell-output cell-output-display cell-output-markdown">
+<p>The total distance traveled in segment 2 is $ 90.0 $</p>
+</div>
+<div class="cell-output cell-output-display cell-output-markdown">
+<p>The total distance traveled during the trip is $ 130.0 $</p>
+</div>
+<div class="cell-output cell-output-display cell-output-markdown">
+<p>The total time traveled during the trip is $ 10.0 $</p>
+</div>
+<div class="cell-output cell-output-display cell-output-markdown">
+<p>The average speed traveled during the trip is $ 13.0 $</p>
+</div>
 </div>
 </section>
 <section id="checks-and-interpretation" class="level2">
 <h2 class="anchored" data-anchor-id="checks-and-interpretation">4. Checks and interpretation</h2>
-<p>Both segment units cancel correctly; total distance equals the sum; average speed multiplied by total duration recovers total distance.</p>
-<p>Write why each check is appropriate. Use only taught constructs; plain calculations and written checks are sufficient.</p>
-<div id="a5671bf4" class="cell">
+<div id="a5671bf4" class="cell" data-execution_count="24">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: checks and written interpretation.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Nothing to do here today</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 </section>
 <section id="reflection" class="level2">
 <h2 class="anchored" data-anchor-id="reflection">5. Reflection</h2>
 <p>What does the result mean? Which assumption limits the model? Which earlier idea did you reuse?</p>
-<div id="8c059e24" class="cell">
+<div id="8c059e24" class="cell" data-execution_count="25">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: your reflection; no advance solution is supplied.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Nothing to do here today</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 </section>
 <section id="optional-stretch" class="level2">
 <h2 class="anchored" data-anchor-id="optional-stretch">6. Optional stretch</h2>
 <p>Make segment durations equal and compare the two averages.</p>
-<div id="0e581695" class="cell">
+<div id="0e581695" class="cell" data-execution_count="26">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: optional stretch after core work.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>trip2 <span class="op">=</span> <span class="fu">Trip</span>([<span class="fu">Segment</span>(<span class="fl">10</span>, <span class="fl">4</span>), <span class="fu">Segment</span>(<span class="fl">15</span>, <span class="fl">4</span>)])</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>vbare <span class="op">=</span> <span class="fu">abs</span>(trip.vbar <span class="op">-</span> trip2.vbar)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="fu">printlnmd</span>(<span class="st">"The average speed for different durations is \$ </span><span class="sc">$</span>(trip.vbar)<span class="st"> </span><span class="sc">\\</span><span class="st">left[m/s</span><span class="sc">\\</span><span class="st">right]\$</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>                              and the same duration is <span class="op">\$</span> <span class="op">$</span>(trip2.vbar) <span class="op">\\</span>left[m<span class="op">/</span>s<span class="op">\\</span>right]<span class="op">\$</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>                              There is a difference of <span class="op">\$</span> <span class="op">$</span>vbare <span class="op">\\</span>left[m<span class="op">/</span>s<span class="op">\\</span>right]<span class="op">\$</span> between the two.<span class="st">")</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
+<div class="cell-output cell-output-display cell-output-markdown">
+<p>The average speed for different durations is $ 13.0 $ and the same duration is $ 12.5 $ There is a difference of $ 0.5 $ between the two.</p>
+</div>
 </div>
 </section>
 <section id="reading-and-continuity" class="level2">
